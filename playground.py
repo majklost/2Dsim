@@ -2,21 +2,26 @@ import pygame
 import pymunk
 import pymunk.pygame_util
 import math
+from staticLocalPlanner import LocalPlanner
+
 
 class Rotator():
-    def __init__(self, x=400,y=400,r=50, btype=pymunk.Body.DYNAMIC):
+    def __init__(self, x=400, y=400, r=50, btype=pymunk.Body.DYNAMIC):
         self.body = pymunk.Body(1, 100, body_type=btype)
         self.body.angular_velocity = 5
         self.body.position = x, y
         self.shape = pymunk.Circle(self.body, r)
-    def add(self, space):
+
+    def add(self, space: pymunk.Space):
         space.add(self.body, self.shape)
+
 
 class Block():
     def __init__(self, x=450, y=400, w=700, h=100):
         self.body = pymunk.Body(1, 100, body_type=pymunk.Body.STATIC)
-        self.body.position = x,y
+        self.body.position = x, y
         self.shape = pymunk.Poly.create_box(self.body, (w, h))
+
     def add(self, space):
         space.add(self.body, self.shape)
 
@@ -57,8 +62,11 @@ def game():
     block = Block()
     block.add(space)
 
-    block2 = Block(350,600)
+    block2 = Block(350, 600)
     block2.add(space)
+
+    lp = LocalPlanner(space)
+    lp.list_bodies()
 
     while running:
         for event in pygame.event.get():
