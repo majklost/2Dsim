@@ -1,5 +1,5 @@
 ## What to do
-- [ ] write local planner for static scene
+- [x] write local planner for static scene
   - [x] find how to check collision between two kinematics objects
 - [ ] prepare some template pipeline for quick experiments not to reinvent wheel
 - [ ] write RRT for static scene

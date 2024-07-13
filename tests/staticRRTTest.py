@@ -1,13 +1,11 @@
-# simple scene for checking if local planner can connect two points by line
-# and if it can find that it reached obstacle
-# also tries to render the paths and nodes
+# Try RRT on some easy environment
 import pygame
 import pymunk
 import pymunk.pygame_util
-from RRTNode import RRTNode
-
-
 from staticLocalPlanner import LocalPlanner
+from RRT import RRT
+from RRTNode import RRTNode
+from tree_rendering import TreeRenderer
 
 
 class Agent:
@@ -22,14 +20,12 @@ class Agent:
         space.add(self.body, self.shape)
 
 
-class Obstacle:
-    def __init__(self, x, y, w, h):
+class Block:
+    def __init__(self, x=450, y=400, w=700, h=100):
         self.body = pymunk.Body(1, 100, body_type=pymunk.Body.STATIC)
         self.body.position = x, y
         self.shape = pymunk.Poly.create_box(self.body, (w, h))
         self.shape.color = pygame.Color("red")
-
-
 
     def add(self, space):
         space.add(self.body, self.shape)
@@ -38,10 +34,9 @@ class Obstacle:
 def render_goal(display, goal):
     pygame.draw.circle(display, (0, 255, 0), (goal.x,goal.y), 10)
 
+
 def game():
-    GOAL1 = RRTNode(50, 700,0) #the blocked one
-    GOAL2 = RRTNode(700, 50,0) # free one
-    START = RRTNode(50, 90,0)
+    GOAL = RRTNode(400, 50,0)
     pygame.init()
     # basics
     display = pygame.display.set_mode((800, 800))
@@ -54,40 +49,49 @@ def game():
     draw_options = pymunk.pygame_util.DrawOptions(display)
 
     # objects
-    agent = Agent(50, 90)
-    agent.shape.data = "agent"
+    agent = Agent(50, 750)
     agent.add(space)
 
-    obstacle = Obstacle(200, 130, 400, 20)
-    obstacle.shape.data = "obstacle"
-    # obstacle.body.angle = 0.5
-    obstacle.add(space)
 
-    # local planner
+    block = Block()
+    block.add(space)
+
+    block2 = Block(350, 600)
+    block2.add(space)
+
+    # totalBlock = Block(400,200,800,20)
+    # totalBlock.add(space)
+
 
     lp = LocalPlanner(space, agent.shape)
+    rrt = RRT(800,800,0, lp)
+    start = LocalPlanner.node_from_shape(agent.shape)
+    path = rrt.find_path(start, GOAL)
+    verts = rrt.get_verts()
+    print(len(verts))
 
-    # lp.check_path(agent.shape, Agent(GOAL1[0], GOAL1[1]).shape)
-    # lp.check_path(agent.shape, Agent(GOAL2[0], GOAL2[1]).shape)
-    # newStart = agent.shape.copy()
-    # newStart.body.position = 50, 600
-    # newStart.body.angle = 0
-    # lp.check_path(newStart, Agent(GOAL1[0], GOAL1[1]).shape)
-    lp.check_path(START, GOAL2)
+    tree_renderer = TreeRenderer(verts)
+
+
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                pygame.quit()
+                quit()
 
         display.fill((255, 255, 255))
+        tree_renderer.render(display,pygame.time.get_ticks())
+        tree_renderer.render_path(display)
         space.debug_draw(draw_options)
-        render_goal(display, GOAL1)
-        render_goal(display, GOAL2)
+        render_goal(display, GOAL)
+        space.step(1 / FPS)
+
+
         pygame.display.update()
         clock.tick(FPS)
 
-    pygame.quit()
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     game()

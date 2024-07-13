@@ -2,7 +2,7 @@ import pygame
 import pymunk
 import pymunk.pygame_util
 import math
-from staticLocalPlanner import LocalPlanner
+
 
 
 class Rotator():
@@ -64,9 +64,6 @@ def game():
 
     block2 = Block(350, 600)
     block2.add(space)
-
-    lp = LocalPlanner(space)
-    lp.list_bodies()
 
     while running:
         for event in pygame.event.get():

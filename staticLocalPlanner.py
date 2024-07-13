@@ -1,52 +1,61 @@
-#this should yield new nodes to RRT
+# this should yield new nodes to RRT
 # we give initial position and goal position to it, planner tries to morph between these two
 # if it encounters an obstacle, it stops
 # during the process, it adds new nodes to the tree
-import pymunk  #uses pymunk for checking validity of path
+import pymunk  # uses pymunk for checking validity of path
+from pymunk import Vec2d
+from RRTNode import RRTNode
+from typing import List
 
 
 class LocalPlanner:
-    def __init__(self, space: pymunk.Space, agent: pymunk.Shape, goal: pymunk.Shape):
+    def __init__(self, space: pymunk.Space, shape: pymunk.Shape):
         self.space = space
-        #set filtering so that agent does not collide with itself
-        agent.filter = pymunk.ShapeFilter(group=1)
-        # agent.body.data = "test"
-        self.agent = agent.copy()
-        self.agent.sensor = True
-        self.goal = goal
+        self.shape = shape
         # self.gap = gap
         print("Local planner initialized")
 
-    def _query(self):
-        print("Querying local planner")
-        print("-" * 20)
-        print(self.space.shape_query(self.agent))
-        print("-" * 20)
-        self.check_path()
+    @staticmethod
+    def extend_checkpoints(start: RRTNode, checkpoints: List[RRTNode], pos: Vec2d, angle):
+        if len(checkpoints) == 0:
+            checkpoints.append(RRTNode(pos.x, pos.y, angle, start))
+        else:
+            checkpoints.append(RRTNode(pos.x, pos.y, angle, checkpoints[-1]))
 
-    def check_path(self):
-        # TODO rewrite to trying this directly in simulation if slow or reduce number of checks
+    def check_path(self, start: RRTNode, goal: RRTNode) -> List[RRTNode]:
+        blocked = False
+
+        old_pos = self.shape.body.position
+        old_angle = self.shape.body.angle
+        # print(f"Old pos: {old_pos}")
         checkpoints = []
-        direction = self.goal.body.position - self.agent.body.position
-        angle_morph = self.goal.body.angle - self.agent.body.angle
-        num_steps = max(int(direction.get_length_sqrd()/1000),100)
+        direction = goal.x - start.x, goal.y - start.y
+        angle_morph = goal.angle - start.angle
+        num_steps = max(int((direction[0] ** 2 + direction[1] ** 2) / 1000), 100)
         angle_step = angle_morph / num_steps
-        print(f"Num steps: {num_steps}")
+        # print(f"Num steps: {num_steps}")
+        # print(f"Angle morph: {angle_morph}")
         for i in range(num_steps):
-
-
-            self.agent.body.position += direction / num_steps
-            self.agent.body.angle += angle_step
-            if self.space.shape_query(self.agent):
-                print("Path blocked")
-                print(checkpoints)
-                return checkpoints
+            self.shape.body.position = start.x + direction[0] * i / num_steps, start.y + direction[1] * i / num_steps
+            self.shape.body.angle = start.angle + angle_step * i
+            if self.space.shape_query(self.shape):
+                # print("Path blocked")
+                blocked = True
+                break
             if i % 20 == 0 and i != 0:
-                checkpoints.append((self.agent.body.position,self.agent.body.angle))
-        print("Path clear")
-        print(checkpoints)
+                self.extend_checkpoints(start, checkpoints, self.shape.body.position, self.shape.body.angle)
+        # if not blocked:
+        #     print("Path clear")
+        # print(checkpoints)
+        self.shape.body.angle = old_angle
+        self.shape.body.position = old_pos
+        self.space.reindex_shape(self.shape)
         return checkpoints
 
     def list_bodies(self):
         for b in self.space.bodies:
             print(b)
+
+    @classmethod
+    def node_from_shape(cls, shape: pymunk.Shape):
+        return RRTNode(shape.body.position.x, shape.body.position.y, shape.body.angle, None)
