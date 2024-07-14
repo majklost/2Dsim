@@ -6,6 +6,8 @@ from staticLocalPlanner import LocalPlanner
 from RRT import RRT
 from RRTNode import RRTNode
 from tree_rendering import TreeRenderer
+import math
+import time
 
 
 class Agent:
@@ -64,10 +66,14 @@ def game():
 
 
     lp = LocalPlanner(space, agent.shape)
-    rrt = RRT(800,800,0, lp)
+    # rrt = RRT(800,800,math.pi*2, lp)
+    rrt = RRT(800, 800, math.pi*2, lp)
     start = LocalPlanner.node_from_shape(agent.shape)
+    st = time.time()
     path = rrt.find_path(start, GOAL)
-    verts = rrt.get_verts()
+    print("Time taken: ", time.time()-st)
+    verts = sorted(list(rrt.get_verts()), key=lambda x: x.added_cnt)
+
     print(len(verts))
 
     tree_renderer = TreeRenderer(verts)

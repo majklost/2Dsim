@@ -10,6 +10,13 @@ class Node:
         self.point = point
         self.left = None
         self.right = None
+    def __iter__(self):
+        if self.left:
+            yield from self.left
+        yield self.point
+        if self.right:
+            yield from self.right
+
 
 
 # Inserts a new node and returns root of modified tree
@@ -70,8 +77,48 @@ def _searchRec(root, point, depth):
     return _searchRec(root.right, point, depth + 1)
 
 
+def distancefnc(point1, point2):
+    return ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2 + (point1[2] - point2[2]) ** 2) ** 0.5
+
+
+def _nearestNeighbourRec(root, point, depth=0, distancefnc=distancefnc, best_dist=float('inf'), best_node=None):
+    if root is None:
+        return best_node, best_dist
+    cd = depth % k
+    #cur dist to current node's point
+    current_dist = distancefnc(point, root.point)
+
+    if current_dist < best_dist:
+        best_dist = current_dist
+        best_node = root.point
+
+    #choose the branch that is closer to the point
+    if point[cd] < root.point[cd]:
+        next_branch = root.left
+        opposite_branch = root.right
+    else:
+        next_branch = root.right
+        opposite_branch = root.left
+
+    #recurse down the chosen branch
+    best_node, best_dist = _nearestNeighbourRec(next_branch, point, depth + 1, best_dist=best_dist, best_node=best_node)
+
+    #check if the other branch may have a closer point
+    if abs(point[cd] - root.point[cd]) < best_dist:
+        best_node, best_dist = _nearestNeighbourRec(opposite_branch, point, depth + 1, best_dist=best_dist,
+                                                best_node=best_node)
+
+    return best_node, best_dist
+
+def nearestNeighbour(root, point, depth=0, distancefnc=distancefnc, best_dist=float('inf'), best_node=None):
+    return _nearestNeighbourRec(root, point, depth, distancefnc, best_dist, best_node)[0]
+
+
 # Searches a Point in the K D tree. It mainly uses
 # searchRec()
 def search(root, point):
     # Pass current depth as 0
     return _searchRec(root, point, 0)
+
+
+
