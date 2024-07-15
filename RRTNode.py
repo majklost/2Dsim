@@ -17,6 +17,9 @@ class RRTNode:
     def __str__(self):
         return f"Node: {self.x}, {self.y}, {self.angle}"
 
+    def __sub__(self, other):
+        return self.x - other.x, self.y - other.y, self.angle - other.angle
+
     def __repr__(self):
         return self.__str__()
 

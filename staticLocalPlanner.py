@@ -36,6 +36,7 @@ class LocalPlanner:
             self.shape.body.position = start.x + direction[0] * i / num_steps, start.y + direction[1] * i / num_steps
             self.shape.body.angle = start.angle + angle_step * i
             if self.space.shape_query(self.shape):
+                # print("Obstacle encountered")
                 break
             if (i % 20 == 0 and i != 0) or i == num_steps - 1:
                 self.extend_checkpoints(start, checkpoints, self.shape.body.position, self.shape.body.angle)
@@ -43,6 +44,13 @@ class LocalPlanner:
         self.shape.body.position = old_pos
         self.space.reindex_shape(self.shape)
         return checkpoints
+    # def check_path(self,start: RRTNode, goal: RRTNode) -> List[RRTNode]:
+    #     old_pos = self.shape.body.position
+    #     old_angle = self.shape.body.angle
+    #     checkpoints = []
+    #     diff = goal.x - start.x, goal.y - start.y
+    #     direction = diff[0], diff[1]
+    #     angle_morph = diff[2]
 
     def list_bodies(self):
         for b in self.space.bodies:
