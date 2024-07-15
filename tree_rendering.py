@@ -10,12 +10,12 @@ class TreeRenderer:
         self.tick_time = tick_time
 
     def render(self,display,cur_time):
-        self.showMore(display,cur_time)
+        self.showMore(cur_time)
         for line in self.lines:
             pygame.draw.line(display, (0, 0, 0), line[0], line[1], 1)
 
     #add 100 more lines to render
-    def showMore(self,display,cur_time):
+    def showMore(self, cur_time):
         if cur_time - self.last_added_time < self.tick_time:
             return
 

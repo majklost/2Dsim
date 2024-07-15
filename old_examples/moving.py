@@ -5,16 +5,17 @@
 import pygame
 import pymunk
 from pymunk import pygame_util
+from pymunk import vec2d
 
-VEL = 600
+VEL = 600.0
 PLAYER_COLLISION_TYPE = 1
 STATIC_COLLISION_TYPE = 2
 
 
 class Player():
     def __init__(self):
-        self.body = pymunk.Body(1, 100)
-        self.body.body_type = pymunk.Body.KINEMATIC
+        self.body = pymunk.Body(1, 10)
+        self.body.body_type = pymunk.Body.DYNAMIC
         self.body.position = 0, 0
         self.shape = pymunk.Poly.create_box(self.body, (50, 50))
         self.acc = (0, 0)
@@ -24,18 +25,22 @@ class Player():
         space.add(self.body, self.shape)
 
     def move(self, keys):
-        cur_vel = (0, 0)
-        if keys[pygame.K_LEFT]:
-            cur_vel = (-VEL, 0)
-        if keys[pygame.K_RIGHT]:
-            cur_vel = (VEL, 0)
-        if keys[pygame.K_UP]:
-            cur_vel = (0, -VEL)
-        if keys[pygame.K_DOWN]:
-            cur_vel = (0, VEL)
+        cur_vel = [0, 0]
 
+        if keys[pygame.K_LEFT]:
+            cur_vel[0] = -VEL
+        if keys[pygame.K_RIGHT]:
+            cur_vel[0] = VEL
+        if keys[pygame.K_UP]:
+            cur_vel[1] = -VEL
+        if keys[pygame.K_DOWN]:
+            cur_vel[1] = VEL
+        print(type(VEL))
+        c=vec2d.Vec2d(cur_vel[0], cur_vel[1])
+        goodC = c.rotated(-self.body.angle)
+        self.body.apply_force_at_local_point(goodC, (0, 0))
         # self.body.velocity += self.acc
-        self.body.velocity = cur_vel
+        # self.body.velocity = cur_vel
 
 
 class StaticO():
@@ -65,7 +70,7 @@ class KinematicO():
 
 def test_col_fnc(arbiter, space, data):
     print("pre solve")
-    return False
+    return True
 
 
 def game():

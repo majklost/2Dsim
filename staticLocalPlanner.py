@@ -7,12 +7,11 @@ from pymunk import Vec2d
 from RRTNode import RRTNode
 from typing import List
 
-
+#TODO outsource granularity of checkpoint creation and num steps
 class LocalPlanner:
     def __init__(self, space: pymunk.Space, shape: pymunk.Shape):
         self.space = space
         self.shape = shape
-        # self.gap = gap
         print("Local planner initialized")
 
     @staticmethod
@@ -23,8 +22,6 @@ class LocalPlanner:
             checkpoints.append(RRTNode(pos.x, pos.y, angle, checkpoints[-1]))
 
     def check_path(self, start: RRTNode, goal: RRTNode) -> List[RRTNode]:
-        blocked = False
-
         old_pos = self.shape.body.position
         old_angle = self.shape.body.angle
         # print(f"Old pos: {old_pos}")
@@ -39,14 +36,9 @@ class LocalPlanner:
             self.shape.body.position = start.x + direction[0] * i / num_steps, start.y + direction[1] * i / num_steps
             self.shape.body.angle = start.angle + angle_step * i
             if self.space.shape_query(self.shape):
-                # print("Path blocked")
-                blocked = True
                 break
-            if i % 20 == 0 and i != 0:
+            if (i % 20 == 0 and i != 0) or i == num_steps - 1:
                 self.extend_checkpoints(start, checkpoints, self.shape.body.position, self.shape.body.angle)
-        # if not blocked:
-        #     print("Path clear")
-        # print(checkpoints)
         self.shape.body.angle = old_angle
         self.shape.body.position = old_pos
         self.space.reindex_shape(self.shape)
@@ -56,6 +48,8 @@ class LocalPlanner:
         for b in self.space.bodies:
             print(b)
 
-    @classmethod
-    def node_from_shape(cls, shape: pymunk.Shape):
+    @staticmethod
+    def node_from_shape( shape: pymunk.Shape):
         return RRTNode(shape.body.position.x, shape.body.position.y, shape.body.angle, None)
+
+

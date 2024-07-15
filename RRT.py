@@ -2,7 +2,6 @@ from kd_tree import Node, insert, nearestNeighbour
 
 #not written so generally will need refactoring
 #TODO refactor to be more general
-#TODO use KD-tree
 import random
 from staticLocalPlanner import LocalPlanner
 from RRTNode import RRTNode
@@ -10,17 +9,18 @@ from RRTNode import RRTNode
 
 class RRT:
     def __init__(self, xMax,yMax,angleMax, local_planner: LocalPlanner,near_radius=10):
-        # random.seed(10)
+        random.seed(10)
         self.xMax = xMax
         self.yMax = yMax
         self.angleMax = angleMax
         self.local_planner = local_planner
         self.vertTree = None
         self.node_cnt = 0
-
+        self.last = None
         self.near_radius = near_radius
 
-    def dist(self, a:RRTNode, b:RRTNode):
+    @staticmethod
+    def dist(a:RRTNode, b:RRTNode):
         return ((a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.angle - b.angle) ** 2) ** 0.5
 
     def rand_conf(self) -> RRTNode:
@@ -35,8 +35,13 @@ class RRT:
             self.node_cnt += 1
             self.vertTree = insert(self.vertTree, n)
             if self.dist(n, goal) < self.near_radius:
-                print("Goal reached")
-                return True
+                ls = self.local_planner.check_path(n, goal)
+                if ls[-1] == goal:
+                    # self.last = ls[-1]
+                    goal.parent = n
+                    self.last = goal
+                    print("Goal reached")
+                    return True
 
         return False
 
@@ -45,15 +50,22 @@ class RRT:
         self.vertTree = Node(start)
         for i in range(iters):
             q_rand = self.rand_conf()
-            q_near = nearestNeighbour(self.vertTree, q_rand)
+            q_near = nearestNeighbour(self.vertTree, q_rand,distancefnc=self.dist)
             checkpoints = self.local_planner.check_path(q_near, q_rand)
             if self.check_n_add(checkpoints, goal):
-                return self.get_verts()
+                return self.get_path()
             if i % 100 == 0:
                 print(f"Iteration {i}")
         print("Goal not reached")
-        return self.get_verts()
+        return []
 
+    def get_path(self):
+        path = []
+        goal = self.last
+        while goal.parent is not None:
+            path.append(goal)
+            goal = goal.parent
+        return list(reversed(path))
 
     def get_verts(self):
         return self.vertTree

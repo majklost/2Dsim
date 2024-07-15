@@ -77,11 +77,10 @@ def _searchRec(root, point, depth):
     return _searchRec(root.right, point, depth + 1)
 
 
-def distancefnc(point1, point2):
-    return ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2 + (point1[2] - point2[2]) ** 2) ** 0.5
 
 
-def _nearestNeighbourRec(root, point, depth=0, distancefnc=distancefnc, best_dist=float('inf'), best_node=None):
+
+def _nearestNeighbourRec(root, point, distancefnc,depth=0, best_dist=float('inf'), best_node=None):
     if root is None:
         return best_node, best_dist
     cd = depth % k
@@ -101,17 +100,17 @@ def _nearestNeighbourRec(root, point, depth=0, distancefnc=distancefnc, best_dis
         opposite_branch = root.left
 
     #recurse down the chosen branch
-    best_node, best_dist = _nearestNeighbourRec(next_branch, point, depth + 1, best_dist=best_dist, best_node=best_node)
+    best_node, best_dist = _nearestNeighbourRec(next_branch, point,distancefnc, depth + 1, best_dist=best_dist, best_node=best_node)
 
     #check if the other branch may have a closer point
     if abs(point[cd] - root.point[cd]) < best_dist:
-        best_node, best_dist = _nearestNeighbourRec(opposite_branch, point, depth + 1, best_dist=best_dist,
+        best_node, best_dist = _nearestNeighbourRec(opposite_branch, point,distancefnc, depth + 1, best_dist=best_dist,
                                                 best_node=best_node)
 
     return best_node, best_dist
 
-def nearestNeighbour(root, point, depth=0, distancefnc=distancefnc, best_dist=float('inf'), best_node=None):
-    return _nearestNeighbourRec(root, point, depth, distancefnc, best_dist, best_node)[0]
+def nearestNeighbour(root, point, distancefnc):
+    return _nearestNeighbourRec(root, point, distancefnc)[0]
 
 
 # Searches a Point in the K D tree. It mainly uses
