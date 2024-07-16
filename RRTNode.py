@@ -3,6 +3,10 @@
 from math import isclose
 
 CLOSE = 1e-1
+
+
+
+
 class RRTNode:
     def __init__(self, x, y, angle, parent=None, added_cnt=0):
         self.x = x
@@ -38,3 +42,30 @@ class RRTNode:
 
     def get_comparable_point(self):
         return self.x, self.y, self.angle
+
+
+class RRTNodeSim(RRTNode):
+    def __init__(self):
+        pass
+
+
+class RRTNodeCalc(RRTNode):
+    def __init__(self, x, y, angle, time, parent=None,added_cnt=0):
+        super().__init__(x, y, angle, parent, added_cnt)
+        self.time = time
+
+    def __getitem__(self, index):
+        if index == 0:
+            return self.x
+        elif index == 1:
+            return self.y
+        elif index == 2:
+            return self.angle
+        elif index == 3:
+            return self.time
+        else:
+            raise IndexError("Index out of bounds")
+    def __str__(self):
+        return f"Node: {self.x}, {self.y}, {self.angle}, {self.time}"
+    def __repr__(self):
+        return self.__str__()

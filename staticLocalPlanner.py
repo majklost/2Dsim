@@ -6,7 +6,6 @@ import pymunk  # uses pymunk for checking validity of path
 from pymunk import Vec2d
 from RRTNode import RRTNode
 from typing import List
-
 #TODO outsource granularity of checkpoint creation and num steps
 class LocalPlanner:
     def __init__(self, space: pymunk.Space, shape: pymunk.Shape):
@@ -14,7 +13,7 @@ class LocalPlanner:
         self.shape = shape
         print("Local planner initialized")
 
-    @staticmethod
+    @staticmethod# self.space.copy()
     def extend_checkpoints(start: RRTNode, checkpoints: List[RRTNode], pos: Vec2d, angle):
         if len(checkpoints) == 0:
             checkpoints.append(RRTNode(pos.x, pos.y, angle, start))
@@ -35,6 +34,7 @@ class LocalPlanner:
         for i in range(num_steps):
             self.shape.body.position = start.x + direction[0] * i / num_steps, start.y + direction[1] * i / num_steps
             self.shape.body.angle = start.angle + angle_step * i
+            self.space.reindex_shape(self.shape)
             if self.space.shape_query(self.shape):
                 # print("Obstacle encountered")
                 break

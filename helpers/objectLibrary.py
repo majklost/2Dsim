@@ -8,6 +8,8 @@ class AbstractObj:
     def add(self, space: pymunk.Space):
         space.add(self.body, self.shape)
 
+    def set_body_type(self, body_type):
+        self.body.body_type = body_type
 
 class Agent(AbstractObj):
     def __init__(self, x, y,w=10,h=100, angle=0):
@@ -25,3 +27,12 @@ class Obstacle(AbstractObj):
         self.shape.color = pygame.Color("red")
         self.shape.collision_type = 2
 
+class Cross(AbstractObj):
+    def __init__(self,x,y,w,av):
+        super().__init__(x,y,pymunk.Body.KINEMATIC)
+        self.body.angular_velocity = av
+        self.shape1 = pymunk.Segment(self.body, (-w, 0), (w, 0), 10)
+        self.shape2 = pymunk.Segment(self.body, (0, -w), (0, w), 10)
+
+    def add(self, space: pymunk.Space):
+        space.add(self.body, self.shape1, self.shape2)

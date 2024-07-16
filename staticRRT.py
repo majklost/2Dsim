@@ -1,4 +1,4 @@
-from kd_tree import Node, insert, nearestNeighbour
+from kd_tree import KD_Tree,Node
 
 #not written so generally will need refactoring
 #TODO refactor to be more general
@@ -33,7 +33,7 @@ class RRT:
             #for pretty rendering only
             n.added_cnt = self.node_cnt
             self.node_cnt += 1
-            self.vertTree = insert(self.vertTree, n)
+            self.vertTree = KD_Tree.insert(self.vertTree, n)
             if self.dist(n, goal) < self.near_radius:
                 ls = self.local_planner.check_path(n, goal)
                 if ls[-1] == goal:
@@ -50,7 +50,7 @@ class RRT:
         self.vertTree = Node(start)
         for i in range(iters):
             q_rand = self.rand_conf()
-            q_near = nearestNeighbour(self.vertTree, q_rand,distancefnc=self.dist)
+            q_near = KD_Tree.nearestNeighbour(self.vertTree, q_rand,distancefnc=self.dist)
             checkpoints = self.local_planner.check_path(q_near, q_rand)
             if self.check_n_add(checkpoints, goal):
                 return self.get_path()

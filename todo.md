@@ -1,9 +1,9 @@
 ## What to do
 - [x] write local planner for static scene
   - [x] find how to check collision between two kinematics objects
-- [ ] prepare some template pipeline for quick experiments not to reinvent wheel
+- [x] prepare some template pipeline for quick experiments not to reinvent wheel
 - [x] write RRT for static scene
-- [ ] refactoring
+- [x] refactoring
 - [ ] write local planner for moving obstacles
 - [ ] write RRT for moving obstacles
 - [ ] try DynamicRRT
@@ -12,7 +12,7 @@
   - [ ] view (rendering - pygame - with/without RRT) 
   - [ ] controller (pymunk - collision detection)
 - [ ] change debug draw to standard pygame draw in some organized fashion
-
+- [ ] make RRT more general (support arbitrary DOFs)
 ## Thoughts
 - Scope of Pygame must end in view (only callbacks from UI can be passed)
 - Scope of Pymunk should end in local planning RRT must be independent of it
