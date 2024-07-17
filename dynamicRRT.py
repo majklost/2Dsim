@@ -74,7 +74,7 @@ class RRT:
         while goal is not None:
             path.append(goal)
             goal = goal.parent
-        return path
+        return list(reversed(path))
 
     def get_verts(self):
         return self.vertTree

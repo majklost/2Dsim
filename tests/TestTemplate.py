@@ -27,6 +27,7 @@ class TestTemplate:
         self.setup()
         draw_options = pymunk.pygame_util.DrawOptions(self.display)
         running = True
+        pygame.time.get_ticks()
         while running:
 
             for event in pygame.event.get():

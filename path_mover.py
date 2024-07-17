@@ -1,32 +1,71 @@
 import pymunk
 from typing import List
-from RRTNode import RRTNode
-#Move shape on path given by nodes
+from RRTNode import RRTNode, RRTNodeCalc, RRTNodeSim
+
 VELOCITY = 100
 
-class PathMover:
-    def __init__(self, path : List[RRTNode], body : pymunk.Body, FPS):
-        self.path = path
-        self.current = 0 # current waypoint trying to reach
-        self.body = body
-        self.threshdist = VELOCITY /2 * 1/FPS # distance to waypoint to consider it reached
 
-    def move(self):
-        if self.current >= len(self.path):
-            self.body.velocity = 0,0
-            self.body.angular_velocity = 0
-            return
-        target = self.path[self.current]
-        dir = target.x - self.body.position.x, target.y - self.body.position.y
-        plength = self.get_length(dir)
-        angle = target.angle - self.body.angle
-        if plength < self.threshdist:
+class PathMover:
+    def __init__(self, path: List[RRTNode], body: pymunk.Body, FPS):
+        self.path = convert_path(path)
+        self.current = 0  # current waypoint trying to reach
+        # print(self.path)
+        self.body = body
+        self.threshtime = 1 / (FPS)  # time to waypoint to consider it reached
+        self.last_change_time = 0
+        self.already_called = False
+
+    def move(self, time):
+        if not self.already_called:
+            self.update_velocity(time)
+            print("first time: ", time)
+            self.already_called = True
+
+
+        cur_waypoint = self.path[self.current]
+        delta = time - (self.last_change_time + cur_waypoint[3])
+
+        if abs(delta) < self.threshtime or delta > 0:
             self.current += 1
-        else:
-            dir = dir[0]/ plength*VELOCITY, dir[1]/ plength*VELOCITY
-            self.body.velocity = dir
-        self.body.angular_velocity = angle * VELOCITY / plength
+            if self.current < len(self.path):
+                self.update_velocity(time)
+
+    def update_velocity(self, time):
+        cur_waypoint = self.path[self.current]
+        self.body.position = cur_waypoint[4].x, cur_waypoint[4].y
+        self.body.angle = cur_waypoint[4].angle
+        self.body.velocity = cur_waypoint[0], cur_waypoint[1]
+        self.body.angular_velocity = cur_waypoint[2]
+        self.last_change_time = time
+        self.body.space.reindex_shapes_for_body(self.body)
+
 
     @staticmethod
     def get_length(tp):
         return (tp[0] ** 2 + tp[1] ** 2) ** 0.5
+
+
+def convert_path(path):
+    converted = []
+    for i in range(len(path) - 1):
+        node = path[i]
+        next_node = path[i + 1]
+        dir_x = next_node.x - node.x
+        dir_y = next_node.y - node.y
+
+        angle = next_node.angle - node.angle
+        length = PathMover.get_length((dir_x, dir_y))
+
+        t = length / VELOCITY
+        if isinstance(node, RRTNodeCalc):
+            t = next_node.time - node.time
+        vel = length / t
+
+        elem_dir_x = dir_x / length * vel
+        elem_dir_y = dir_y / length * vel
+
+
+
+        converted.append((elem_dir_x, elem_dir_y, angle / t, t, node))
+    converted.append((0, 0, 0, float("inf"),converted[-1][4]))
+    return converted

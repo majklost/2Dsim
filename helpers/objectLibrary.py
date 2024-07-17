@@ -13,7 +13,7 @@ class AbstractObj:
 
 class Agent(AbstractObj):
     def __init__(self, x, y,w=10,h=100, angle=0):
-        super().__init__(x,y,pymunk.Body.DYNAMIC)
+        super().__init__(x,y,pymunk.Body.KINEMATIC)
         self.body.angle = angle
         self.shape = pymunk.Poly.create_box(self.body, (w, h))
         self.shape.color = pygame.Color("blue")

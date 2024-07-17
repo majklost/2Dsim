@@ -62,7 +62,7 @@ class RRT:
     def get_path(self):
         path = []
         goal = self.last
-        while goal.parent is not None:
+        while goal is not None:
             path.append(goal)
             goal = goal.parent
         return list(reversed(path))

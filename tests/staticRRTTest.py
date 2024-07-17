@@ -41,6 +41,7 @@ class StaticRRTTest(TestTemplate):
         start = LocalPlanner.node_from_shape(agent.shape)
         st = time.time()
         path = rrt.find_path(start, self.goal)
+        print(path)
         print("Time taken: ", time.time() - st)
         verts = sorted(list(rrt.get_verts()), key=lambda x: x.added_cnt)
         self.path_mover = PathMover(path, agent.body, self.FPS)
@@ -53,7 +54,7 @@ class StaticRRTTest(TestTemplate):
 
     def post_render(self):
         render_goal(self.display, self.goal)
-        self.path_mover.move()
+        self.path_mover.move(pygame.time.get_ticks()/ 1000)
 
 
 def test_begin(arbiter, space, data):
