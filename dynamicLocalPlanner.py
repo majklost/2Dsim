@@ -9,6 +9,8 @@ from pymunk import Vec2d
 from typing import List, Tuple
 from RRTNode import RRTNodeSim, RRTNodeCalc
 
+MAX_VEL = 160
+
 #this calculates the path with movement
 #now only for one obstacle and one agent
 #will probably scale badly, so it is just PoC
@@ -42,9 +44,12 @@ class LocalPlannerCalc:
         ob_vx, ob_vy, ob_vangle = self.obstacle_velocity
         checkpoints = []
         direction = goal.x - start.x, goal.y - start.y
-
         angle_morph = goal.angle - start.angle
         time_for_morph = goal.time - start.time
+        vel_estim = self.get_length(direction) / time_for_morph
+        if vel_estim > MAX_VEL:
+            coef = MAX_VEL / vel_estim
+            direction = direction[0] * coef, direction[1] * coef
         # print(f"Time for morph: {time_for_morph}")
         num_steps = max(int(time_for_morph / self.dt),100)
         realDT = time_for_morph / num_steps

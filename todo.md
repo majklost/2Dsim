@@ -4,8 +4,9 @@
 - [x] prepare some template pipeline for quick experiments not to reinvent wheel
 - [x] write RRT for static scene
 - [x] refactoring
-- [ ] write local planner for moving obstacles
-- [ ] write RRT for moving obstacles
+- [x] write local planner for moving obstacles
+- [x] write RRT for moving obstacles
+- [ ] separate planning and rendering
 - [ ] try DynamicRRT
 - [ ] separation
   - [ ] model (each map for testing, motion planning algorithms) 

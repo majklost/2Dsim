@@ -43,16 +43,22 @@ class RRTNode:
     def get_comparable_point(self):
         return self.x, self.y, self.angle
 
+class RRTNodeTimed(RRTNode):
+    def __init__(self, x,y,angle,time,parent=None,added_cnt=0):
+        super().__init__(x,y,angle,parent,added_cnt)
+        self.time = time
 
-class RRTNodeSim(RRTNode):
+
+
+
+class RRTNodeSim(RRTNodeTimed):
     def __init__(self):
         pass
 
 
-class RRTNodeCalc(RRTNode):
+class RRTNodeCalc(RRTNodeTimed):
     def __init__(self, x, y, angle, time, parent=None,added_cnt=0):
-        super().__init__(x, y, angle, parent, added_cnt)
-        self.time = time
+        super().__init__(x, y, angle,time, parent, added_cnt)
 
     def __getitem__(self, index):
         if index == 0:

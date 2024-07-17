@@ -1,6 +1,6 @@
 import pymunk
 from typing import List
-from RRTNode import RRTNode, RRTNodeCalc, RRTNodeSim
+from RRTNode import RRTNodeTimed,RRTNode
 
 VELOCITY = 100
 
@@ -16,6 +16,8 @@ class PathMover:
         self.already_called = False
 
     def move(self, time):
+        if len(self.path) == 0:
+            return
         if not self.already_called:
             self.update_velocity(time)
             print("first time: ", time)
@@ -57,15 +59,14 @@ def convert_path(path):
         length = PathMover.get_length((dir_x, dir_y))
 
         t = length / VELOCITY
-        if isinstance(node, RRTNodeCalc):
+        if isinstance(node, RRTNodeTimed):
             t = next_node.time - node.time
         vel = length / t
 
         elem_dir_x = dir_x / length * vel
         elem_dir_y = dir_y / length * vel
-
-
-
         converted.append((elem_dir_x, elem_dir_y, angle / t, t, node))
+    if len(converted) == 0:
+        return []
     converted.append((0, 0, 0, float("inf"),converted[-1][4]))
     return converted
