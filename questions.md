@@ -6,3 +6,4 @@
 * local planner rotaci - otoceni po smeru/ proti smeru muze ovlivnit povoleni (jak potom postupovat ve 3D?)
 * nestabilni fyzika - kdyz chci zreplikovat trasu pomoci seznamu waypointu, kde kazdy ma vektor rychlosti a cas do zmeny waypointu,
     tak se odchylim od trajektorie -> potreba korigovat natvrdo napsanou pozici
+* Local planner Calc vs Sim - pri stejnem seedu davaji jine trajektorie

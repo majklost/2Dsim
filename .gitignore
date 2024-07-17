@@ -5,7 +5,7 @@ venv/
 env/
 env.bak/
 venv.bak/
-
+videos/
 # Python specific
 __pycache__/
 *.pyc

@@ -4,7 +4,7 @@ from helpers.objectLibrary import Agent, Obstacle, Cross
 from helpers.helperFunctions import render_goal
 from tree_rendering import TreeRenderer
 from dynamicRRT import RRT
-from dynamicLocalPlanner import LocalPlannerCalc
+from dynamicLocalPlanner import LocalPlannerCalc, LocalPlannerSim
 import time
 import pygame
 import pymunk
@@ -14,6 +14,7 @@ from path_mover import PathMover
 W =H =800
 CROSS_ANGULAR_VELOCITY = 0.2
 MAX_TIME = 40
+MAX_TIME = 2
 class DynamicRRTTest(TestTemplate):
 
     def __init__(self, start, goal):
@@ -50,7 +51,8 @@ class DynamicRRTTest(TestTemplate):
         cross.add(self.space)
 
         #planning
-        lp = LocalPlannerCalc(self.space, agent.shape, cross.body, (0,0,CROSS_ANGULAR_VELOCITY))
+        # lp = LocalPlannerCalc(self.space, agent.shape, cross.body, (0,0,CROSS_ANGULAR_VELOCITY))
+        lp = LocalPlannerSim(self.space, agent.shape)
         # lp.set_debug_callback(self.debugclbck)
         rrt = RRT(self.display.get_width(), self.display.get_height(), 0, MAX_TIME,lp,near_radius=10,seed=32)
         start = LocalPlannerCalc.node_from_shape(agent.shape)
@@ -62,6 +64,7 @@ class DynamicRRTTest(TestTemplate):
         self.path_mover = PathMover(path, agent.body, self.FPS)
         print(len(verts))
         self.tree_renderer = TreeRenderer(verts)
+
 
     def pre_render(self):
         self.tree_renderer.render(self.display, pygame.time.get_ticks())

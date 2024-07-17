@@ -4,14 +4,14 @@ from helpers.helperFunctions import render_goal
 W=H=800
 from RRTNode import RRTNodeCalc
 import pymunk
-from dynamicLocalPlanner import LocalPlannerCalc
+from dynamicLocalPlanner import LocalPlannerCalc,LocalPlannerSim
 
 import pygame
 from pymunk import pygame_util
 
 
-OBSTACLE_VELOCITY = 100,0,0
-# OBSTACLE_VELOCITY = 5,0,0
+# OBSTACLE_VELOCITY = 100,0,0
+OBSTACLE_VELOCITY = 5,0,0
 
 
 class DynamicPlannerTest(TestTemplate):
@@ -49,9 +49,15 @@ class DynamicPlannerTest(TestTemplate):
         block2 = Obstacle(400,700,100,200)
         block2.add(self.space)
 
+
         #planner
-        lp = LocalPlannerCalc(self.space, agent.shape,block.body, obstacle_velocity=OBSTACLE_VELOCITY,dt=1/100)
-        lp.verbose = True
+        # lp = LocalPlannerCalc(self.space, agent.shape,block.body, obstacle_velocity=OBSTACLE_VELOCITY,dt=1/100)
+        # lp.verbose = True
+
+        lp = LocalPlannerSim(self.space,agent.shape)
+
+
+
         # lp.set_debug_callback(self.debugclbck)
         chpoints = lp.check_path(self.start, self.goal)
         print(chpoints)

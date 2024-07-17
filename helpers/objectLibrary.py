@@ -35,6 +35,7 @@ class Cross(AbstractObj):
         # verts = [(-w/2,-5),(-5,-5),(-5,-h/2),(5,-h/2),(5,-5),(w/2,-5),(w/2,5),(5,5),(5,h/2),(-5,h/2),(-5,5),(-w/2,5)]
         # self.shape = pymunk.Poly(self.body,verts)
         self.shape2 = pymunk.Segment(self.body, (0, -w), (0, w), 10)
+        self.shape1.collision_type = self.shape2.collision_type = 2
 
     def add(self, space: pymunk.Space):
         space.add(self.body, self.shape1, self.shape2)
