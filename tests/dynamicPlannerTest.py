@@ -6,12 +6,32 @@ from RRTNode import RRTNodeCalc
 import pymunk
 from dynamicLocalPlanner import LocalPlannerCalc
 
+import pygame
+from pymunk import pygame_util
+
+
+OBSTACLE_VELOCITY = 100,0,0
+# OBSTACLE_VELOCITY = 5,0,0
+
+
 class DynamicPlannerTest(TestTemplate):
 
     def __init__(self,start,goal):
         self.start = start
         self.goal = goal
+        self.cnt = 0
         super().__init__(W,H,80)
+
+    def debugclbck(self,space):
+        if self.cnt > 100:
+            return
+        draw_options = pymunk.pygame_util.DrawOptions(self.display)
+        self.display.fill((255, 255, 255))
+        space.debug_draw(draw_options)
+        pygame.display.update()
+        #save the image
+        pygame.image.save(self.display, f"./debug/screenshot{self.cnt}.jpg")
+        self.cnt += 1
 
     def setup(self):
         #objects
@@ -21,7 +41,8 @@ class DynamicPlannerTest(TestTemplate):
         #the one that should be plausible to reach via line
         block = Obstacle(100,400,200,100)
         block.set_body_type(pymunk.Body.KINEMATIC)
-        block.body.velocity = 50,0
+        block.body.velocity = OBSTACLE_VELOCITY[0],OBSTACLE_VELOCITY[1]
+        block.body.angular_velocity = OBSTACLE_VELOCITY[2]
         block.add(self.space)
 
         #the one that should be blocked
@@ -29,8 +50,12 @@ class DynamicPlannerTest(TestTemplate):
         block2.add(self.space)
 
         #planner
-        lp = LocalPlannerCalc(self.space, agent.shape,block.shape, (50,0,0))
-        lp.check_path(self.start, self.goal)
+        lp = LocalPlannerCalc(self.space, agent.shape,block.body, obstacle_velocity=OBSTACLE_VELOCITY,dt=1/100)
+        lp.verbose = True
+        # lp.set_debug_callback(self.debugclbck)
+        chpoints = lp.check_path(self.start, self.goal)
+        print(chpoints)
+
 
     def post_render(self):
         render_goal(self.display, self.goal)

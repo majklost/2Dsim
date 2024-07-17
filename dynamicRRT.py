@@ -7,8 +7,8 @@ from RRTNode import RRTNodeCalc
 
 
 class RRT:
-    def __init__(self,xMax,yMax,angleMax,maxTime, local_planner: LocalPlannerCalc,near_radius=10):
-        random.seed(10)
+    def __init__(self,xMax,yMax,angleMax,maxTime, local_planner: LocalPlannerCalc,near_radius=10,seed=10):
+        random.seed(seed)
         self.xMax = xMax
         self.yMax = yMax
         self.angleMax = angleMax
@@ -42,14 +42,15 @@ class RRT:
             n.added_cnt = self.node_cnt
             self.node_cnt += 1
             self.vertTree = KD_Tree.insert(self.vertTree, n)
-            if self.dist(n, goal) < self.near_radius:
+            if self.dist(goal, n) < self.near_radius:
                 ls = self.local_planner.check_path(n, goal)
                 if ls[-1] == goal:
-                    # self.last = ls[-1]
-                    goal.parent = n
-                    self.last = goal
-                    print("Goal reached")
-                    return True
+                    pass
+                # self.last = ls[-1]
+                goal.parent = n
+                self.last = goal
+                print("Goal reached")
+                return True
 
         return False
 

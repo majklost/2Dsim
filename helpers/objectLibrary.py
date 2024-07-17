@@ -32,6 +32,8 @@ class Cross(AbstractObj):
         super().__init__(x,y,pymunk.Body.KINEMATIC)
         self.body.angular_velocity = av
         self.shape1 = pymunk.Segment(self.body, (-w, 0), (w, 0), 10)
+        # verts = [(-w/2,-5),(-5,-5),(-5,-h/2),(5,-h/2),(5,-5),(w/2,-5),(w/2,5),(5,5),(5,h/2),(-5,h/2),(-5,5),(-w/2,5)]
+        # self.shape = pymunk.Poly(self.body,verts)
         self.shape2 = pymunk.Segment(self.body, (0, -w), (0, w), 10)
 
     def add(self, space: pymunk.Space):
