@@ -7,13 +7,15 @@ from pymunk import Vec2d
 from RRTNode import RRTNode
 from typing import List
 #TODO outsource granularity of checkpoint creation and num steps
+
+MINSTEPS = 100
 class LocalPlanner:
     def __init__(self, space: pymunk.Space, shape: pymunk.Shape):
         self.space = space
         self.shape = shape
         print("Local planner initialized")
 
-    @staticmethod# self.space.copy()
+    @staticmethod
     def extend_checkpoints(start: RRTNode, checkpoints: List[RRTNode], pos: Vec2d, angle):
         if len(checkpoints) == 0:
             checkpoints.append(RRTNode(pos.x, pos.y, angle, start))
@@ -27,7 +29,7 @@ class LocalPlanner:
         checkpoints = []
         direction = goal.x - start.x, goal.y - start.y
         angle_morph = goal.angle - start.angle
-        num_steps = max(int((direction[0] ** 2 + direction[1] ** 2) / 1000), 100)
+        num_steps = max(int((direction[0] ** 2 + direction[1] ** 2) / 1000), MINSTEPS)
         angle_step = angle_morph / num_steps
         # print(f"Num steps: {num_steps}")
         # print(f"Angle morph: {angle_morph}")
@@ -44,13 +46,6 @@ class LocalPlanner:
         self.shape.body.position = old_pos
         self.space.reindex_shape(self.shape)
         return checkpoints
-    # def check_path(self,start: RRTNode, goal: RRTNode) -> List[RRTNode]:
-    #     old_pos = self.shape.body.position
-    #     old_angle = self.shape.body.angle
-    #     checkpoints = []
-    #     diff = goal.x - start.x, goal.y - start.y
-    #     direction = diff[0], diff[1]
-    #     angle_morph = diff[2]
 
     def list_bodies(self):
         for b in self.space.bodies:

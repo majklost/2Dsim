@@ -2,6 +2,12 @@ import pygame
 from RRTNode import RRTNode
 from typing import List
 class TreeRenderer:
+    """
+    Renders the tree of RRT
+    Accepts RRTNode or any node derived from it
+    Renders path in red,
+    it is assumed that the last node is the goal
+    """
     def __init__(self,vertices:List[RRTNode],tick_time=100):
         self.vertices = vertices
         self.render_cnt = 0

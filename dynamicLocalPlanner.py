@@ -8,15 +8,16 @@
 import pymunk
 from pymunk import Vec2d
 from typing import List, Tuple
-from RRTNode import RRTNodeSim, RRTNodeCalc, RRTNodeTimed
+from RRTNode import RRTNodeSim, RRTNodeTimed
 
 MAX_VEL = 200
-
+MIN_STEPS = 100
 
 #this calculates the path with movement
 #now only for one obstacle and one agent
-#will probably scale badly, so it is just PoC
+#will probably scale badly (multiple decriptions must be used, for different speeds it is 2D array of params), so it is just PoC
 #planning must be done at the beginning, otherwise it gives false results
+#(it assumes that position when it reaceives agent and obstacle is the initial pos)
 class LocalPlannerCalc:
     def __init__(self, space: pymunk.Space, agent: pymunk.Shape, moving_obstacle: pymunk.Body,
                  obstacle_velocity: Tuple[float, float, float], dt=1 / 80):
@@ -31,13 +32,13 @@ class LocalPlannerCalc:
         self.dt = dt
 
     @staticmethod
-    def extend_checkpoints(start: RRTNodeCalc, checkpoints: List[RRTNodeCalc], pos: Vec2d, angle, time: float):
+    def extend_checkpoints(start: RRTNodeTimed, checkpoints: List[RRTNodeTimed], pos: Vec2d, angle, time: float):
         if len(checkpoints) == 0:
-            checkpoints.append(RRTNodeCalc(pos.x, pos.y, angle, time, start))
+            checkpoints.append(RRTNodeTimed(pos.x, pos.y, angle, time, start))
         else:
-            checkpoints.append(RRTNodeCalc(pos.x, pos.y, angle, time, checkpoints[-1]))
+            checkpoints.append(RRTNodeTimed(pos.x, pos.y, angle, time, checkpoints[-1]))
 
-    def check_path(self, start: RRTNodeCalc, goal: RRTNodeCalc) -> List[RRTNodeCalc]:
+    def check_path(self, start: RRTNodeTimed, goal: RRTNodeTimed) -> List[RRTNodeTimed]:
         #old positions - to restore
         a_old_pos = self.agent.body.position
         a_old_angle = self.agent.body.angle
@@ -56,7 +57,7 @@ class LocalPlannerCalc:
             coef = MAX_VEL / vel_estim
             direction = direction[0] * coef, direction[1] * coef
         # print(f"Time for morph: {time_for_morph}")
-        num_steps = max(int(time_for_morph / self.dt), 100)
+        num_steps = max(int(time_for_morph / self.dt), MIN_STEPS)
         realDT = time_for_morph / num_steps
         # print(f"Num steps: {num_steps}")
         dir_step = direction[0] / num_steps, direction[1] / num_steps
@@ -105,7 +106,7 @@ class LocalPlannerCalc:
 
     @staticmethod
     def node_from_shape(shape: pymunk.Shape, time=0, parent=None):
-        return RRTNodeCalc(shape.body.position.x, shape.body.position.y, shape.body.angle, time, parent)
+        return RRTNodeTimed(shape.body.position.x, shape.body.position.y, shape.body.angle, time, parent)
 
     def set_debug_callback(self, clb):
         self.clb = clb

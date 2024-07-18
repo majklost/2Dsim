@@ -3,7 +3,7 @@ from kd_tree import KD_Tree,Node
 
 import random
 from dynamicLocalPlanner import LocalPlannerCalc
-from RRTNode import RRTNodeCalc
+from RRTNode import RRTNodeTimed
 
 
 class RRT:
@@ -22,19 +22,19 @@ class RRT:
 
     #now with time, distance is not symmetric
     @staticmethod
-    def dist(candidate:RRTNodeCalc, root:RRTNodeCalc):
+    def dist(candidate:RRTNodeTimed, root:RRTNodeTimed):
         #impossible to reach
         if candidate.time <= root.time:
             return float("inf")
         else:
             return ((candidate.x - root.x) ** 2 + (candidate.y - root.y) ** 2 + 0.01*(candidate.angle - root.angle) ** 2) ** 0.5
 
-    def random_conf(self)-> RRTNodeCalc:
+    def random_conf(self)-> RRTNodeTimed:
         x = random.uniform(0, self.xMax)
         y = random.uniform(0, self.yMax)
         angle = random.uniform(0, self.angleMax)
         time = random.uniform(0,self.maxTime)
-        return RRTNodeCalc(x, y, angle, time, None)
+        return RRTNodeTimed(x, y, angle, time, None)
 
     def check_n_add(self,checkpoints,goal):
         for n in checkpoints:
@@ -44,8 +44,6 @@ class RRT:
             self.vertTree = KD_Tree.insert(self.vertTree, n)
             if self.dist(goal, n) < self.near_radius:
                 ls = self.local_planner.check_path(n, goal)
-                if ls[-1] == goal:
-                    pass
                 # self.last = ls[-1]
                 goal.parent = n
                 self.last = goal
@@ -54,7 +52,7 @@ class RRT:
 
         return False
 
-    def find_path(self,start:RRTNodeCalc,goal:RRTNodeCalc, iters=10000):
+    def find_path(self,start:RRTNodeTimed,goal:RRTNodeTimed, iters=10000):
         self.vertTree = Node(start)
         for i in range(iters):
             q_rand = self.random_conf()

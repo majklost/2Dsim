@@ -6,6 +6,7 @@
 - [x] refactoring
 - [x] write local planner for moving obstacles
 - [x] write RRT for moving obstacles
+- [ ] unify static and dynamic planner
 - [ ] separate planning and rendering
 - [ ] ~~try DynamicRRT~~
 - [ ] separation

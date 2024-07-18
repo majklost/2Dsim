@@ -6,7 +6,7 @@ CLOSE = 1e-1
 
 #TODO: refactor to better inheritance
 
-
+#basic node for static planning
 class RRTNode:
     def __init__(self, x, y, angle, parent=None, added_cnt=0):
         self.x = x
@@ -14,9 +14,6 @@ class RRTNode:
         self.angle = angle
         self.parent = parent
         self.added_cnt = added_cnt
-
-    def __eq__(self, other):
-        return isclose(self.x, other.x,abs_tol=CLOSE) and isclose(self.y, other.y,abs_tol=CLOSE) and isclose(self.angle, other.angle,abs_tol=CLOSE)
 
     def __str__(self):
         return f"Node: {self.x}, {self.y}, {self.angle}"
@@ -51,6 +48,21 @@ class RRTNodeTimed(RRTNode):
     def __str__(self):
         return f"Node: {self.x}, {self.y}, {self.angle}, {self.time}"
 
+    def __repr__(self):
+        return self.__str__()
+
+    def __getitem__(self, index):
+        if index == 0:
+            return self.x
+        elif index == 1:
+            return self.y
+        elif index == 2:
+            return self.angle
+        elif index == 3:
+            return self.time
+        else:
+            raise IndexError("Index out of bounds")
+
 
 class RRTNodeSim(RRTNodeTimed):
     def __init__(self,x,y,angle,time,parent=None,added_cnt=0, simSpace=None):
@@ -61,36 +73,7 @@ class RRTNodeSim(RRTNodeTimed):
     def from_timed(node:RRTNodeTimed, simSpace):
         return RRTNodeSim(node.x, node.y, node.angle, node.time, node.parent, node.added_cnt, simSpace)
 
-    def __getitem__(self, index):
-        if index == 0:
-            return self.x
-        elif index == 1:
-            return self.y
-        elif index == 2:
-            return self.angle
-        elif index == 3:
-            return self.time
-        else:
-            raise IndexError("Index out of bounds")
 
 
 
-class RRTNodeCalc(RRTNodeTimed):
-    def __init__(self, x, y, angle, time, parent=None,added_cnt=0):
-        super().__init__(x, y, angle,time, parent, added_cnt)
 
-    def __getitem__(self, index):
-        if index == 0:
-            return self.x
-        elif index == 1:
-            return self.y
-        elif index == 2:
-            return self.angle
-        elif index == 3:
-            return self.time
-        else:
-            raise IndexError("Index out of bounds")
-    def __str__(self):
-        return f"Node: {self.x}, {self.y}, {self.angle}, {self.time}"
-    def __repr__(self):
-        return self.__str__()

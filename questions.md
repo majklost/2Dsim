@@ -7,3 +7,4 @@
 * nestabilni fyzika - kdyz chci zreplikovat trasu pomoci seznamu waypointu, kde kazdy ma vektor rychlosti a cas do zmeny waypointu,
     tak se odchylim od trajektorie -> potreba korigovat natvrdo napsanou pozici
 * Local planner Calc vs Sim - pri stejnem seedu davaji jine trajektorie
+* Ma cenu nyni sdruzovat dynamic planner a static planner aby meli jednotne API ? (Patrne by bylo potreba zmenit i strukturu RRT Node, nyni bych treba daval -1 jako cas unset, ale kdovi, zda by to v budoucnu nedelalo problemy)

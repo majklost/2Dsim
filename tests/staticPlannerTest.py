@@ -25,19 +25,17 @@ class StaticLocalPlannerTest(TestTemplate):
         obstacle.shape.data = "obstacle"
         obstacle.add(self.space)
 
-        #planner
+        # planner
         lp = LocalPlanner(self.space, agent.shape)
         lp.check_path(self.start, self.goal)
 
     def post_render(self):
         render_goal(self.display, self.goal)
-        # render_goal(self.display, GOAL2)
 
 
 if __name__ == "__main__":
     GOAL1 = RRTNode(50, 700, 0)  # the blocked one
     GOAL2 = RRTNode(700, 50, 0)  # free one
     START = RRTNode(50, 90, 0)
-    # game()
     test = StaticLocalPlannerTest(START, GOAL2)
     test.run()

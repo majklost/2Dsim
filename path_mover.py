@@ -2,6 +2,7 @@ import pymunk
 from typing import List
 from RRTNode import RRTNodeTimed,RRTNode
 
+#if only static path is given, this is the velocity
 VELOCITY = 100
 
 
@@ -9,18 +10,23 @@ class PathMover:
     def __init__(self, path: List[RRTNode], body: pymunk.Body, FPS):
         self.path = convert_path(path)
         self.current = 0  # current waypoint trying to reach
-        # print(self.path)
         self.body = body
         self.threshtime = 1 / (FPS)  # time to waypoint to consider it reached
         self.last_change_time = 0
         self.already_called = False
 
     def move(self, time):
+        """
+        Called every frame to update the position of the body,
+        it converts the path to velocity waypoints and moves the body accordingly
+        correction via position setting are done or errors will accumulate
+        :param time:
+        :return:
+        """
         if len(self.path) == 0:
             return
         if not self.already_called:
             self.update_velocity(time)
-            print("first time: ", time)
             self.already_called = True
 
 
@@ -48,6 +54,11 @@ class PathMover:
 
 
 def convert_path(path):
+    """
+    Converts position waypoints (x,y,angle) to velocity waypoints (xvel,yvel,anglularvel,time)
+    :param path:
+    :return:
+    """
     print(path)
     converted = []
     for i in range(len(path) - 1):
