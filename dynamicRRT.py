@@ -24,7 +24,7 @@ class RRT:
     @staticmethod
     def dist(candidate:RRTNodeCalc, root:RRTNodeCalc):
         #impossible to reach
-        if candidate.time < root.time:
+        if candidate.time <= root.time:
             return float("inf")
         else:
             return ((candidate.x - root.x) ** 2 + (candidate.y - root.y) ** 2 + 0.01*(candidate.angle - root.angle) ** 2) ** 0.5

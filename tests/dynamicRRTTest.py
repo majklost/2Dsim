@@ -13,17 +13,18 @@ from path_mover import PathMover
 
 W =H =800
 CROSS_ANGULAR_VELOCITY = 0.2
-MAX_TIME = 40
+# MAX_TIME = 20
 MAX_TIME = 2
 class DynamicRRTTest(TestTemplate):
 
-    def __init__(self, start, goal):
+    def __init__(self, start, goal, simplanner=True):
         self.start = start
         self.goal = goal
         self.path_mover = None
         self.tree_renderer = None
         super().__init__(W, H, 80)
         self.cnt = 0
+        self.simplanner = simplanner
 
     def debugclbck(self,space):
         if self.cnt > 100:
@@ -51,13 +52,16 @@ class DynamicRRTTest(TestTemplate):
         cross.add(self.space)
 
         #planning
-        # lp = LocalPlannerCalc(self.space, agent.shape, cross.body, (0,0,CROSS_ANGULAR_VELOCITY))
-        lp = LocalPlannerSim(self.space, agent.shape)
+
+        if self.simplanner:
+            lp = LocalPlannerSim(self.space, agent.shape)
+        else:
+            lp = LocalPlannerCalc(self.space, agent.shape, cross.body, (0, 0, CROSS_ANGULAR_VELOCITY))
         # lp.set_debug_callback(self.debugclbck)
         rrt = RRT(self.display.get_width(), self.display.get_height(), 0, MAX_TIME,lp,near_radius=10,seed=32)
         start = LocalPlannerCalc.node_from_shape(agent.shape)
         st = time.time()
-        path = rrt.find_path(start, self.goal,10000)
+        path = rrt.find_path(start, self.goal,20000)
         print(len(path))
         print("Time taken: ", time.time() - st)
         verts = sorted(list(rrt.get_verts()), key=lambda x: x.added_cnt)
@@ -80,5 +84,5 @@ if __name__ == "__main__":
     START = RRTNodeCalc(50, 750, 0,0)
     GOAL = RRTNodeCalc(50, 50, 0,MAX_TIME*2)
     DUMBGOAL = RRTNodeCalc(50,600,0,100)
-    t = DynamicRRTTest(START, GOAL)
+    t = DynamicRRTTest(START, GOAL,simplanner=True)
     t.run()

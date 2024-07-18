@@ -10,7 +10,7 @@ from pymunk import Vec2d
 from typing import List, Tuple
 from RRTNode import RRTNodeSim, RRTNodeCalc, RRTNodeTimed
 
-MAX_VEL = 160000
+MAX_VEL = 200
 
 
 #this calculates the path with movement

@@ -48,7 +48,8 @@ class RRTNodeTimed(RRTNode):
         super().__init__(x,y,angle,parent,added_cnt)
         self.time = time
 
-
+    def __str__(self):
+        return f"Node: {self.x}, {self.y}, {self.angle}, {self.time}"
 
 
 class RRTNodeSim(RRTNodeTimed):
@@ -71,6 +72,7 @@ class RRTNodeSim(RRTNodeTimed):
             return self.time
         else:
             raise IndexError("Index out of bounds")
+
 
 
 class RRTNodeCalc(RRTNodeTimed):

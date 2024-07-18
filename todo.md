@@ -7,7 +7,7 @@
 - [x] write local planner for moving obstacles
 - [x] write RRT for moving obstacles
 - [ ] separate planning and rendering
-- [ ] try DynamicRRT
+- [ ] ~~try DynamicRRT~~
 - [ ] separation
   - [ ] model (each map for testing, motion planning algorithms) 
   - [ ] view (rendering - pygame - with/without RRT) 
