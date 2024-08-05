@@ -2,11 +2,11 @@
 # and if it can find that it reached obstacle
 # also tries to render the paths and nodes
 from tests.TestTemplate import TestTemplate
-from helpers.objectLibrary import Agent, Obstacle
-from helpers.helperFunctions import render_goal
-from RRTNode import RRTNode
+from src.helpers.objectLibrary import Agent, Obstacle
+from src.helpers.helperFunctions import render_goal
+from src.RRTNode import RRTNode
 
-from staticLocalPlanner import LocalPlanner
+from src.staticLocalPlanner import LocalPlanner
 
 
 class StaticLocalPlannerTest(TestTemplate):

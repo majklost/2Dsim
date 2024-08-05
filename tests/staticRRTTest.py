@@ -1,15 +1,16 @@
 # Try RRT on some easy environment
 import pygame
-from staticLocalPlanner import LocalPlanner
-from staticRRT import RRT
-from RRTNode import RRTNode
-from tree_rendering import TreeRenderer
+from src.staticLocalPlanner import LocalPlanner
+from src.staticRRT import RRT
+from src.RRTNode import RRTNode
+from src.rendering.tree_rendering import TreeRenderer
 import math
 import time
-from path_mover import PathMover
+from src.rendering.path_mover import PathMover
 from tests.TestTemplate import TestTemplate
-from helpers.objectLibrary import Agent, Obstacle
-from helpers.helperFunctions import render_goal
+from src.helpers.objectLibrary import Agent, Obstacle
+from src.helpers.helperFunctions import render_goal
+
 
 
 class StaticRRTTest(TestTemplate):

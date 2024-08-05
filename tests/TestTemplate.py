@@ -11,6 +11,7 @@ class TestTemplate:
         pygame.init()
         self.display = pygame.display.set_mode((width, height))
         self.FPS = FPS
+        self.draw_constraints = True
 
     def setup(self):
         """
@@ -46,6 +47,10 @@ class TestTemplate:
         """
         self.setup()
         draw_options = pymunk.pygame_util.DrawOptions(self.display)
+        if not self.draw_constraints:
+            draw_options.flags = pymunk.pygame_util.DrawOptions.DRAW_SHAPES
+        pymunk.pygame_util.DrawOptions.DRAW_CONSTRAINTS = 0
+        # draw_options.constraint_color = (0, 0, 0, 100)
         running = True
         pygame.time.get_ticks()
         while running:

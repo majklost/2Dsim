@@ -1,15 +1,12 @@
 from tests.TestTemplate import TestTemplate
-from helpers.objectLibrary import Agent, Obstacle
-from helpers.helperFunctions import render_goal
-
-W = H = 800
-from RRTNode import RRTNodeTimed
+from src.helpers.objectLibrary import Agent, Obstacle
+from src.helpers.helperFunctions import render_goal
+from src.RRTNode import RRTNodeTimed
 import pymunk
-from dynamicLocalPlanner import LocalPlannerCalc, LocalPlannerSim
-
+from src.dynamicLocalPlanner import LocalPlannerCalc, LocalPlannerSim
 import pygame
 from pymunk import pygame_util
-
+W = H = 800
 # Simple test with one static obstacle and one moving obstacle
 # Goal 2 is behind static obstacle
 # Goal 1 is behind moving obstacle, reachability by planner is dependent on obstacle velocity

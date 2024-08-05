@@ -1,6 +1,6 @@
 import pymunk
 from typing import List
-from RRTNode import RRTNodeTimed,RRTNode
+from ..RRTNode import RRTNodeTimed,RRTNode
 
 #if only static path is given, this is the velocity
 VELOCITY = 100

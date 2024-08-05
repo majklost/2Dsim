@@ -1,15 +1,15 @@
 from tests.TestTemplate import TestTemplate
-from helpers.objectLibrary import Agent, Obstacle, Cross
-from helpers.helperFunctions import render_goal
-from tree_rendering import TreeRenderer
-from dynamicRRT import RRT
-from dynamicLocalPlanner import LocalPlannerCalc, LocalPlannerSim
+from src.helpers.objectLibrary import Agent, Obstacle, Cross
+from src.helpers.helperFunctions import render_goal
+from src.rendering.tree_rendering import TreeRenderer
+from src.dynamicRRT import RRT
+from src.dynamicLocalPlanner import LocalPlannerCalc, LocalPlannerSim
 import time
 import pygame
 import pymunk
 from pymunk import pygame_util
-from path_mover import PathMover
-from RRTNode import RRTNodeTimed
+from src.rendering.path_mover import PathMover
+from src.RRTNode import RRTNodeTimed
 
 # Tests RRT in environment with rotating cross
 

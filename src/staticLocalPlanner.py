@@ -4,7 +4,7 @@
 # during the process, it adds new nodes to the tree
 import pymunk  # uses pymunk for checking validity of path
 from pymunk import Vec2d
-from RRTNode import RRTNode
+from src.RRTNode import RRTNode
 from typing import List
 #TODO outsource granularity of checkpoint creation and num steps
 

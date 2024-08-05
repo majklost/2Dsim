@@ -1,10 +1,10 @@
-from kd_tree import KD_Tree, Node
+from src.helpers.kd_tree import KD_Tree, Node
 
 # not written so generally will need refactoring
 # TODO refactor to be more general
 import random
-from staticLocalPlanner import LocalPlanner
-from RRTNode import RRTNode
+from src.staticLocalPlanner import LocalPlanner
+from src.RRTNode import RRTNode
 
 
 class RRT:

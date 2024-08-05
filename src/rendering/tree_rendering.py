@@ -1,5 +1,5 @@
 import pygame
-from RRTNode import RRTNode
+from ..RRTNode import RRTNode
 from typing import List
 class TreeRenderer:
     """

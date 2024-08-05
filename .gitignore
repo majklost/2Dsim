@@ -8,5 +8,6 @@ venv.bak/
 videos/
 # Python specific
 __pycache__/
+old_examples/
 *.pyc
 *.pyo

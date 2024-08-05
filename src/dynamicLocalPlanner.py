@@ -8,7 +8,7 @@
 import pymunk
 from pymunk import Vec2d
 from typing import List, Tuple
-from RRTNode import RRTNodeSim, RRTNodeTimed
+from src.RRTNode import RRTNodeSim, RRTNodeTimed
 
 MAX_VEL = 200
 MIN_STEPS = 100
