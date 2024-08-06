@@ -3,7 +3,7 @@ import pygame.time
 from tests.TestTemplate import TestTemplate
 import pymunk
 import pymunk.constraints
-from src.helpers.objectLibrary import Cable,MultibodyCable,HardJointCable
+from src.helpers.cables import Cable,MultibodyCable,HardJointCable
 
 
 class CablePlayground(TestTemplate):
