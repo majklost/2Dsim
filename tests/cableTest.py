@@ -26,6 +26,7 @@ class CableTest(TestTemplate):
     def __init__(self):
         super().__init__(800, 800, 80)
         self.space.damping = .1
+        self.prev_vel = (0,0)
 
     def setup(self):
         self.draw_constraints = False
@@ -49,6 +50,7 @@ class CableTest(TestTemplate):
         # self.cable = HardJointCable(20, 50, CABLE_LENGTH, CABLE_SEGMENTS, springParams)
         self.cable.add(self.space)
         self.kk = KeyControls(self.space,self.cable.segments)
+        self.prev_vel = self.cable.segments[self.kk.current].velocity
 
 
 
@@ -56,6 +58,10 @@ class CableTest(TestTemplate):
         self.cable.segments_shapes[self.kk.current].color = (0, 0, 255, 255)
         self.kk.solve_keys(self.keys,self.keydowns)
         self.cable.segments_shapes[self.kk.current].color = (255, 0, 0, 255)
+        dv = (self.cable.segments[self.kk.current].velocity[0] - self.prev_vel[0],
+              self.cable.segments[self.kk.current].velocity[1] - self.prev_vel[1])
+        self.prev_vel = self.cable.segments[self.kk.current].velocity
+        # print((dv[0]**2+dv[1]**2)**0.5*self.FPS)
 
     def post_render(self):
         pass

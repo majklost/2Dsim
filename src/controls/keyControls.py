@@ -6,7 +6,7 @@ from pymunk import vec2d
 
 # movement and switching objects to control
 
-MOVING_VEL = 100
+MOVING_VEL = 3000
 
 class KeyControls:
     def __init__(self, space: pymunk.Space, objects: List[pymunk.Body]):
@@ -39,6 +39,8 @@ class KeyControls:
         goodC = c.rotated(-self.objects[self.current].angle)
         self.objects[self.current].apply_force_at_local_point(goodC*20, (0, 0))
         # self.objects[self.current].velocity = cur_vel
+
+
 
 
 

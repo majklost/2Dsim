@@ -101,6 +101,8 @@ class MultibodyCable(AbstractCable):
         # space.add(*self.centerSprings)
 
 
+
+
 class HardJointCable(AbstractCable):
     def __init__(self, x, y, length, segmentNum, linearParams, thickness=2):
         self.segments = []

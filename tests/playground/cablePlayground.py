@@ -24,7 +24,7 @@ class CablePlayground(TestTemplate):
 
         # multibody cable
         multibodParams = Cable.SpringParams(2000, 1000)
-        self.multibodyCable = MultibodyCable(20, 300, 400, 24, multibodParams, multibodParams)
+        self.multibodyCable = MultibodyCable(20, 300, 400, 24, multibodParams)
         self.multibodyCable.add(self.space)
         self.multibodyCable.segments[0].body_type = pymunk.Body.STATIC
         self.multibodyCable.segments[-1].body_type = pymunk.Body.KINEMATIC
