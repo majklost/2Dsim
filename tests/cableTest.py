@@ -14,13 +14,14 @@ import random
 #so far not with RRT
 
 #will need redefinition of start and goal
-BLOCK_RADIUS = 100
+BLOCK_RADIUS = 150
 BLOCK_ROWS = 3
 BLOCK_COLUMNS = 4
 SEED_SEQ_INIT = 20
 CABLE_LENGTH = 400
 CABLE_SEGMENTS = 60
 OBSTALCES = True
+MOVING_FORCE = 1200
 
 class CableTest(TestTemplate):
     def __init__(self):
@@ -49,14 +50,14 @@ class CableTest(TestTemplate):
         #
         # self.cable = HardJointCable(20, 50, CABLE_LENGTH, CABLE_SEGMENTS, springParams)
         self.cable.add(self.space)
-        self.kk = KeyControls(self.space,self.cable.segments)
+        self.kk = KeyControls(self.space,self.cable.segments,MOVING_FORCE,self.display)
         self.prev_vel = self.cable.segments[self.kk.current].velocity
 
 
 
     def pre_render(self):
         self.cable.segments_shapes[self.kk.current].color = (0, 0, 255, 255)
-        self.kk.solve_keys(self.keys,self.keydowns)
+        self.kk.solve_keys(self.keys,self.keydowns,self.click)
         self.cable.segments_shapes[self.kk.current].color = (255, 0, 0, 255)
         dv = (self.cable.segments[self.kk.current].velocity[0] - self.prev_vel[0],
               self.cable.segments[self.kk.current].velocity[1] - self.prev_vel[1])

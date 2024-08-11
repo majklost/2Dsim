@@ -18,12 +18,12 @@ MASS_PER_LENGTH = .06
 FOAM_STRUCTURAL_PARAMS = Foam.SpringParams(2000, 2000)
 FOAM_BENDING_PARAMS = Foam.SpringParams(300, 50)
 OBSTACLES = True
+MOVING_FORCE = 20000
 
 class FoamTest(TestTemplate):
     def __init__(self):
         super().__init__(800, 800, 80)
-        self.space.damping = .1
-
+        self.space.damping = .3
 
     def setup(self):
         self.draw_constraints = False
@@ -43,13 +43,15 @@ class FoamTest(TestTemplate):
         #foam
         self.foam = Foam(100, 10, FOAM_WIDTH, FOAM_HEIGHT, MASS_PER_LENGTH, FOAM_STRUCTURAL_PARAMS, FOAM_BENDING_PARAMS)
         self.foam.add(self.space)
-        self.kk = KeyControls(self.space,sum(self.foam.segments,[]))
+        self.kk = KeyControls(self.space,sum(self.foam.segments,[]),MOVING_FORCE,self.display)
         self.prev_vel = self.foam.segments[self.kk.current][0].velocity
 
     def pre_render(self):
-        self.foam.segments_shapes[self.kk.current][0].color = (0, 0, 255, 255)
-        self.kk.solve_keys(self.keys,self.keydowns)
-        self.foam.segments_shapes[self.kk.current][0].color = (255, 0, 0, 255)
+        # self.foam.segments_shapes[self.kk.current][0].color = (0, 0, 255, 255)
+        if self.click:
+            print("click here")
+        self.kk.solve_keys(self.keys,self.keydowns,self.click)
+        # self.foam.segments_shapes[self.kk.current][0].color = (255, 0, 0, 255)
 
 
 if __name__ == "__main__":

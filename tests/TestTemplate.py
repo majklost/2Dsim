@@ -14,6 +14,7 @@ class TestTemplate:
         self.draw_constraints = True
         self.keys = pygame.key.get_pressed()
         self.keydowns = []
+        self.click = None
 
     def setup(self):
         """
@@ -57,11 +58,17 @@ class TestTemplate:
         pygame.time.get_ticks()
         while running:
             self.keydowns = []
+            self.click = None
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                 if event.type == pygame.KEYDOWN:
                     self.keydowns.append(event)
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    self.click = event
+
+
+
             self.keys = pygame.key.get_pressed()
             self.display.fill((255, 255, 255))
             # things before rendering physics

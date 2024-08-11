@@ -11,7 +11,7 @@ class FoamPlayground(TestTemplate):
     def setup(self):
         self.draw_constraints = False
         self.space.gravity = 0, 98.1
-        self.space.damping = .2
+        self.space.damping = .3
         #foam
         foamParamsStruct = Foam.SpringParams(2000, 2000)
         foamParamsBend = Foam.SpringParams(300, 50)
