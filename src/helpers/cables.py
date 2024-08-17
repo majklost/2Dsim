@@ -32,7 +32,7 @@ class Cable(AbstractCable):
             mass_shape.density = .05 / numMasses
             mass_shape.elasticity = 0.5
             mass_shape.friction = 0.5
-            mass_shape.collision_type = 2
+            mass_shape.collision_type = 1
             self.masses.append(mass)
             self.mass_shapes.append(mass_shape)
         for i in range(numMasses - 1):
@@ -75,7 +75,7 @@ class MultibodyCable(AbstractCable):
             mass_shape = pymunk.Poly.create_box(mass, (segment_length, thickness))
             mass_shape.density = .005
             mass_shape.friction = 0.5
-            mass_shape.collision_type = 2
+            mass_shape.collision_type = 1
             mass_shape.color = (0,0,255,0)
             self.segments.append(mass)
             self.segments_shapes.append(mass_shape)
@@ -100,6 +100,8 @@ class MultibodyCable(AbstractCable):
         space.add(*self.angularSprings)
         # space.add(*self.centerSprings)
 
+    standardParams = Cable.SpringParams(5000, 10)
+
 
 
 
@@ -118,7 +120,7 @@ class HardJointCable(AbstractCable):
             mass_shape = pymunk.Poly.create_box(mass, (segment_length, thickness))
             mass_shape.density = .005
             mass_shape.friction = 0.5
-            mass_shape.collision_type = 2
+            mass_shape.collision_type = 1
             self.segments.append(mass)
             self.segments_shapes.append(mass_shape)
         for i in range(segmentNum - 1):

@@ -15,15 +15,18 @@ SEED_SEQ_INIT = 20
 FOAM_WIDTH=200
 FOAM_HEIGHT=250
 MASS_PER_LENGTH = .06
-FOAM_STRUCTURAL_PARAMS = Foam.SpringParams(2000, 2000)
+# MASS_PER_LENGTH = .07
+FOAM_STRUCTURAL_PARAMS = Foam.SpringParams(2000, 500)
 FOAM_BENDING_PARAMS = Foam.SpringParams(300, 50)
 OBSTACLES = True
-MOVING_FORCE = 20000
+MOVING_FORCE = 40000
 
 class FoamTest(TestTemplate):
     def __init__(self):
         super().__init__(800, 800, 80)
         self.space.damping = .3
+        self.suspicious = 0
+        self.prev_vel = 0
 
     def setup(self):
         self.draw_constraints = False
@@ -44,14 +47,19 @@ class FoamTest(TestTemplate):
         self.foam = Foam(100, 10, FOAM_WIDTH, FOAM_HEIGHT, MASS_PER_LENGTH, FOAM_STRUCTURAL_PARAMS, FOAM_BENDING_PARAMS)
         self.foam.add(self.space)
         self.kk = KeyControls(self.space,sum(self.foam.segments,[]),MOVING_FORCE,self.display)
-        self.prev_vel = self.foam.segments[self.kk.current][0].velocity
 
     def pre_render(self):
-        # self.foam.segments_shapes[self.kk.current][0].color = (0, 0, 255, 255)
-        if self.click:
-            print("click here")
+
         self.kk.solve_keys(self.keys,self.keydowns,self.click)
-        # self.foam.segments_shapes[self.kk.current][0].color = (255, 0, 0, 255)
+        cur = self.kk.objects[self.kk.current]
+
+        if cur.force.length > 1000:
+            seg__vel_sum = sum([s.velocity.length for s in self.kk.objects],0)
+            if seg__vel_sum <1000 and seg__vel_sum < self.prev_vel:
+                print("blocked")
+            self.prev_vel = seg__vel_sum
+
+
 
 
 if __name__ == "__main__":

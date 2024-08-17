@@ -81,6 +81,7 @@ class Foam:
                 self.shearSprings.append(spring)
 
     def _spring_force_fnc(self, spring: pymunk.DampedSpring, dist):
+
         if dist > spring.rest_length * (1 + DIST_DEVIATION_TOLERANCE):
             if self.SHOW_CORRECTION:
                 for s in spring.a.shapes.union(spring.b.shapes):
@@ -107,7 +108,7 @@ class Foam:
             mass_shape = pymunk.Circle(mass, self.segment_radius)
             mass_shape.density = DENSIY
             # mass_shape.friction = 0.5
-            mass_shape.collision_type = 2
+            mass_shape.collision_type = 1
             seg_line.append(mass)
             seg_shape_line.append(mass_shape)
         for i in range(num - 1):

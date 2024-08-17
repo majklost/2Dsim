@@ -74,6 +74,18 @@ class RRTNodeSim(RRTNodeTimed):
         return RRTNodeSim(node.x, node.y, node.angle, node.time, node.parent, node.added_cnt, simSpace)
 
 
+class RRTNodeCable:
+    def __init__(self, x,y,simSpace=None):
+        self.x = x
+        self.y = y
+        self.simSpace = simSpace
 
+    def __getitem__(self, item):
+        if item == 0:
+            return self.x
+        elif item == 1:
+            return self.y
+        else:
+            raise IndexError("Index out of bounds")
 
 

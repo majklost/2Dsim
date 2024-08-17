@@ -2,7 +2,6 @@ import pymunk
 import pygame
 from typing import List
 
-
 from pymunk import vec2d
 from pymunk.pygame_util import from_pygame
 
@@ -16,7 +15,7 @@ from pymunk.pygame_util import from_pygame
 # MOVING_FORCE = 3000
 
 class KeyControls:
-    def __init__(self, space: pymunk.Space, objects: List[pymunk.Body], moving_force,screen):
+    def __init__(self, space: pymunk.Space, objects: List[pymunk.Body], moving_force, screen):
         self.space = space
         self.objects = objects
         self.current = 0
@@ -24,12 +23,12 @@ class KeyControls:
         self.moving_force = moving_force
         self.screen = screen
 
-    def change_color(self,color):
+    def change_color(self, color):
         o = self.objects[self.current]
         for s in o.shapes:
             s.color = color
 
-    def solve_keys(self, keys, keydowns,click):
+    def solve_keys(self, keys, keydowns, click):
         self.change_color(pygame.Color("blue"))
         for k in keydowns:
             if k.key == pygame.K_TAB and k.mod & pygame.KMOD_SHIFT:
@@ -40,6 +39,7 @@ class KeyControls:
                 print("change forward")
         if click is not None:
             p = from_pygame(click.pos, self.screen)
+            print("click: ", p)
             for i, obj in enumerate(self.objects):
                 for s in obj.shapes:
                     dist = s.point_query(p).distance
@@ -47,7 +47,6 @@ class KeyControls:
                         self.current = i
                         print("change to", i)
                         break
-
 
         cur_force = [0, 0]
         if keys[pygame.K_LEFT]:
@@ -58,16 +57,9 @@ class KeyControls:
             cur_force[1] = -self.moving_force
         if keys[pygame.K_DOWN]:
             cur_force[1] = self.moving_force
-        c=vec2d.Vec2d(cur_force[0], cur_force[1])
+        c = vec2d.Vec2d(cur_force[0], cur_force[1])
         goodC = c.rotated(-self.objects[self.current].angle)
         self.objects[self.current].apply_force_at_local_point(goodC, (0, 0))
         # self.objects[self.current].velocity = cur_force
+        # self.objects[self.current].apply_impulse_at_local_point(goodC, (0, 0))
         self.change_color(pygame.Color("yellow"))
-
-
-
-
-
-
-
-
