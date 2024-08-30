@@ -5,7 +5,8 @@ from src.cablePlanner import CablePlannerSingle
 
 CABLE_LENGTH = 200
 CABLE_SEGMENTS = 30
-MOVING_FORCE = 1200
+MOVING_FORCE = 10000
+GOAL = 420,500
 
 
 class CablePlannerTest(TestTemplate):
@@ -25,6 +26,8 @@ class CablePlannerTest(TestTemplate):
 
         #plannerSpec
         self.planner = CablePlannerSingle(self.space,MOVING_FORCE)
+
+
 
 
 

@@ -1,7 +1,7 @@
 #Data sturcture for communication between RRT and LocalPlanner
 #Similar to vec2D but I want to be independent of pymunk
-from math import isclose
-
+import numpy as np
+from src.helpers.helperFunctions import get_points_from_space
 CLOSE = 1e-1
 
 #TODO: refactor to better inheritance
@@ -75,17 +75,57 @@ class RRTNodeSim(RRTNodeTimed):
 
 
 class RRTNodeCable:
-    def __init__(self, x,y,simSpace=None):
-        self.x = x
-        self.y = y
+    def __init__(self, pairs:np.array=None,simSpace=None, parent=None, replayer: 'RRTNodeCable.Replayer' =None):
+        """
+        Create Node
+        :param pairs: x,y pairs for each controllable segment
+        :param simSpace: copy of the space
+        :param replayer: object with information to reproduce the path
+        :param parent: parent node :type: RRTNodeCable
+        """
+        self.points = pairs #type: np.array
         self.simSpace = simSpace
+        self.replayer = replayer
+        self.parent = parent #type: RRTNodeCable
+        if self.simSpace is None and self.points is None:
+            raise ValueError("No points or simSpace")
+        self._fill_points()
+        if parent is None:
+            print("No parent in node:", self, "\n")
+
+    def _fill_points(self):
+        """
+        Fills the points from the space
+        But it is costly to do it every time - better use only at start
+        :return:
+        """
+        if self.points is None:
+            points = []
+            bodies = get_points_from_space(self.simSpace, "controlledID")
+            for b in bodies:
+                points.append([b.position.x, b.position.y])
+            self.points = np.array(points)
 
     def __getitem__(self, item):
-        if item == 0:
-            return self.x
-        elif item == 1:
-            return self.y
+        return self.points[item]
+
+    def __str__(self):
+        if self.replayer:
+            return f"Node:\n {self.points},\n iter_count: {self.replayer.iter_cnt},\n ---------"
         else:
-            raise IndexError("Index out of bounds")
+            return "Node: \n" + str(self.points) + " Start NODE"
+    def __repr__(self):
+        return self.__str__()
+
+    class Replayer:
+        """
+        Class to replay the path
+        """
+        def __init__(self, iter_cnt, real_goal):
+            self.iter_cnt = iter_cnt
+            self.real_goal = real_goal
+
+
+
 
 

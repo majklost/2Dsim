@@ -8,3 +8,10 @@
     tak se odchylim od trajektorie -> potreba korigovat natvrdo napsanou pozici
 * Local planner Calc vs Sim - pri stejnem seedu davaji jine trajektorie
 * Ma cenu nyni sdruzovat dynamic planner a static planner aby meli jednotne API ? (Patrne by bylo potreba zmenit i strukturu RRT Node, nyni bych treba daval -1 jako cas unset, ale kdovi, zda by to v budoucnu nedelalo problemy)
+
+## Napady
+* Cable - hledani nejblizsiho nodu na cele trase - nemusim ukladat simulaci, staci ulozit start a pocet kroku od startu
+  * za predpokladu ze metoda cestovani k cili je stejna
+  * Jak ale nyni najit "Nejblizsi" - kdyz jich je tolik, co vlastne znamena nejblizsi?
+  * Kazda iterace ted prida maximalne jednu kopii spacu, popripade lze nejake kopie mazat a dosimulovavat znovu
+  *  

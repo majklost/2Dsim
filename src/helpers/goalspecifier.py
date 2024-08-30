@@ -13,22 +13,22 @@ class GoalSpecifier:
         self.space = space
         self.space.add(region_body,self.region)
         self.in_count = 0
-        self.add_handler()
+        self._add_handler()
         self.required_in_count = required_in_count
         print("Goal Specified, required in count: ", required_in_count)
 
 
 
-    def add_handler(self):
-        self.space.add_collision_handler(1, 3).begin = self.on_enter
-        self.space.add_collision_handler(1, 3).separate = self.on_exit
+    def _add_handler(self):
+        self.space.add_collision_handler(1, 3).begin = self._on_enter
+        self.space.add_collision_handler(1, 3).separate = self._on_exit
 
-    def on_enter(self, arbiter, space, data):
+    def _on_enter(self, arbiter, space, data):
         self.in_count += 1
         print("Entered Goal, now in goal: ", self.in_count)
         return False
 
-    def on_exit(self, arbiter, space, data):
+    def _on_exit(self, arbiter, space, data):
         self.in_count -= 1
         print("Exited Goal, now in goal: ", self.in_count)
         return False
