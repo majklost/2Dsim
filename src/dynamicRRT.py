@@ -1,5 +1,6 @@
-from src.helpers.kd_tree import KD_Tree,Node
 import random
+
+from src.helpers.kd_tree import KD_Tree,Node
 from src.dynamicLocalPlanner import LocalPlannerCalc
 from src.RRTNode import RRTNodeTimed
 

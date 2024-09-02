@@ -4,13 +4,13 @@ import numpy as np
 from src.RRTNode import RRTNodeCable
 import pymunk
 from pymunk import vec2d
-from src.helpers.pygameRenderer import pygameRenderer
+from src.helpers.PygameRenderer import PygameRenderer
 from src.helpers.helperFunctions import render_goal,get_points_from_space
 from typing import List
 
 FORCE_APPLY_THRESHOLD = 5
-# CHECKPOINT_REDUCE_FACTOR = 10
-CHECKPOINT_REDUCE_FACTOR = 1
+CHECKPOINT_REDUCE_FACTOR = 10
+# CHECKPOINT_REDUCE_FACTOR = 1
 
 class CablePlanner:
     """
@@ -23,8 +23,9 @@ class CablePlanner:
         self.max_force = max_force
         self.FPS = FPS
         self.verbose = verbose
+        self.renderer = None
         if rendered:
-            self.renderer = pygameRenderer(800,800,FPS)
+            self.renderer = PygameRenderer(800, 800, FPS)
 
     def _fetch_simSpace(self, node:RRTNodeCable) -> '_SimulatorData':
         if node.simSpace is not None:
@@ -40,8 +41,13 @@ class CablePlanner:
 
 
         #move to wanted position
+        if self.verbose:
+            print("Moving to start position with iters: ", node.replayer.iter_cnt)
         for i in range(node.replayer.iter_cnt):
             sim_data.one_iter(node.replayer.real_goal,self._force_divider_equal(len(sim_data.controlled_bodies)))
+
+        #giving simSpace to node, so it can be reused
+        node.simSpace = sim_data.space.copy()
 
         return sim_data
 
@@ -64,6 +70,7 @@ class CablePlanner:
                     break
             iter_cnt += 1
             new_node = RRTNodeCable(sim_data.get_positions(),replayer=RRTNodeCable.Replayer(iter_cnt,goals.points,start))
+            new_node._movable_bodies = sim_data.moveable_bodies #for rendering and debugging only
             checkpoints.append(new_node)
         print("Iter: ", iter_cnt)
 
@@ -116,10 +123,14 @@ class CablePlanner:
                 vecs.append(good_vec)
             return vecs
 
-        def get_positions(self):
+        def get_positions(self,controlled=True):
             points = []
-            for b in self.controlled_bodies:
-                points.append([b.position.x, b.position.y])
+            if controlled:
+                for b in self.controlled_bodies:
+                    points.append([b.position.x, b.position.y])
+            else:
+                for b in self.moveable_bodies:
+                    points.append([b.position.x, b.position.y])
             return np.array(points)
 
 
@@ -142,17 +153,6 @@ class CablePlanner:
                 self.prev_vel = seg_vel_sum
             return False
 
-
-
-
-
-
-
-
-
-
-
-
 if __name__ == "__main__":
     GOAL = 100,500
     GOAL2 = 50,500
@@ -167,7 +167,7 @@ if __name__ == "__main__":
     cable.add(space)
 
     obstacle = RandomBlock(100, 100, 50, 0)
-    obstacle.add(space)
+    # obstacle.add(space)
 
     for i, s in enumerate(cable.segments):
         s.movedID = i
@@ -181,39 +181,27 @@ if __name__ == "__main__":
             render_goal(display,g)
 
     START = RRTNodeCable(simSpace=space)
-    planner = CablePlanner(MOVING_FORCE,verbose=False,rendered=True)
+    planner = CablePlanner(MOVING_FORCE,verbose=True,rendered=False)
     # planner.renderer.update_cur_clb = draw_goals
     GOALS = RRTNodeCable(np.array([GOAL,GOAL2]))
 
 
 
     res_nodes = planner.check_path(START,GOALS)
-    # print("Nodes: \n", res_nodes)
-    print("Nodes len: " , len(res_nodes))
-    # print(res_node.parent)
-    # print(res_node.points)
-    # full_node = CablePlannerSingle(RRTNodeCable(simSpace=space),MOVING_FORCE,verbose=False)
-    # diffs = []
-    # predicted_points = []
-    # simulated_points = []
-    # SAMPLES = 100
-    # for i in range(SAMPLES):
-    #     predicted = res_node.parent.points[1] + (res_node.points[1]-res_node.parent.points[1])/SAMPLES*i
-    #     print("Predicted: ", predicted)
-    #     simulated = full_node.check_path(GOALS,maxIter=res_node.replayer.iter_cnt//SAMPLES)
-    #     print("Simulated: ", simulated.points[1])
-    #     diff = np.sqrt(np.sum((predicted - simulated.points[1])**2))
-    #     print("Diff: ", diff)
-    #     diffs.append(diff)
-    #     predicted_points.append(predicted)
-    #     simulated_points.append(simulated.points[1])
-    # from matplotlib import pyplot as plt
-    # predicted_points_x = [x[0] for x in predicted_points]
-    # predicted_points_y = [x[1] for x in predicted_points]
-    # simulated_points_x = [x[0] for x in simulated_points]
-    # simulated_points_y = [x[1] for x in simulated_points]
-    # plt.plot(predicted_points_x,predicted_points_y)
-    # plt.plot(simulated_points_x,simulated_points_y,linestyle="--")
-    # plt.show()
+    NEW_START = res_nodes[30]
+    NEW_GOAlS = RRTNodeCable(NEW_START.replayer.real_goal)
+    print("Replanned")
+    replanned = planner.check_path(NEW_START,NEW_GOAlS)
+
+    print(res_nodes[-1])
+    print("-"*20)
+    print(replanned[-1])
+
+    again = planner.check_path(NEW_START,NEW_GOAlS)
+    print(again[-1])
+
+    assert res_nodes[-1] == replanned[-1]
+    assert replanned[-1] == again[-1]
+
 
 

@@ -44,8 +44,19 @@ class CableTest(TestTemplate):
                     block.add(self.space)
                 blocks.append(block)
 
-        end_platform = Obstacle(400, 800, 800, 100)
-        end_platform.add(self.space)
+        end_platform_bot = Obstacle(400, 800, 800, 20)
+        end_platform_bot.add(self.space)
+
+        end_platform_top = Obstacle(400, 0, 800, 20)
+        end_platform_top.add(self.space)
+
+        end_platform_left = Obstacle(0, 400, 20, 800)
+        end_platform_left.add(self.space)
+
+        end_platform_right = Obstacle(800, 400, 20, 800)
+        end_platform_right.add(self.space)
+
+
 
         #goal
         self.goal = GoalSpecifier(440, 500, 300,200, self.space, CABLE_SEGMENTS)
@@ -54,6 +65,9 @@ class CableTest(TestTemplate):
         self.cable = MultibodyCable(20, 50, CABLE_LENGTH, CABLE_SEGMENTS, MultibodyCable.standardParams, thickness=5)
         self.cable.add(self.space)
         self.kk = KeyControls(self.space,self.cable.segments,MOVING_FORCE,self.display)
+
+
+
 
 
     def pre_render(self):

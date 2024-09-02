@@ -2,7 +2,7 @@
 #Similar to vec2D but I want to be independent of pymunk
 import numpy as np
 from src.helpers.helperFunctions import get_points_from_space
-CLOSE = 1e-1
+CLOSE = 2e-1
 
 #TODO: refactor to better inheritance
 
@@ -87,10 +87,16 @@ class RRTNodeCable:
         self.points = pairs #type: np.array
         self.simSpace = simSpace
         self.replayer = replayer
+        self._movable_bodies = None
 
         if self.simSpace is None and self.points is None:
             raise ValueError("No points or simSpace")
         self._fill_points()
+
+    def __eq__(self, other):
+        if self.points is None or other.points is None:
+            return False
+        return np.allclose(self.points, other.points, atol=CLOSE)
 
 
     def _fill_points(self):
@@ -121,16 +127,16 @@ class RRTNodeCable:
         """
         Class to replay the path
         """
-        def __init__(self, iter_cnt, real_goal,parent):
+        def __init__(self, iter_cnt, real_goal:np.array,parent):
             """
 
             :param iter_cnt:
-            :param real_goal:
+            :param real_goal: goal node :np.array
             :param parent: parent node of this node
             """
-            self.iter_cnt = iter_cnt
-            self.real_goal = real_goal
-            self.parent = parent  # type: RRTNodeCable
+            self.iter_cnt :int = iter_cnt
+            self.real_goal :np.array = real_goal
+            self.parent :RRTNodeCable = parent
 
 
 

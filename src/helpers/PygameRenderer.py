@@ -4,7 +4,7 @@ from  pymunk import pygame_util
 
 
 
-class pygameRenderer:
+class PygameRenderer:
     """
     Tool for debugging spaces
     Renders the space in debug mode

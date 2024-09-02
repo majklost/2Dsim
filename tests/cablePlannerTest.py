@@ -1,7 +1,7 @@
 from tests.TestTemplate import TestTemplate
 from src.helpers.cables import MultibodyCable
 from src.helpers.goalspecifier import GoalSpecifier
-from src.cable_planner import CablePlannerSingle
+from src.cable_planner import CablePlanner
 
 CABLE_LENGTH = 200
 CABLE_SEGMENTS = 30
@@ -25,7 +25,7 @@ class CablePlannerTest(TestTemplate):
 
 
         #plannerSpec
-        self.planner = CablePlannerSingle(self.space,MOVING_FORCE)
+        self.planner = CablePlanner(self.space,MOVING_FORCE)
 
 
 

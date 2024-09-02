@@ -1,10 +1,10 @@
 import pymunk
 
-from src.helpers.pygameRenderer import pygameRenderer
+from src.helpers.PygameRenderer import PygameRenderer
 from src.helpers.objectLibrary import Cross
 FPS = 80
 
-renderer = pygameRenderer(800,800,FPS)
+renderer = PygameRenderer(800, 800, FPS)
 space = pymunk.Space()
 cr = Cross(400,400,20,5)
 cr.add(space)
