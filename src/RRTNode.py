@@ -75,23 +75,23 @@ class RRTNodeSim(RRTNodeTimed):
 
 
 class RRTNodeCable:
-    def __init__(self, pairs:np.array=None,simSpace=None, parent=None, replayer: 'RRTNodeCable.Replayer' =None):
+    def __init__(self, pairs:np.array=None,simSpace=None,  replayer: 'RRTNodeCable.Replayer' =None):
         """
-        Create Node
+        Create Node, it has either a simSpace or replayer or both
+        TODO when simSpace here only parent from replayer is needed
         :param pairs: x,y pairs for each controllable segment
         :param simSpace: copy of the space
         :param replayer: object with information to reproduce the path
-        :param parent: parent node :type: RRTNodeCable
+
         """
         self.points = pairs #type: np.array
         self.simSpace = simSpace
         self.replayer = replayer
-        self.parent = parent #type: RRTNodeCable
+
         if self.simSpace is None and self.points is None:
             raise ValueError("No points or simSpace")
         self._fill_points()
-        if parent is None:
-            print("No parent in node:", self, "\n")
+
 
     def _fill_points(self):
         """
@@ -121,9 +121,16 @@ class RRTNodeCable:
         """
         Class to replay the path
         """
-        def __init__(self, iter_cnt, real_goal):
+        def __init__(self, iter_cnt, real_goal,parent):
+            """
+
+            :param iter_cnt:
+            :param real_goal:
+            :param parent: parent node of this node
+            """
             self.iter_cnt = iter_cnt
             self.real_goal = real_goal
+            self.parent = parent  # type: RRTNodeCable
 
 
 
