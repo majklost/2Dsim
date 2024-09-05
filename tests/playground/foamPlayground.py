@@ -27,7 +27,7 @@ class FoamPlayground(TestTemplate):
         ball_shape = pymunk.Circle(ball, 50)
         ball_shape.density = .2
         ball_shape.color = (255, 0, 0, 255)
-        # self.space.add(ball, ball_shape)
+        self.space.add(ball, ball_shape)
 
     def pre_render(self):
         pass

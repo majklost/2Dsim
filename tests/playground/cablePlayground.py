@@ -3,7 +3,7 @@ import pygame.time
 from tests.TestTemplate import TestTemplate
 import pymunk
 import pymunk.constraints
-from src.helpers.cables import Cable,MultibodyCable,HardJointCable
+from src.helpers.cables import Cable,MultibodyCable
 
 
 class CablePlayground(TestTemplate):
@@ -24,17 +24,17 @@ class CablePlayground(TestTemplate):
 
         # multibody cable
         multibodParams = Cable.SpringParams(2000, 1000)
-        self.multibodyCable = MultibodyCable(20, 300, 400, 24, multibodParams)
+        self.multibodyCable = MultibodyCable(20, 300, 400, 30, multibodParams)
         self.multibodyCable.add(self.space)
         self.multibodyCable.segments[0].body_type = pymunk.Body.STATIC
         self.multibodyCable.segments[-1].body_type = pymunk.Body.KINEMATIC
 
         #hardJoint cable
-        hardJointParams = Cable.SpringParams(200, 100)
-        self.hardJointCable = HardJointCable(20, 300, 400, 24, hardJointParams)
-        # self.hardJointCable.add(self.space)
-        self.hardJointCable.segments[0].body_type = pymunk.Body.STATIC
-        self.hardJointCable.segments[-1].body_type = pymunk.Body.KINEMATIC
+        # hardJointParams = Cable.SpringParams(200, 100)
+        # self.hardJointCable = HardJointCable(20, 300, 400, 24, hardJointParams)
+        # # self.hardJointCable.add(self.space)
+        # self.hardJointCable.segments[0].body_type = pymunk.Body.STATIC
+        # self.hardJointCable.segments[-1].body_type = pymunk.Body.KINEMATIC
 
 
         ball = pymunk.Body(0, 0, body_type=pymunk.Body.DYNAMIC)
@@ -42,7 +42,7 @@ class CablePlayground(TestTemplate):
         ball.velocity = 0, 20
 
 
-        self.moving_points.append(self.hardJointCable.segments[-1])
+        # self.moving_points.append(self.hardJointCable.segments[-1])
         self.moving_points.append(self.multibodyCable.segments[-1])
 
         # blockage = pymunk.Body(0, 0, body_type=pymunk.Body.STATIC)

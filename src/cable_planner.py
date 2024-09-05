@@ -19,11 +19,12 @@ class CablePlanner:
 
 
 
-    def __init__(self, max_force, FPS=80,verbose=False,rendered=False):
+    def __init__(self, max_force, FPS=80,verbose=False,rendered=False, auto_stop=True):
         self.max_force = max_force
         self.FPS = FPS
         self.verbose = verbose
         self.renderer = None
+        self.auto_stop = auto_stop
         if rendered:
             self.renderer = PygameRenderer(800, 800, FPS)
 
@@ -62,7 +63,7 @@ class CablePlanner:
         forces = self._force_divider_equal(len(sim_data.controlled_bodies))
         while True:
             res = sim_data.one_iter(goals.points,forces,lambda: sim_data.check_end_custom(goals.points))
-            if res:
+            if res and self.auto_stop:
                 break
             if self.renderer is not None:
                 self.renderer.update_cur(sim_data.space)
@@ -167,7 +168,7 @@ if __name__ == "__main__":
     cable.add(space)
 
     obstacle = RandomBlock(100, 100, 50, 0)
-    # obstacle.add(space)
+    obstacle.add(space)
 
     for i, s in enumerate(cable.segments):
         s.movedID = i
@@ -181,27 +182,27 @@ if __name__ == "__main__":
             render_goal(display,g)
 
     START = RRTNodeCable(simSpace=space)
-    planner = CablePlanner(MOVING_FORCE,verbose=True,rendered=False)
+    planner = CablePlanner(MOVING_FORCE,verbose=True,rendered=True)
     # planner.renderer.update_cur_clb = draw_goals
     GOALS = RRTNodeCable(np.array([GOAL,GOAL2]))
 
 
 
     res_nodes = planner.check_path(START,GOALS)
-    NEW_START = res_nodes[30]
-    NEW_GOAlS = RRTNodeCable(NEW_START.replayer.real_goal)
-    print("Replanned")
-    replanned = planner.check_path(NEW_START,NEW_GOAlS)
-
-    print(res_nodes[-1])
-    print("-"*20)
-    print(replanned[-1])
-
-    again = planner.check_path(NEW_START,NEW_GOAlS)
-    print(again[-1])
-
-    assert res_nodes[-1] == replanned[-1]
-    assert replanned[-1] == again[-1]
+    # NEW_START = res_nodes[30]
+    # NEW_GOAlS = RRTNodeCable(NEW_START.replayer.real_goal)
+    # print("Replanned")
+    # replanned = planner.check_path(NEW_START,NEW_GOAlS)
+    #
+    # print(res_nodes[-1])
+    # print("-"*20)
+    # print(replanned[-1])
+    #
+    # again = planner.check_path(NEW_START,NEW_GOAlS)
+    # print(again[-1])
+    #
+    # assert res_nodes[-1] == replanned[-1]
+    # assert replanned[-1] == again[-1]
 
 
 

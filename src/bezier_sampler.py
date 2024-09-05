@@ -11,10 +11,10 @@ def create_bezier(A,B,C,D):
     def bezier(t):
         return (1-t)**3*A + 3*(1-t)**2*t*B + 3*(1-t)*t**2*C + t**3*D
     return bezier
-ADD_SPACING = 3
+ADD_SPACING = 0
 
 
-class BezierSampler:
+class Sampler:
     """
     algorithm to create a path that is non intersecting
     1) [0,0] and [20,0] are endpoints

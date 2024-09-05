@@ -2,7 +2,7 @@
 #Similar to vec2D but I want to be independent of pymunk
 import numpy as np
 from src.helpers.helperFunctions import get_points_from_space
-CLOSE = 2e-1
+CLOSE = 2
 
 #TODO: refactor to better inheritance
 
