@@ -1,7 +1,7 @@
 #Data sturcture for communication between RRT and LocalPlanner
 #Similar to vec2D but I want to be independent of pymunk
 import numpy as np
-from src.helpers.helperFunctions import get_points_from_space
+from src.helpers.helperFunctions import get_bodies_from_space, get_points_from_bodies
 CLOSE = 2
 
 #TODO: refactor to better inheritance
@@ -91,26 +91,34 @@ class RRTNodeCable:
 
         if self.simSpace is None and self.points is None:
             raise ValueError("No points or simSpace")
-        self._fill_points()
+
 
     def __eq__(self, other):
+        self.fill_points()
         if self.points is None or other.points is None:
             return False
         return np.allclose(self.points, other.points, atol=CLOSE)
 
 
-    def _fill_points(self):
+    def fill_points(self):
         """
         Fills the points from the space
         But it is costly to do it every time - better use only at start
         :return:
         """
+        print("Filling points")
         if self.points is None:
-            points = []
-            bodies = get_points_from_space(self.simSpace, "controlledID")
-            for b in bodies:
-                points.append([b.position.x, b.position.y])
-            self.points = np.array(points)
+            bodies = get_bodies_from_space(self.simSpace, "controlledID")
+            self.points = np.array(get_points_from_bodies(bodies))
+            movables = get_bodies_from_space(self.simSpace, "movedID")
+            print("Movables", len(movables))
+            self._movable_bodies = np.array(get_points_from_bodies(movables))
+
+        print("Filled points")
+        print(len(self.points))
+
+
+
 
     def __getitem__(self, item):
         return self.points[item]

@@ -74,6 +74,7 @@ class DynamicRRTTest(TestTemplate):
         path = rrt.find_path(start, self.goal, ITERS)
         print(len(path))
         print("Time taken: ", time.time() - st)
+        print("Avg steps: ", lp.avg_steps)
         verts = sorted(list(rrt.get_verts()), key=lambda x: x.added_cnt)
         self.path_mover = PathMover(path, agent.body, self.FPS)
         print(len(verts))

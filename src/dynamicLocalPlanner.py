@@ -121,6 +121,8 @@ class LocalPlannerSim:
         self.FPS = FPS
         self.verbose = verbose
         self.blocked = False
+        self.avg_steps = 0
+        self.num_of_called = 0
         print(f"Agent idx: {self.agentIdx}")
 
     def block(self,arb,space,data):
@@ -145,7 +147,7 @@ class LocalPlannerSim:
             return RRTNodeSim.from_timed(node, cpied)
 
     def check_path(self, start: RRTNodeTimed, goal: RRTNodeTimed) -> List[RRTNodeSim]:
-
+        self.num_of_called += 1
         start = self.promote_start_to_sim(start)
         space = start.simSpace.copy()
         agent_body = space.bodies[self.agentIdx]
@@ -161,7 +163,7 @@ class LocalPlannerSim:
         #simulate it
         steps = int(time_for_morph * self.FPS)
         ten_percent = max(steps // 10,1)
-
+        self.avg_steps += 1/self.num_of_called * (steps - self.avg_steps)
 
         dt = 1 / self.FPS
         checkpoints = []

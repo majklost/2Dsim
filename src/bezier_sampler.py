@@ -57,7 +57,8 @@ class Sampler:
 
         return self.arbitrary_points(self.last_sampled,self.controllable_indexes)
 
-
+    def extract_all_points(self):
+        return self.last_sampled
 
 
     def _get_curve_points(self, sc: 'BezierSampler.SamplingConstraints'):
@@ -73,7 +74,7 @@ class Sampler:
         aff_y = np.random.uniform(sc.yMin, sc.yMax)
         affine = np.array([aff_x, aff_y])
 
-        rot_angle = np.random.uniform(sc.angleMin, sc.angleMax)
+        rot_angle = np.random.uniform(sc.angleMin, sc.angleMax) # rotation of whole object
         rot_matrix = np.array([[np.cos(rot_angle), -np.sin(rot_angle)], [np.sin(rot_angle), np.cos(rot_angle)]])
 
 
@@ -113,7 +114,16 @@ class Sampler:
 
 
     class SamplingConstraints:
-        def __init__(self, xMin, xMax, yMin, yMax, angleMin, angleMax):
+        def __init__(self, xMin, xMax, yMin, yMax, angleMin=0, angleMax=2 * np.pi):
+            """
+            curve is moved into sampled point - sampled in xMin,xMax,yMin,yMax and rotated by rotation angleMin,angleMax
+            :param xMin: min x coordinate to sample first segment
+            :param xMax:
+            :param yMin:
+            :param yMax:
+            :param angleMin: max of rotation of whole curce
+            :param angleMax:
+            """
             self.xMin = xMin
             self.xMax = xMax
             self.yMin = yMin

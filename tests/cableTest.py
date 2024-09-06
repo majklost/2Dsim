@@ -23,7 +23,7 @@ SEED_SEQ_INIT = 20
 CABLE_LENGTH = 400
 CABLE_SEGMENTS = 60
 # CABLE_SEGMENTS = 1
-OBSTALCES = True
+OBSTALCES = False
 MOVING_FORCE = 1000
 
 class CableTest(TestTemplate):
@@ -87,7 +87,10 @@ class CableTest(TestTemplate):
             self.prev_vel = seg__vel_sum
 
     def post_render(self):
-        pass
+            segment_positions = [s.position for s in self.cable.segments]
+            num = self.goal.quick_check_points(segment_positions)
+            print(num)
+
 
 
 if __name__ == "__main__":

@@ -17,18 +17,24 @@ class CablePlannerTest(TestTemplate):
         super().__init__(800, 800, 80)
         self.space.damping = .1
     def setup(self):
+
+        controllable_idx = [i for i in range(0,29,3)]
+
         self.draw_constraints = False
         # self.goal = GoalSpecifier(420, 500, 300, 200, self.space, CABLE_SEGMENTS)
         self.cable = MultibodyCable(20, 50, CABLE_LENGTH, CABLE_SEGMENTS, MultibodyCable.standardParams, thickness=5)
-        self.cable.add(self.space)
-
         for i,s in enumerate(self.cable.segments):
             s.movedID = i
-            s.controlledID = i
-        # self.cable.segments[0].controlledID = 0
-        # self.cable.segments[15].controleldID = 1
-        # self.cable.segments[29].controlledID = 2
-        # self.cable.segments[15].controlledID = 0
+        self.cable.add(self.space)
+
+        c_index = 0
+        for i in controllable_idx:
+            self.cable.segments[i].controlledID =  c_index
+            for s in self.cable.segments[i].shapes:
+                s.color = (0,255,0,255)
+            c_index += 1
+
+
 
 
 
@@ -37,10 +43,11 @@ class CablePlannerTest(TestTemplate):
 
 
         #sampler
-        self.sampler = Sampler(CABLE_LENGTH,CABLE_SEGMENTS,[i for i in range(CABLE_SEGMENTS)], seed=6)
-        # self.sampler = Sampler(CABLE_LENGTH,CABLE_SEGMENTS,[0,15,29], seed=5)
+        # self.sampler = Sampler(CABLE_LENGTH,CABLE_SEGMENTS,[i for i in range(CABLE_SEGMENTS)], seed=6)
+        self.sampler = Sampler(CABLE_LENGTH,CABLE_SEGMENTS,controllable_idx, seed=5)
         sc = Sampler.SamplingConstraints(200,600,200,600,0,2*3.14)
         points = self.sampler.sample(sc)
+        print(points)
         all_sampled = self.sampler.last_sampled
 
         START = RRTNodeCable(simSpace=self.space)
@@ -52,6 +59,9 @@ class CablePlannerTest(TestTemplate):
                     self.planner.renderer.draw_circle(g,5,(0,255,0))
                 else:
                     self.planner.renderer.draw_circle(g,2,(255,0,0))
+            for g in points:
+                self.planner.renderer.draw_circle(g,5,(0,0,255))
+
 
         self.planner.renderer.update_cur_clb = draw_shape
 

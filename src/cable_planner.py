@@ -5,7 +5,7 @@ from src.RRTNode import RRTNodeCable
 import pymunk
 from pymunk import vec2d
 from src.helpers.PygameRenderer import PygameRenderer
-from src.helpers.helperFunctions import render_goal,get_points_from_space
+from src.helpers.helperFunctions import render_goal,get_bodies_from_space
 from typing import List
 
 FORCE_APPLY_THRESHOLD = 5
@@ -19,12 +19,16 @@ class CablePlanner:
 
 
 
-    def __init__(self, max_force, FPS=80,verbose=False,rendered=False, auto_stop=True):
+    def __init__(self, max_force, FPS=80,verbose=False,rendered=False, auto_stop=True, max_iter_cnt=1000):
         self.max_force = max_force
         self.FPS = FPS
         self.verbose = verbose
         self.renderer = None
         self.auto_stop = auto_stop
+        self.max_iter_cnt = max_iter_cnt
+
+        self.num_called = 0
+        self.avg_steps = 0
         if rendered:
             self.renderer = PygameRenderer(800, 800, FPS)
 
@@ -32,13 +36,13 @@ class CablePlanner:
         if node.simSpace is not None:
             if self.verbose:
                 print("Using existing simSpace")
-            return self._SimulatorData(node.simSpace,self.FPS)
+            return self._SimulatorData(node.simSpace,self.FPS,self.verbose)
         if node.replayer is None:
             raise ValueError("No replayer in node without simSpace")
         parent_simSpace = node.replayer.parent.simSpace
         if parent_simSpace is None:
             raise ValueError("No simSpace in parent")
-        sim_data = self._SimulatorData(parent_simSpace, self.FPS)
+        sim_data = self._SimulatorData(parent_simSpace, self.FPS,self.verbose)
 
 
         #move to wanted position
@@ -57,11 +61,20 @@ class CablePlanner:
 
 
     def check_path(self, start:RRTNodeCable, goals:RRTNodeCable) -> List[RRTNodeCable]:
+        self._check_validity(start,goals)
+        self.num_called += 1
         sim_data = self._fetch_simSpace(start)
+
+        if len(goals.points) != len(sim_data.controlled_bodies):
+            raise ValueError("Different number of goals and controlled bodies")
+
+
         checkpoints = []
         iter_cnt = 0
         forces = self._force_divider_equal(len(sim_data.controlled_bodies))
         while True:
+            if iter_cnt > self.max_iter_cnt:
+                break
             res = sim_data.one_iter(goals.points,forces,lambda: sim_data.check_end_custom(goals.points))
             if res and self.auto_stop:
                 break
@@ -71,20 +84,31 @@ class CablePlanner:
                     break
             iter_cnt += 1
             new_node = RRTNodeCable(sim_data.get_positions(),replayer=RRTNodeCable.Replayer(iter_cnt,goals.points,start))
-            new_node._movable_bodies = sim_data.moveable_bodies #for rendering and debugging only
+            new_node._movable_bodies = sim_data.get_positions(controlled=False) #for rendering and debugging only
             checkpoints.append(new_node)
-        print("Iter: ", iter_cnt)
-
+        # print("Iter: ", iter_cnt)
+        self.avg_steps += 1/self.num_called * (iter_cnt - self.avg_steps)
 
         return checkpoints[::CHECKPOINT_REDUCE_FACTOR]
+    @staticmethod
+    def _check_validity(start,goals):
+        if start.points is None and start.replayer is None:
+            raise ValueError("No points and replayer in start")
+        if goals.points is None:
+            raise ValueError("No points in goals")
+        if start.points is not None and goals.points is not None:
+            if len(start.points) != len(goals.points):
+                raise ValueError("Different number of points in start and goals")
+
 
     class _SimulatorData:
-        def __init__(self, space:pymunk.Space, FPS):
+        def __init__(self, space:pymunk.Space, FPS,verbose=False):
             self.space =space.copy()
-            self.moveable_bodies = get_points_from_space(self.space,"movedID")
-            self.controlled_bodies = get_points_from_space(self.space,"controlledID")
+            self.moveable_bodies = get_bodies_from_space(self.space, "movedID")
+            self.controlled_bodies = get_bodies_from_space(self.space, "controlledID")
             self.FPS = FPS
             self.prev_vel = 0
+            self.verbose = verbose
         def _apply_force(self,forces,vecs,distances):
             for idx,b in enumerate(self.controlled_bodies):
                 if distances[idx] > FORCE_APPLY_THRESHOLD:
@@ -143,13 +167,15 @@ class CablePlanner:
                 cond =  b.position.get_distance((goals[b.controlledID][0],goals[b.controlledID][1])) < 3
                 reached = reached and cond
             if reached:
-                print("reached")
+                if self.verbose:
+                    print("reached")
                 return True
 
             if f > 300:
                 seg_vel_sum = sum(map(lambda x: x.velocity.length, self.moveable_bodies))
                 if seg_vel_sum < 50 and seg_vel_sum < self.prev_vel:
-                    print("terminate", seg_vel_sum)
+                    if self.verbose:
+                        print("terminate", seg_vel_sum)
                     return True
                 self.prev_vel = seg_vel_sum
             return False

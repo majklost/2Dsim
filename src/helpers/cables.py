@@ -8,6 +8,7 @@ class AbstractCable:
             self.damping = damping
 
 
+
 class Cable(AbstractCable):
     """
     A cable implemented from http://dx.doi.org/10.1051/matecconf/20153110002

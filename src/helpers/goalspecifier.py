@@ -13,9 +13,13 @@ class GoalSpecifier:
         self.space = space
         self.space.add(region_body,self.region)
         self.in_count = 0
-        self._add_handler()
+        # self._add_handler()
         self.required_in_count = required_in_count
         print("Goal Specified, required in count: ", required_in_count)
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
 
 
 
@@ -38,3 +42,14 @@ class GoalSpecifier:
         if b:
             print("Goal Complete")
         return b
+
+    def quick_check_points(self, points):
+        num = 0
+        for p in points:
+            if self._quick_check_point(p[0], p[1]):
+               num += 1
+
+        return num
+
+    def _quick_check_point(self, x, y):
+        return self.x-self.w/2 < x < self.x + self.w/2 and self.y - self.h/2 < y < self.y+self.h/2

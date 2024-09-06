@@ -59,7 +59,7 @@ def convert_path(path):
     :param path:
     :return:
     """
-    print(path)
+    # print(path)
     converted = []
     for i in range(len(path) - 1):
         node = path[i]
@@ -72,7 +72,7 @@ def convert_path(path):
 
         t = length / VELOCITY
         if isinstance(node, RRTNodeTimed):
-            print(next_node.time, node.time)
+            # print(next_node.time, node.time)
             t = next_node.time - node.time
         vel = length / t
 

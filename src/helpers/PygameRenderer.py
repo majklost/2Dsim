@@ -38,7 +38,7 @@ class PygameRenderer:
         if self.update_cur_clb is not None:
             self.update_cur_clb(self.display,space)
         pygame.display.update()
-        self.clock.tick(self.FPS)
+        # self.clock.tick(self.FPS)
 
     def _process_eventQueue(self):
         for event in pygame.event.get():

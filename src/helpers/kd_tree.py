@@ -16,8 +16,8 @@ class Node:
 
 
 class KD_Tree:
-    # Number of dimensions
-    k = 3
+
+    k = 3 # Number of dimensions
 
     # Inserts a new node and returns root of modified tree
     # The parameter depth is used to decide axis of comparison
@@ -119,3 +119,20 @@ class KD_Tree:
     def search(cls, root, point):
         # Pass current depth as 0
         return cls._searchRec(root, point, 0)
+
+
+class BruteForce:
+    def __init__(self):
+        self.points = []
+    def insert(self,point):
+        self.points.append(point)
+
+    def nearestNeighbour(self,point,distancefnc):
+        best_dist = float('inf')
+        best_node = None
+        for p in self.points:
+            cur_dist = distancefnc(point,p)
+            if cur_dist < best_dist:
+                best_dist = cur_dist
+                best_node = p
+        return best_node
