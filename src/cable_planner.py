@@ -83,13 +83,14 @@ class CablePlanner:
                 if not self.renderer.want_running:
                     break
             iter_cnt += 1
-            new_node = RRTNodeCable(sim_data.get_positions(),replayer=RRTNodeCable.Replayer(iter_cnt,goals.points,start))
-            new_node._movable_bodies = sim_data.get_positions(controlled=False) #for rendering and debugging only
-            checkpoints.append(new_node)
+            if iter_cnt % CHECKPOINT_REDUCE_FACTOR == 0:
+                new_node = RRTNodeCable(sim_data.get_positions(),replayer=RRTNodeCable.Replayer(iter_cnt,goals.points,start))
+                new_node._movable_bodies = sim_data.get_positions(controlled=False) #for rendering and debugging only
+                checkpoints.append(new_node)
         # print("Iter: ", iter_cnt)
         self.avg_steps += 1/self.num_called * (iter_cnt - self.avg_steps)
 
-        return checkpoints[::CHECKPOINT_REDUCE_FACTOR]
+        return checkpoints
     @staticmethod
     def _check_validity(start,goals):
         if start.points is None and start.replayer is None:

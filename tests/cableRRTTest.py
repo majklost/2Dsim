@@ -17,8 +17,8 @@ BLOCK_RADIUS = 150
 BLOCK_ROWS = 3
 BLOCK_COLUMNS = 4
 SEED_SEQ_INIT = 20
-CABLE_LENGTH = 400
-CABLE_SEGMENTS = 60
+CABLE_LENGTH = 200
+CABLE_SEGMENTS = 30
 # CABLE_SEGMENTS = 1
 OBSTALCES = True
 MOVING_FORCE = 1000
@@ -62,8 +62,8 @@ class CableRRTTest:
         for i,s in enumerate(self.cable.segments):
             s.movedID = i
 
-        for i in INDEXES:
-            self.cable.segments[i].controlledID = i
+        for n,i in enumerate(INDEXES):
+            self.cable.segments[i].controlledID = n
 
 
 
@@ -80,7 +80,7 @@ class CableRRTTest:
 
         import time
         start_t = time.time()
-        self.rrt.find_path(START,iters=60)
+        self.rrt.find_path(START,iters=617)
         print("Time elapsed: ",time.time()-start_t)
         print("Avg steps: ",self.planner.avg_steps)
 
