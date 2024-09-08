@@ -1,0 +1,29 @@
+from abc import ABC, abstractmethod
+
+class BaseSingleBodyObject(ABC):
+    def __init__(self):
+        pass
+
+    @property
+    @abstractmethod
+    def position(self):
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def orientation(self):
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def velocity(self):
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def angular_velocity(self):
+        raise NotImplementedError
+
+
+
+
