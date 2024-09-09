@@ -30,6 +30,13 @@ class Simulator(BaseSimulator):
         self._fingerprint = random.randint(0, 1000000)
         self.debugger = None  # For PM_debug_viewer
 
+    @property
+    def damping(self):
+        return self._space.damping
+
+    @damping.setter
+    def damping(self, value):
+        self._space.damping = value
 
 
     def _process_config(self, config: PMConfig):

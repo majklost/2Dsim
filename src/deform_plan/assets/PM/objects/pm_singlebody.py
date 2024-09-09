@@ -65,6 +65,14 @@ class PMSingleBodyObject(BaseSingleBodyObject):
     def angular_velocity(self, value):
         self._body.angular_velocity = value
 
+    @property
+    def friction(self):
+        return self._body.friction
+
+    @friction.setter
+    def friction(self, value):
+        self._body.friction = value
+
     def collision_handler(self, arbiter, space, data):
         raise NotImplementedError
 
@@ -79,7 +87,7 @@ class PMSingleBodyObject(BaseSingleBodyObject):
         for shape in self.shapes:
             space.add(shape)
 
-    def set_ID(self, ID: int, moveable: bool = True):
+    def set_ID(self, ID: int | tuple[int,int], moveable: bool = True):
         """
         Used by simulator to set the ID of the object, so that it can be identified in the simulator
         :param ID:
@@ -87,9 +95,9 @@ class PMSingleBodyObject(BaseSingleBodyObject):
         :return:
         """
         if moveable:
-            self._body.moveId = int(ID)
+            self._body.moveId = ID
         else:
-            self._body.fixedId = int(ID)
+            self._body.fixedId = ID
 
 
 
