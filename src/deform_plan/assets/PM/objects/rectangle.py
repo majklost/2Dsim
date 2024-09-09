@@ -10,6 +10,6 @@ class Rectangle(PMSingleBodyObject):
                  h:float,
                  body_type):
         super().__init__(body_type=body_type)
-        shape = pymunk.Poly.create_box(self.body, (w, h))
+        shape = pymunk.Poly.create_box(self._body, (w, h))
         self.shapes = [shape]
         self.position = pos

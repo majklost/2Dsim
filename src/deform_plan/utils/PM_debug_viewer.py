@@ -3,6 +3,7 @@ import pygame
 from pymunk.pygame_util import DrawOptions
 
 from deform_plan.simulators.PM.pm_simulator import Simulator
+from deform_plan.controllers.PM_cable_controller import PMCableController
 
 class DebugViewer:
     def __init__(self, simulator: Simulator,
@@ -10,13 +11,14 @@ class DebugViewer:
                  realtime=False):
         self.simulator = simulator
         self.simulator.debugger = self
-        w,h,self.FPS = self.simulator.get_debug_data()
+        w,h,self.FPS,_ = self.simulator.get_debug_data()
         self.display = pygame.display.set_mode((w, h))
         self.cur_scene = pygame.surface.Surface((w,h))
         self.draw_options = DrawOptions(self.cur_scene)
         self.realtime = realtime
         self.clock = pygame.time.Clock()
         self.want_running = True
+        self.controller = None # type: PMCableController
         if not render_constraints:
             self.draw_options.flags = DrawOptions.DRAW_SHAPES
 
@@ -30,12 +32,22 @@ class DebugViewer:
         pygame.display.update()
         if self.realtime:
             self.clock.tick(self.FPS)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.want_running = False
+        if self.controller is not None:
+            self.controller.update()
+        else:
+            self._mark_end_custom()
+
+
+
 
     def want_end(self):
         return not self.want_running
+
+    def _mark_end_custom(self):
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.want_running = False
 
     def draw_line(self, start, end, color=(0, 0, 0)):
         pygame.draw.line(self.display, color, start, end)

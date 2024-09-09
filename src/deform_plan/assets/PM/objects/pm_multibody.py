@@ -12,7 +12,7 @@ class PMMultiBodyObject(BaseMultiBodyObject):
         self._friction = 0.5
         self._color = (0, 0, 0, 0)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> PMSingleBodyObject:
         return self.bodies[item]
 
     def __len__(self):
@@ -39,6 +39,14 @@ class PMMultiBodyObject(BaseMultiBodyObject):
             for i,b in enumerate(self.bodies):
                 b.set_ID((ID,i),moveable=False)
 
+    def apply_force(self, force, index=None):
+        # self.bodies[index[1]].apply_force(force)
+        if index is None:
+            for i in range(len(self.bodies)):
+                self.bodies[i].apply_force(force[i])
+        else:
+            for i in index:
+                self.bodies[i].apply_force(force[i])
     @property
     def color(self):
         return self._color
@@ -49,7 +57,8 @@ class PMMultiBodyObject(BaseMultiBodyObject):
         for b in self.bodies:
             b.color = color
 
-
+    # def get_force_template(self):
+    #     return [b.get_force_template() for b in self.bodies]
 
     def add_to_space(self, space):
         for b in self.bodies:
@@ -95,5 +104,6 @@ class PMMultiBodyObject(BaseMultiBodyObject):
     @abstractmethod
     def angular_velocity(self):
         raise NotImplementedError("This is abstract class")
+
 
 

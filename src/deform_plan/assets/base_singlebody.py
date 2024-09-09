@@ -25,5 +25,7 @@ class BaseSingleBodyObject(ABC):
         raise NotImplementedError
 
 
-
+    @abstractmethod
+    def apply_force(self, force):
+        pass
 

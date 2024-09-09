@@ -1,0 +1,1 @@
+"""Planner for planning one rigid object"""

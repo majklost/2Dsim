@@ -44,3 +44,12 @@ class BaseMultiBodyObject(ABC):
         :return:
         """
         raise NotImplementedError
+
+    @abstractmethod
+    def apply_force(self, force):
+        """
+        Apply force to the object
+        :param force: force to apply
+        :return:
+        """
+        pass

@@ -20,15 +20,15 @@ dbg = DebugViewer(sim,realtime=True)
 
 
 for i in range(10000):
-    # t = pygame.time.get_ticks()
-    # if t % 10000 < 2500:
-    #     cable[-1].velocity = 50,0
-    # elif t % 10000 < 5000:
-    #     cable[-1].velocity = 0,50
-    # elif t % 10000 < 7500:
-    #     cable[-1].velocity = -50,0
-    # else:
-    #     cable[-1].velocity = 0,-50
+    t = pygame.time.get_ticks()
+    if t % 10000 < 2500:
+        cable[-1].velocity = 50,0
+    elif t % 10000 < 5000:
+        cable[-1].velocity = 0,50
+    elif t % 10000 < 7500:
+        cable[-1].velocity = -50,0
+    else:
+        cable[-1].velocity = 0,-50
 
 
 

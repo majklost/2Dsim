@@ -127,7 +127,10 @@ class Simulator(BaseSimulator):
         Useful when PM_debug_viewer is attached
         :return:
         """
-        return self._width, self._height, self._FPS
+        return self._width, self._height, self._FPS, self._space
+
+    # def get_force_template(self):
+    #     return [b.get_force_template() for b in self.movable_objects]
 
 
 
@@ -142,6 +145,7 @@ class PMExport(BaseSimulatorExport):
     sim_fingerprint: int
     movable_data: List =None #TODO: Implement parsing of the data
     fixed_data: List =None
+
 
 
 

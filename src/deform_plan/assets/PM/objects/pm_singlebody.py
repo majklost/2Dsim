@@ -2,6 +2,7 @@ import pymunk
 import numpy as np
 
 from ...base_singlebody import BaseSingleBodyObject
+from deform_plan.utils.math_utils import rot_matrix
 
 
 class PMSingleBodyObject(BaseSingleBodyObject):
@@ -12,7 +13,7 @@ class PMSingleBodyObject(BaseSingleBodyObject):
         self.shapes = []
         self._body = pymunk.Body(body_type=body_type)
         self._color = (0, 0, 0, 0)
-        self._density = 1
+        self._density = .01
 
 
     @property
@@ -85,6 +86,7 @@ class PMSingleBodyObject(BaseSingleBodyObject):
         """
         space.add(self._body)
         for shape in self.shapes:
+            shape.density = self._density
             space.add(shape)
 
     def set_ID(self, ID: int | tuple[int,int], moveable: bool = True):
@@ -110,3 +112,27 @@ class PMSingleBodyObject(BaseSingleBodyObject):
         self._color = color
         for s in self.shapes:
             s.color = color
+
+    # @staticmethod
+    # def get_force_template():
+    #     """
+    #     Returns the force template for the object
+    #     :return:
+    #     """
+    #     return np.zeros(4)
+
+    def apply_force(self, force: np.array, global_coords=True):
+
+        direction = force[:2]
+        pos = force[2:]
+
+
+
+        if global_coords:
+            rm = rot_matrix(-self.orientation)
+            direction = np.dot(rm, direction)
+
+
+
+
+        self._body.apply_force_at_local_point(direction.tolist(), force[2:].tolist())

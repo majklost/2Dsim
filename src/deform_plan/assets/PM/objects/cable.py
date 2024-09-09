@@ -10,15 +10,20 @@ class SpringParams:
         self.stiffness = stiffness
         self.damping = damping
 
-STANDARD_SPRING_PARAMS = SpringParams(2000, 1000)
+STANDARD_LINEAR_PARAMS = SpringParams(5000, 10)
+STANDARD_ROTARY_PARAMS = SpringParams(500, 10)
 
 class Cable(PMMultiBodyObject):
-    def __init__(self, pos:np.array, length:float, num_links:int, thickness:int=5, params:'SpringParams'=STANDARD_SPRING_PARAMS):
+    def __init__(self, pos:np.array, length:float, num_links:int, thickness:int=2,
+                 linear_params:'SpringParams'=STANDARD_LINEAR_PARAMS,
+                 rotary_params:'SpringParams'=STANDARD_ROTARY_PARAMS
+                 ):
         super().__init__()
         self.length = length
         self.num_links = num_links
         self.thickness = thickness
-        self.params = params
+        self.linear_params = linear_params
+        self.rotary_params = rotary_params
         self.linear_springs = []
         self.angular_springs = []
         self.density = 0.005
@@ -37,15 +42,20 @@ class Cable(PMMultiBodyObject):
         for i in range(self.num_links - 1):
             spring = pymunk.constraints.DampedSpring(self.bodies[i].body, self.bodies[i + 1].body, (0.3 * segment_length, 0),
                                                      (-0.3 * segment_length, 0), 0.4 * segment_length,
-                                                     self.params.stiffness / segment_length,
-                                                     self.params.damping)
+                                                     self.linear_params.stiffness / segment_length,
+                                                     self.linear_params.damping)
             self.linear_springs.append(spring)
+
+        for i in range(self.num_links - 1):
+            spring = pymunk.constraints.DampedRotarySpring(self.bodies[i].body, self.bodies[i + 1].body, 0, self.rotary_params.stiffness, self.rotary_params.damping)
+            self.angular_springs.append(spring)
 
 
 
     def add_to_space(self, space):
         super().add_to_space(space)
         space.add(*self.linear_springs)
+        space.add(*self.angular_springs)
 
 
     @property

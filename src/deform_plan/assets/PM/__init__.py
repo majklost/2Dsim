@@ -6,4 +6,4 @@ from .objects.cross import Cross
 from .objects.foam import Foam
 from .objects.rectangle import Rectangle
 from .objects.random_block import RandomBlock
-from .objects.cable import Cable, STANDARD_SPRING_PARAMS, SpringParams
+from .objects.cable import Cable, STANDARD_ROTARY_PARAMS,STANDARD_LINEAR_PARAMS, SpringParams

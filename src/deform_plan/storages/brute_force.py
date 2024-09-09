@@ -4,7 +4,7 @@ class BruteForce:
     def insert(self,point):
         self.points.append(point)
 
-    def nearestNeighbour(self,point,distancefnc):
+    def nearest_neighbour(self,point,distancefnc):
         best_dist = float('inf')
         best_node = None
         for p in self.points:

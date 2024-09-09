@@ -47,8 +47,3 @@ class PygameRenderer:
                 print("want quit")
 
 
-    def draw_line(self, start, end, color=(0, 0, 0)):
-        pygame.draw.line(self.display, color, start, end)
-
-    def draw_circle(self, pos, radius, color=(0, 0, 0)):
-        pygame.draw.circle(self.display, color, pos, radius)
