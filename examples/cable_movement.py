@@ -19,6 +19,8 @@ cable_controller = PMCableController(cable)
 dbg = DebugViewer(sim,realtime=True)
 dbg.controller = cable_controller
 
+# sim.export()
+
 for i in range(10000):
     if sim.step():
         break

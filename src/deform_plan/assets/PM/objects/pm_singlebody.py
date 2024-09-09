@@ -14,14 +14,21 @@ class PMSingleBodyObject(BaseSingleBodyObject):
         self._body = pymunk.Body(body_type=body_type)
         self._color = (0, 0, 0, 0)
         self._density = .01
+        self.collision_clb = None
 
     @property
     def collision_data(self):
+        if self._collision_data is not None:
+            print("Getting collision data")
         return self._collision_data
 
     @collision_data.setter
     def collision_data(self, value: CollisionData):
+        print("Setting collision data", value)
+        if self.collision_clb is not None:
+            self.collision_clb(value)
         self._collision_data = value
+
 
 
 

@@ -35,5 +35,6 @@ class PMRectangleController:
             self.rect.orientation -= 0.1
         # print(force_template)
 
-
+        # self.rect.body.velocity = (force_template[:2]/200).tolist()
+        print(self.rect.velocity)
         self.rect.apply_force(force_template)

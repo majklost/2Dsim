@@ -10,8 +10,8 @@ class DebugViewer:
                  render_constraints=False,
                  realtime=False):
         self.simulator = simulator
-        self.simulator.debugger = self
-        w,h,self.FPS,_ = self.simulator.get_debug_data()
+        self.simulator.debuggerclb = lambda x :self.update_cur(x)
+        w,h,self.FPS = self.simulator.get_debug_data()
         self.display = pygame.display.set_mode((w, h))
         self.cur_scene = pygame.surface.Surface((w,h))
         self.draw_options = DrawOptions(self.cur_scene)
@@ -19,8 +19,10 @@ class DebugViewer:
         self.clock = pygame.time.Clock()
         self.want_running = True
         self.controller = None # type: PMCableController
+        self.drawings = []
         if not render_constraints:
             self.draw_options.flags = DrawOptions.DRAW_SHAPES
+
 
 
 
@@ -29,6 +31,8 @@ class DebugViewer:
         self.cur_scene.fill((255, 255, 255))
         space.debug_draw(self.draw_options)
         self.display.blit(self.cur_scene, (0, 0))
+        for d in self.drawings:
+            d.draw(self.display)
         pygame.display.update()
         if self.realtime:
             self.clock.tick(self.FPS)
@@ -36,6 +40,9 @@ class DebugViewer:
             self.controller.update()
         else:
             self._mark_end_custom()
+        if self.want_end:
+            return False
+        return True
 
 
 
@@ -53,4 +60,13 @@ class DebugViewer:
         pygame.draw.line(self.display, color, start, end)
 
     def draw_circle(self, pos, radius, color=(0, 0, 0)):
-        pygame.draw.circle(self.display, color, pos, radius)
+        self.drawings.append(self._Circle(pos, radius, color))
+
+    class _Circle:
+        def __init__(self, pos, radius, color):
+            self.pos = pos
+            self.radius = radius
+            self.color = color
+
+        def draw(self, display):
+            pygame.draw.circle(display, self.color, self.pos, self.radius)

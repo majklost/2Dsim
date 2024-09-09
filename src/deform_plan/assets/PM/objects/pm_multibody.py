@@ -24,6 +24,10 @@ class PMMultiBodyObject(BaseMultiBodyObject):
     def __setitem__(self, key, value):
         self.bodies[key] = value
 
+    @property
+    def collision_data(self):
+        raise NotImplementedError("MultiBodyObject does not have collision data")
+
 
     def append(self, body:PMSingleBodyObject):
         body.color = self.color

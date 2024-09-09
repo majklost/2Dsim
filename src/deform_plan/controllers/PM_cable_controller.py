@@ -5,6 +5,7 @@ import numpy as np
 
 
 from deform_plan.assets.PM import Cable
+from deform_plan.assets.PM.configs.pymunk_env_cfg import DYNAMIC, KINEMATIC
 
 
 class PMCableController:
@@ -28,11 +29,14 @@ class PMCableController:
         self._set_current(new_idx)
 
     def _set_current(self, index):
+
         if self.color_change:
             self.cable.bodies[self.current].color = pygame.Color("blue")
+
         self.current = index
         if self.color_change:
             self.cable.bodies[self.current].color = pygame.Color("yellow")
+
 
     def update(self):
         force_template = np.zeros(4)
@@ -67,7 +71,8 @@ class PMCableController:
         if keys[pygame.K_DOWN]:
             force_template[1] = self.moving_force
 
-
+        # self.cable.bodies[self.current].velocity = (force_template[:2]/2)
+        #
         self.cable.bodies[self.current].apply_force(force_template)
 
 

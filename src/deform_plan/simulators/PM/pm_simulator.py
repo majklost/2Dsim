@@ -1,3 +1,5 @@
+from copyreg import pickle
+
 import numpy as np
 import pymunk
 
@@ -32,7 +34,7 @@ class Simulator(BaseSimulator):
         self._collision_handling()
         self._steps = 0
         self._fingerprint = random.randint(0, 1000000)
-        self.debugger = None  # For PM_debug_viewer
+        self.debuggerclb = None  # For PM_debug_viewer
 
     @property
     def damping(self):
@@ -60,28 +62,34 @@ class Simulator(BaseSimulator):
     def _begin_collision(self, arbiter:pymunk.Arbiter, space, data):
         b1 = arbiter.shapes[0]
         b2 = arbiter.shapes[1]
-        print("Collision detected")
+        # print("Collision detected")
+
 
         o1 = self._identify_object(b1.body)
         o2 = self._identify_object(b2.body)
+
         data1 = CollisionData(arbiter.normal, b2, o2)
         data2 = CollisionData(-arbiter.normal, b1, o1)
         o1.collision_data = data1
         o2.collision_data = data2
+        # o1.color = (255,0,0,0)
+        # o2.color = (0,255,0,0)
 
         return True
 
     def _end_collision(self, arbiter, space, data):
         b1 = arbiter.shapes[0]
         b2 = arbiter.shapes[1]
-        print("Collision ended")
+        # print("Collision ended")
 
         o1 = self._identify_object(b1.body)
         o2 = self._identify_object(b2.body)
-        if o1.collision_data is not None and o1.collision_data.stamp == o2.collision_data.stamp:
-            o1.collision_data = None
-        if o2.collision_data is not None and o2.collision_data.stamp == o2.collision_data.stamp:
-            o2.collision_data = None
+        # if o1.collision_data is not None:
+        #     if o1.collision_data.stamp == o1.collision_data.stamp:
+        #         o1.collision_data = None
+        # if o2.collision_data is not None:
+        #     if o2.collision_data.stamp == o2.collision_data.stamp:
+        #         o2.collision_data = None
 
 
 
@@ -89,13 +97,15 @@ class Simulator(BaseSimulator):
     def _identify_object(self, body):
         if hasattr(body, 'moveId'):
             cid = body.moveId
-            if cid is tuple:
+            print("moveID",cid)
+            if type(cid) == tuple:
                 return self.movable_objects[cid[0]][cid[1]]
             else:
                 return self.movable_objects[cid]
         elif hasattr(body, 'fixedId'):
             cid = body.fixedId
-            if cid is tuple:
+            print("fixedID", cid)
+            if type(cid) ==tuple:
                 return self.fixed_objects[cid[0]][cid[1]]
             else:
                 return self.fixed_objects[cid]
@@ -103,8 +113,8 @@ class Simulator(BaseSimulator):
 
     def _collision_handling(self):
         handler = self._space.add_default_collision_handler()
-        handler.begin = self._begin_collision
-        handler.separate = self._end_collision
+        handler.begin = lambda a,s,d : self._begin_collision(a,s,d)
+        handler.separate = lambda a,s,d : self._end_collision(a,s,d)
 
 
     def step(self):
@@ -114,10 +124,10 @@ class Simulator(BaseSimulator):
         """
         self._space.step(1/self._FPS)
         self._steps += 1
-        if self.debugger is not None:
-            self.debugger.update_cur(self._space)
-            if self.debugger.want_end():
+        if self.debuggerclb is not None:
+            if self.debuggerclb(self._space):
                 return True
+
 
         return False
 
@@ -138,23 +148,25 @@ class Simulator(BaseSimulator):
         :param simulator:
         :return: Simulator object
         """
+        # print(self.movable_objects[0])
         if self._fingerprint != simulator.sim_fingerprint:
             raise ValueError("Simulator fingerprint does not match")
 
-        self._space = simulator.space
+        self._space = simulator.space.copy()
         self._steps = simulator.steps
         self._width = simulator.width
         self._height = simulator.height
         self._FPS = simulator.FPS
         self._collect_objects()
+        # print(self.movable_objects[0])
         if simulator.movable_data is not None or simulator.fixed_data is not None:
-            raise NotImplementedError("Importing of the data is not implemented yet")
+            raise NotImplementedError("Importing of the nodes is not implemented yet")
 
 
 
     def export(self)->'PMExport':
         """
-        Exports data from the simulator so it can be reused later
+        Exports nodes from the simulator so it can be reused later
         :return:
         """
         return PMExport(self._space.copy(), self._steps, self._width, self._height, self._FPS, self._fingerprint)
@@ -180,7 +192,7 @@ class Simulator(BaseSimulator):
         Useful when PM_debug_viewer is attached
         :return:
         """
-        return self._width, self._height, self._FPS, self._space
+        return self._width, self._height, self._FPS
 
     # def get_force_template(self):
     #     return [b.get_force_template() for b in self.movable_objects]
@@ -196,7 +208,7 @@ class PMExport(BaseSimulatorExport):
     height: int
     FPS: int
     sim_fingerprint: int
-    movable_data: List =None #TODO: Implement parsing of the data
+    movable_data: List =None #TODO: Implement parsing of the nodes
     fixed_data: List =None
 
 
