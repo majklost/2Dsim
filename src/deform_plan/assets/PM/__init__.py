@@ -5,3 +5,4 @@ from .configs.pymunk_env_cfg import PMConfig, DYNAMIC, KINEMATIC, STATIC
 from .objects.cross import Cross
 from .objects.foam import Foam
 from .objects.rectangle import Rectangle
+from .objects.random_block import RandomBlock

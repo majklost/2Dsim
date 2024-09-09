@@ -1,6 +1,6 @@
 import pymunk
 
-from typing import List
+from typing import List, overload
 from dataclasses import dataclass
 
 
@@ -21,14 +21,14 @@ class Simulator(BaseSimulator):
         self._FPS = None
         self._height = None
         self._width = None
-        self.movable_objects = movable_objects
+        self.movable_objects = movable_objects #overload so that the type checker does not complain
         self.fixed_objects = fixed_objects
         self._space = pymunk.Space()
         self._process_config(config)
         self._add_objects_to_space()
         self._steps = 0
         self._fingerprint = random.randint(0, 1000000)
-        self.debugger = None
+        self.debugger = None  # For PM_debug_viewer
 
 
 
@@ -48,6 +48,10 @@ class Simulator(BaseSimulator):
             obj.add_to_space(self._space)
 
     def step(self):
+        """
+        Make a step in the simulation
+        :return:
+        """
         self._space.step(1/self._FPS)
         self._steps += 1
         if self.debugger is not None:
@@ -89,6 +93,10 @@ class Simulator(BaseSimulator):
 
 
     def export(self)->'PMExport':
+        """
+        Exports data from the simulator so it can be reused later
+        :return:
+        """
         return PMExport(self._space.copy(), self._steps, self._width, self._height, self._FPS, self._fingerprint)
 
     def _collect_objects(self):
@@ -108,6 +116,10 @@ class Simulator(BaseSimulator):
                     self.fixed_objects[cid].body = b
 
     def get_debug_data(self):
+        """
+        Useful when PM_debug_viewer is attached
+        :return:
+        """
         return self._width, self._height, self._FPS
 
 
