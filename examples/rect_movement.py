@@ -8,7 +8,8 @@ from deform_plan.controllers.PM_rectangle_controller import PMRectangleControlle
 cfg = PMConfig()
 
 rect = Rectangle([100,100],200,20,DYNAMIC)
-sim = Simulator(cfg, [rect], [])
+obstacle = Rectangle([400,200],100,100,STATIC)
+sim = Simulator(cfg, [rect], [obstacle])
 sim.damping = .1
 
 rect_controller = PMRectangleController(rect, moving_force=20000)

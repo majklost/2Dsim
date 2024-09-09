@@ -3,17 +3,26 @@ import numpy as np
 
 from ...base_singlebody import BaseSingleBodyObject
 from deform_plan.utils.math_utils import rot_matrix
+from deform_plan.simulators.PM.collision_data import CollisionData
 
 
 class PMSingleBodyObject(BaseSingleBodyObject):
     def __init__(self,body_type):
         super().__init__()
-        self._collision_object = None #what collided with my object
-        self.colliding = False
+        self._collision_data = None #type: CollisionData
         self.shapes = []
         self._body = pymunk.Body(body_type=body_type)
         self._color = (0, 0, 0, 0)
         self._density = .01
+
+    @property
+    def collision_data(self):
+        return self._collision_data
+
+    @collision_data.setter
+    def collision_data(self, value: CollisionData):
+        self._collision_data = value
+
 
 
     @property
@@ -74,16 +83,14 @@ class PMSingleBodyObject(BaseSingleBodyObject):
     def friction(self, value):
         self._body.friction = value
 
-    def collision_handler(self, arbiter, space, data):
-        raise NotImplementedError
-
-    def add_to_space(self, space):
+    def add_to_space(self, space: pymunk.Space):
         """
         Simulator provides the space, and the object adds itself to the space
         Pymunk does not allow add same shape to multiple spaces
         :param space:
         :return:
         """
+
         space.add(self._body)
         for shape in self.shapes:
             shape.density = self._density
@@ -101,6 +108,9 @@ class PMSingleBodyObject(BaseSingleBodyObject):
         else:
             self._body.fixedId = ID
 
+    def __str__(self):
+        return f"SingleBodyObject: {self._body}"
+
 
 
     @property
@@ -113,26 +123,11 @@ class PMSingleBodyObject(BaseSingleBodyObject):
         for s in self.shapes:
             s.color = color
 
-    # @staticmethod
-    # def get_force_template():
-    #     """
-    #     Returns the force template for the object
-    #     :return:
-    #     """
-    #     return np.zeros(4)
-
     def apply_force(self, force: np.array, global_coords=True):
 
         direction = force[:2]
         pos = force[2:]
-
-
-
         if global_coords:
             rm = rot_matrix(-self.orientation)
             direction = np.dot(rm, direction)
-
-
-
-
         self._body.apply_force_at_local_point(direction.tolist(), force[2:].tolist())
