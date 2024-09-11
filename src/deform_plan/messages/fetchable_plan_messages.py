@@ -1,6 +1,6 @@
 
 from .base_planner_messages import BasePlannerRequest, BasePlannerResponse
-from ..assets.PM.nodes.sim_node import NodeReached, NodeGoal
+from deform_plan.messages.nodes.sim_node import NodeReached, NodeGoal
 
 class FetchablePlannerRequest(BasePlannerRequest):
     def __init__(self, start:NodeReached, goal:NodeGoal):

@@ -1,12 +1,11 @@
 """Planner for planning one rigid object"""
 import numpy as np
-from typing import List
 #TODO: rewrite to better use - now just PoC
 
 from deform_plan.planners.base_planner import BasePlanner
 from ..messages.fetchable_plan_messages import FetchablePlannerRequest, FetchablePlannerResponse
 from ..simulators.PM.pm_simulator import Simulator
-from ..assets.PM.nodes.sim_node import NodeReached, NodeGoal
+from deform_plan.messages.nodes.sim_node import NodeReached, NodeGoal
 
 
 
@@ -16,10 +15,14 @@ class FetchAblePlanner(BasePlanner):
                  only_simuls: bool = False
                  ):
         super().__init__(simulator)
+
         # self.simulator = simulator
         self.only_simuls = only_simuls
         self.max_iter_cnt = max_iter_cnt
         self.movable_idx = movable_index
+        self.after_load_clb = None
+        self.iter_cnt = 0
+
 
 
 
@@ -31,21 +34,29 @@ class FetchAblePlanner(BasePlanner):
         response = FetchablePlannerResponse()
         if start.sim_export is None:
             self._fetch_simspace(start)
-        iter_cnt = 0
+        cur_iter_cnt = 0
+
+        self.simulator: Simulator #cast the type
         self.simulator.import_from(start.sim_export)
+        if self.after_load_clb is not None:
+            self.after_load_clb(self.simulator)
+        # print(goal.info_vec[-1])
 
         while self._guide_to_goal(goal):
             self.simulator.step()
 
             if self._check_end():
                 break
-            iter_cnt += 1
-            if iter_cnt > self.max_iter_cnt:
+            cur_iter_cnt += 1
+            if cur_iter_cnt > self.max_iter_cnt:
                 break
-            if iter_cnt % 20 == 0:
-                print("Iter: ", iter_cnt)
-                response.checkpoints.append(self.create_checkpoint(iter_cnt, goal, start))
-        print("Final Iter: ", iter_cnt)
+            if cur_iter_cnt % 20 == 0:
+                print("Cur Iter: ", cur_iter_cnt)
+            self.iter_cnt = cur_iter_cnt+start.iter_cnt
+
+            response.checkpoints.append(self.create_checkpoint(self.iter_cnt, goal, start))
+        print("Final cur Iter: ", cur_iter_cnt)
+        response.checkpoints.append(self.create_checkpoint(self.iter_cnt, goal, start))
         return response
 
     def create_checkpoint(self,iter_cnt:int, goal: NodeGoal,parent:NodeReached) -> NodeReached:
@@ -62,6 +73,8 @@ class FetchAblePlanner(BasePlanner):
         return False
         # return self.simulator.movable_objects[self.movable_idx].collision_data is not None
 
+    def form_start_node(self) -> NodeReached:
+        return NodeReached(0, sim_export=self.simulator.export())
 
     def _fetch_simspace(self, node: NodeReached):
         if node.replayer is None:
@@ -70,6 +83,7 @@ class FetchAblePlanner(BasePlanner):
         parent_simSpace = node.replayer.parent.sim_export
         if parent_simSpace is None:
             raise ValueError("No simSpace in parent")
+        self.simulator: Simulator
         self.simulator.import_from(parent_simSpace)
         for i in range(node.iter_cnt):
             #give forces like before
@@ -87,9 +101,9 @@ class FetchAblePlanner(BasePlanner):
         :param goal:
         :return:
         """
-        pos = goal.info_vec[0:2]
-        rot = goal.info_vec[2]
-        force = goal.info_vec[3]
+        pos = goal.pos
+        rot = goal.rot
+        force = goal.force
         rot_diff = rot - self.simulator.movable_objects[self.movable_idx].orientation
         direction = pos - self.simulator.movable_objects[self.movable_idx].position
         dir_len = np.linalg.norm(direction)

@@ -1,4 +1,7 @@
-class BruteForce:
+"""Usage for high dimensional spaces, where KDTree is not efficient"""
+from .base_storage import BaseStorage
+
+class BruteForce(BaseStorage):
     def __init__(self):
         self.points = []
     def insert(self,point):

@@ -1,3 +1,4 @@
+from  .base_storage import BaseStorage
 # code taken from https://www.geeksforgeeks.org/search-and-insertion-in-k-dimensional-tree/
 # nearest neighbour search implemented myself
 # A structure to represent node of kd tree
@@ -14,8 +15,21 @@ class Node:
         if self.right:
             yield from self.right
 
+class KDTree(BaseStorage):
+    def __init__(self,k=3):
+        self.root = None
+        self.tree = _KDTree
+        self.tree.k = k
 
-class KDTree:
+    def insert(self,point):
+        self.root = self.tree.insert(self.root,point)
+
+    def nearest_neighbour(self,point,distancefnc):
+        return self.tree.nearestNeighbour(self.root,point,distancefnc)
+
+
+
+class _KDTree:
 
     k = 3 # Number of dimensions
 

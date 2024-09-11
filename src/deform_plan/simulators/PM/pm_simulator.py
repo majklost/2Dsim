@@ -1,6 +1,4 @@
-from copyreg import pickle
 
-import numpy as np
 import pymunk
 
 from typing import List
@@ -22,6 +20,7 @@ class Simulator(BaseSimulator):
                  fixed_objects: List[PMSingleBodyObject| PMMultiBodyObject],
                  ):
         super().__init__(movable_objects, fixed_objects)
+        self.movable_objects : List[PMSingleBodyObject| PMMultiBodyObject]
         self._FPS = None
         self._height = None
         self._width = None
@@ -43,6 +42,10 @@ class Simulator(BaseSimulator):
     @damping.setter
     def damping(self, value):
         self._space.damping = value
+
+    @property
+    def fps(self):
+        return self._FPS
 
 
     def _process_config(self, config: PMConfig):
@@ -84,12 +87,12 @@ class Simulator(BaseSimulator):
 
         o1 = self._identify_object(b1.body)
         o2 = self._identify_object(b2.body)
-        # if o1.collision_data is not None:
-        #     if o1.collision_data.stamp == o1.collision_data.stamp:
-        #         o1.collision_data = None
-        # if o2.collision_data is not None:
-        #     if o2.collision_data.stamp == o2.collision_data.stamp:
-        #         o2.collision_data = None
+        if o1.collision_data is not None:
+            if o1.collision_data.stamp == o1.collision_data.stamp:
+                o1.collision_data = None
+        if o2.collision_data is not None:
+            if o2.collision_data.stamp == o2.collision_data.stamp:
+                o2.collision_data = None
 
 
 
@@ -97,14 +100,13 @@ class Simulator(BaseSimulator):
     def _identify_object(self, body):
         if hasattr(body, 'moveId'):
             cid = body.moveId
-            print("moveID",cid)
             if type(cid) == tuple:
                 return self.movable_objects[cid[0]][cid[1]]
             else:
                 return self.movable_objects[cid]
         elif hasattr(body, 'fixedId'):
             cid = body.fixedId
-            print("fixedID", cid)
+
             if type(cid) ==tuple:
                 return self.fixed_objects[cid[0]][cid[1]]
             else:
@@ -161,7 +163,6 @@ class Simulator(BaseSimulator):
         # print(self.movable_objects[0])
         if simulator.movable_data is not None or simulator.fixed_data is not None:
             raise NotImplementedError("Importing of the nodes is not implemented yet")
-
 
 
     def export(self)->'PMExport':

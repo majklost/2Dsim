@@ -18,15 +18,10 @@ class PMSingleBodyObject(BaseSingleBodyObject):
 
     @property
     def collision_data(self):
-        if self._collision_data is not None:
-            print("Getting collision data")
         return self._collision_data
 
     @collision_data.setter
     def collision_data(self, value: CollisionData):
-        print("Setting collision data", value)
-        if self.collision_clb is not None:
-            self.collision_clb(value)
         self._collision_data = value
 
 

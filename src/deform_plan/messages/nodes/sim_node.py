@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 import numpy as np
 
 from deform_plan.simulators.PM.pm_simulator import PMExport
@@ -25,7 +27,14 @@ class NodeReached:
             self.real_goal :NodeGoal = real_goal
             self.parent :NodeReached = parent
 
+
+
+
+@dataclass
 class NodeGoal:
-    def __init__(self, info_vec: np.array):
-        self.info_vec = info_vec #e.g x,y,rot,iter_cnt,force
+        pos: np.array
+        rot : float
+        force : float
+        iter_cnt : int
+        # self.info_vec = info_vec #e.g x,y,rot,force,iter_cnt
 
