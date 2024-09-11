@@ -1,0 +1,122 @@
+SimNode: 20, {'pos': array([65.85273959, 55.14474734]), 'angle': 0.24693139604365144, 'cur_iter': 20},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 40, {'pos': array([81.70547919, 60.28949468]), 'angle': 0.4938627920873029, 'cur_iter': 40},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 60, {'pos': array([97.55821878, 65.43424202]), 'angle': 0.7407941881309544, 'cur_iter': 60},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 80, {'pos': array([113.41095837,  70.57898935]), 'angle': 0.9877255841746061, 'cur_iter': 80},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 100, {'pos': array([129.26369796,  75.72373669]), 'angle': 1.2346569802182565, 'cur_iter': 100},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 120, {'pos': array([145.11643756,  80.86848403]), 'angle': 1.4815883762619069, 'cur_iter': 120},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 140, {'pos': array([160.96917715,  86.01323137]), 'angle': 1.7285197723055572, 'cur_iter': 140},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 160, {'pos': array([176.82191674,  91.15797871]), 'angle': 1.9754511683492075, 'cur_iter': 160},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 180, {'pos': array([192.67465634,  96.30272605]), 'angle': 2.222382564392862, 'cur_iter': 180},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 200, {'pos': array([208.52739593, 101.44747338]), 'angle': 2.4693139604365166, 'cur_iter': 200},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 220, {'pos': array([224.38013552, 106.59222072]), 'angle': 2.7162453564801714, 'cur_iter': 220},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 240, {'pos': array([240.23287512, 111.73696806]), 'angle': 2.963176752523826, 'cur_iter': 240},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 260, {'pos': array([256.08561471, 116.8817154 ]), 'angle': 3.210108148567478, 'cur_iter': 260},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 280, {'pos': array([271.9383543 , 122.02646274]), 'angle': 3.457039544611128, 'cur_iter': 280},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 300, {'pos': array([287.79109389, 127.17121008]), 'angle': 3.7039709406547785, 'cur_iter': 300},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 320, {'pos': array([303.64383349, 132.31595741]), 'angle': 3.950902336698429, 'cur_iter': 320},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 340, {'pos': array([319.49657308, 137.46070475]), 'angle': 4.197833732742076, 'cur_iter': 340},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 360, {'pos': array([335.34931267, 142.60545209]), 'angle': 4.444765128785722, 'cur_iter': 360},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 380, {'pos': array([351.20205227, 147.75019943]), 'angle': 4.691696524829371, 'cur_iter': 380},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 400, {'pos': array([367.05479186, 152.89494677]), 'angle': 4.938627920873026, 'cur_iter': 400},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+iter:  0
+SimNode: 1201, {'pos': array([177.8091615 , 195.45628769]), 'angle': 2.685047391564748, 'cur_iter': 1201},
+ PARENT: SimNode: 200, {'pos': array([208.52739593, 101.44747338]), 'angle': 2.4693139604365166, 'cur_iter': 200},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+iter:  1
+SimNode: 2202, {'pos': array([192.52276685, 244.63745495]), 'angle': 2.6960807329048904, 'cur_iter': 2202},
+ PARENT: SimNode: 1201, {'pos': array([177.8091615 , 195.45628769]), 'angle': 2.685047391564748, 'cur_iter': 1201},
+ PARENT: SimNode: 200, {'pos': array([208.52739593, 101.44747338]), 'angle': 2.4693139604365166, 'cur_iter': 200},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+iter:  2
+SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
+ PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+iter:  3
+SimNode: 1180, {'pos': array([388.03864201, 180.51540188]), 'angle': 5.103156792952245, 'cur_iter': 1180},
+ PARENT: SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
+ PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+iter:  4
+SimNode: 2480, {'pos': array([184.5019316 , 262.42316574]), 'angle': 2.8223146895418796, 'cur_iter': 2480},
+ PARENT: SimNode: 2202, {'pos': array([192.52276685, 244.63745495]), 'angle': 2.6960807329048904, 'cur_iter': 2202},
+ PARENT: SimNode: 1201, {'pos': array([177.8091615 , 195.45628769]), 'angle': 2.685047391564748, 'cur_iter': 1201},
+ PARENT: SimNode: 200, {'pos': array([208.52739593, 101.44747338]), 'angle': 2.4693139604365166, 'cur_iter': 200},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+iter:  5
+SimNode: 1299, {'pos': array([390.76322944, 182.24177346]), 'angle': 5.063014573528632, 'cur_iter': 1299},
+ PARENT: SimNode: 1180, {'pos': array([388.03864201, 180.51540188]), 'angle': 5.103156792952245, 'cur_iter': 1180},
+ PARENT: SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
+ PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+iter:  6
+SimNode: 1361, {'pos': array([334.01797149, 145.83924173]), 'angle': 4.4512432568777935, 'cur_iter': 1361},
+ PARENT: SimNode: 360, {'pos': array([335.34931267, 142.60545209]), 'angle': 4.444765128785722, 'cur_iter': 360},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+iter:  7
+SimNode: 3481, {'pos': array([188.76503127, 270.81903377]), 'angle': 3.1432682204703775, 'cur_iter': 3481},
+ PARENT: SimNode: 2480, {'pos': array([184.5019316 , 262.42316574]), 'angle': 2.8223146895418796, 'cur_iter': 2480},
+ PARENT: SimNode: 2202, {'pos': array([192.52276685, 244.63745495]), 'angle': 2.6960807329048904, 'cur_iter': 2202},
+ PARENT: SimNode: 1201, {'pos': array([177.8091615 , 195.45628769]), 'angle': 2.685047391564748, 'cur_iter': 1201},
+ PARENT: SimNode: 200, {'pos': array([208.52739593, 101.44747338]), 'angle': 2.4693139604365166, 'cur_iter': 200},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+iter:  8
+SimNode: 1432, {'pos': array([409.14835434, 182.69904191]), 'angle': 4.902209206439512, 'cur_iter': 1432},
+ PARENT: SimNode: 1299, {'pos': array([390.76322944, 182.24177346]), 'angle': 5.063014573528632, 'cur_iter': 1299},
+ PARENT: SimNode: 1180, {'pos': array([388.03864201, 180.51540188]), 'angle': 5.103156792952245, 'cur_iter': 1180},
+ PARENT: SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
+ PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+iter:  9
+Done

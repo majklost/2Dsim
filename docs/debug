@@ -1,0 +1,50 @@
+oba chteji
+43.57960625788371 574.9097892513555 5.040186291677449 7364.330031470578
+43.57960625788371 574.9097892513555 5.040186291677449 7364.330031470578
+co zacatecni pozice?
+OK
+
+
+jen simulovane:
+SimNode: 1200, {'pos': array([388.65176552, 179.2456735 ]), 'angle': 5.114188552509252, 'cur_iter': 1200},
+ PARENT: SimNode: 1180, {'pos': array([388.03864201, 180.51540188]), 'angle': 5.103156792952245, 'cur_iter': 1180},
+ PARENT: SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
+ PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 1220, {'pos': array([389.07832389, 179.85094622]), 'angle': 5.10385037493741, 'cur_iter': 1220},
+ PARENT: SimNode: 1180, {'pos': array([388.03864201, 180.51540188]), 'angle': 5.103156792952245, 'cur_iter': 1180},
+ PARENT: SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
+ PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 1240, {'pos': array([389.50488225, 180.45621894]), 'angle': 5.093512197365567, 'cur_iter': 1240},
+ PARENT: SimNode: 1180, {'pos': array([388.03864201, 180.51540188]), 'angle': 5.103156792952245, 'cur_iter': 1180},
+ PARENT: SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
+ PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 1260, {'pos': array([389.93144062, 181.06149166]), 'angle': 5.0831740197937245, 'cur_iter': 1260},
+ PARENT: SimNode: 1180, {'pos': array([388.03864201, 180.51540188]), 'angle': 5.103156792952245, 'cur_iter': 1180},
+ PARENT: SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
+ PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 1280, {'pos': array([390.35799899, 181.66676438]), 'angle': 5.072835842221882, 'cur_iter': 1280},
+ PARENT: SimNode: 1180, {'pos': array([388.03864201, 180.51540188]), 'angle': 5.103156792952245, 'cur_iter': 1180},
+ PARENT: SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
+ PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+SimNode: 1299, {'pos': array([390.76322944, 182.24177346]), 'angle': 5.063014573528632, 'cur_iter': 1299},
+ PARENT: SimNode: 1180, {'pos': array([388.03864201, 180.51540188]), 'angle': 5.103156792952245, 'cur_iter': 1180},
+ PARENT: SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
+ PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None
+dohravane
+SimNode: 1177, {'pos': array([386.02375233, 181.44883366]), 'angle': 5.0380048787775795, 'cur_iter': 1177},
+ PARENT: SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
+ PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
+ PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
+ PARENT: None

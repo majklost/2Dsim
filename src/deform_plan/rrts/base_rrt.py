@@ -1,2 +1,0 @@
-class BaseRRT:
-    pass
