@@ -6,6 +6,9 @@ def make_guider(movable_idx,max_vel):
     def guider_fnc(sim:Simulator,start:SimNode,goal,guider_data:dict,cur_iter_cnt):
         guided_obj = sim.movable_objects[movable_idx]
         if cur_iter_cnt==0 and not np.any(np.isclose(guided_obj.position,start.exporter_data["pos"])):
+            if start.exporter_data["cur_iter"] != start.all_iter_cnt:
+                raise ValueError("iter cnt differs: ", start.exporter_data["cur_iter"], start.all_iter_cnt)
+
             raise ValueError("start pos differs: ", guided_obj.position, start.exporter_data["pos"])
 
         pos = goal.pos
@@ -39,7 +42,6 @@ def make_end_condition(movable_idx):
     def end_condition(sim:Simulator,start:SimNode,goal,cur_iter_cnt):
         guided_obj = sim.movable_objects[movable_idx]
         if guided_obj.collision_data is not None:
-            guided_obj.collision_data = None
             return True
         return False
     return end_condition
@@ -106,7 +108,7 @@ class StorageWrapper:
         point = Point(node,x,y,r,iter)
         dist = distance_fnc(self.goal,point)
 
-        if dist < 50:
+        if dist < 10:
             self.want_next_iter = False
             self._end_node = node
         self.tree.insert(point)

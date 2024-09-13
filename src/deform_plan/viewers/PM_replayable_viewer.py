@@ -28,21 +28,15 @@ class PMReplayableViewer(BaseViewer):
         self.sim.import_from(self.path[0].sim_export)
         clock = pygame.time.Clock()
         draw_ops = DrawOptions(self.cur_scene)
-        # for n in range(len(self.path)):
-        #     iter_cnt = self.path[n].replayer.segment_iter_cnt
-        #     for i in range(iter_cnt):
-        #         self.guider(self.sim,self.path[n-1],)
-        #         self.sim.step()
         for n in self.path[1:]:
             parent = n.replayer.parent
             parent_guider_data = parent.guider_data
             print("Iterating now: ", n.replayer.segment_iter_cnt)
 
 
-            iters = 0
-            while iters < n.replayer.segment_iter_cnt:
-                iters += 1
-                self.guider(self.sim, parent, n.replayer.real_goal, parent_guider_data, iters)
+            for i in range(n.replayer.segment_iter_cnt):
+                if not self.guider(self.sim, parent, n.replayer.real_goal, parent_guider_data, i):
+                    break
                 self.sim.step()
                 self.cur_scene.fill((255, 255, 255))
                 self.sim.draw_on(draw_ops)

@@ -53,25 +53,25 @@ class FetchAblePlanner(BasePlanner):
 
         cur_cnt = 0
         for i in range(self.max_iter_cnt):
-            cur_cnt = i
             #pick direction
-            if not self.guider(self.simulator, start, goal, guider_data,i):
+            if not self.guider(self.simulator, start, goal, guider_data,cur_cnt):
                 break
             self.simulator.step()
             #if collided do not continue and do not create checkpoint
-            if self.end_condition(self.simulator, start, goal, i):
+            if self.end_condition(self.simulator, start, goal, cur_cnt):
                 collided = True
                 break
+            cur_cnt = i+1
             #now I am saving checkpoint that is collision free
-            if ((start.all_iter_cnt+i) % self.sampling_period) == 0: #iter_cnt is here to make sampling consistent
-                exported_data = self.exporter(self.simulator, start, goal, i)
-                response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, i, goal, start, start.all_iter_cnt+i))
+            # if ((start.all_iter_cnt+cur_cnt) % self.sampling_period) == 0: #iter_cnt is here to make sampling consistent
+            if cur_cnt % self.sampling_period == 0 and cur_cnt != 0:
+                exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
+                response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
 
 
-        # if not collided:
-        #     exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
-        #     response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
-
+        if not collided:
+            exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
+            response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
         # while True:
         #     if not self.guider(self.simulator, start, goal, guider_data,cur_iter_cnt):
         #         break
@@ -150,7 +150,7 @@ class FetchAblePlanner(BasePlanner):
         #     self.simulator.step()
         #     cur_iter_cnt += 1
 
-        for i in range(node.replayer.segment_iter_cnt+1):
+        for i in range(node.replayer.segment_iter_cnt):
             #pick direction
             if not self.guider(self.simulator, parent, node.replayer.real_goal, parent_guider_data,i):
                 break

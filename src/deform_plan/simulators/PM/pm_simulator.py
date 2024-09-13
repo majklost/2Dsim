@@ -93,11 +93,9 @@ class Simulator(BaseSimulator):
         o1 = self._identify_object(b1.body)
         o2 = self._identify_object(b2.body)
         if o1.collision_data is not None:
-            if o1.collision_data.stamp == o1.collision_data.stamp:
-                o1.collision_data = None
+            o1.collision_data = None
         if o2.collision_data is not None:
-            if o2.collision_data.stamp == o2.collision_data.stamp:
-                o2.collision_data = None
+            o2.collision_data = None
 
 
 
@@ -166,8 +164,8 @@ class Simulator(BaseSimulator):
         self._width = simulator.width
         self._height = simulator.height
         self._FPS = simulator.FPS
-        self._collect_objects()
         # print(self.movable_objects[0])
+        self._collect_objects()
         if simulator.movable_data is not None or simulator.fixed_data is not None:
             raise NotImplementedError("Importing of the nodes is not implemented yet")
 
@@ -187,6 +185,7 @@ class Simulator(BaseSimulator):
                     self.movable_objects[cid[0]][cid[1]].body = b
                 else:
                     self.movable_objects[cid].body = b
+                    self.movable_objects[cid].collision_data = None
 
             if hasattr(b, 'fixedId'):
                 cid = b.fixedId
@@ -194,6 +193,7 @@ class Simulator(BaseSimulator):
                     self.fixed_objects[cid[0]][cid[1]].body = b
                 else:
                     self.fixed_objects[cid].body = b
+                    self.fixed_objects[cid].collision_data = None
 
     def get_debug_data(self):
         """

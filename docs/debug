@@ -1,34 +1,21 @@
-SIMUL
 iter:  0
 iter:  100
 iter:  200
 iter:  300
 iter:  400
-iter:  500
-iter:  600
-iter:  700
-iter:  800
-iter:  900
-iter:  1000
-Reached goal in iter:  1025
-Done, time taken:  47.711089849472046
+Reached goal in iter:  497
+Done, time taken:  3.906287431716919
 Path saved to velocity.rpath
 SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0}
-SimNode: 280, {'pos': array([495.46198256, 194.56740021]), 'angle': 3.469386114413311, 'cur_iter': 280}
-SimNode: 1270, {'pos': array([487.11637353, 222.22233911]), 'angle': 3.5296869687910637, 'cur_iter': 1270}
-SimNode: 1410, {'pos': array([487.290919  , 225.86055434]), 'angle': 3.5069792841626826, 'cur_iter': 1410}
-SimNode: 1410, {'pos': array([486.88383752, 227.47674197]), 'angle': -1.0268644058009664, 'cur_iter': 1410}
-SimNode: 1440, {'pos': array([471.52128907, 276.80661679]), 'angle': 0.5144606633216756, 'cur_iter': 1440}
-SimNode: 1450, {'pos': array([476.3332888 , 286.84381166]), 'angle': 0.7190899717924593, 'cur_iter': 1450}
-SimNode: 1500, {'pos': array([475.96802569, 289.86469042]), 'angle': 0.7346798002609715, 'cur_iter': 1500}
-SimNode: 1500, {'pos': array([476.00355103, 290.09667226]), 'angle': 0.7378768629045033, 'cur_iter': 1500}
-SimNode: 1500, {'pos': array([476.00693345, 290.12454132]), 'angle': 0.7384934757718088, 'cur_iter': 1500}
-SimNode: 1500, {'pos': array([475.91878985, 290.28394072]), 'angle': 0.7436562758669706, 'cur_iter': 1500}
-SimNode: 1500, {'pos': array([475.94445962, 290.35039055]), 'angle': 0.7443830668662695, 'cur_iter': 1500}
-SimNode: 1500, {'pos': array([475.94891502, 290.36680666]), 'angle': 0.7445283440161818, 'cur_iter': 1500}
-SimNode: 1500, {'pos': array([475.94167755, 290.38338739]), 'angle': 0.7446186013244477, 'cur_iter': 1500}
-SimNode: 1540, {'pos': array([488.67198007, 328.93666812]), 'angle': 1.239582051639529, 'cur_iter': 1540}
-SimNode: 1620, {'pos': array([530.14854939, 457.40726475]), 'angle': 2.5430585683335036, 'cur_iter': 1620}
-SimNode: 2360, {'pos': array([370.68873471, 507.65854977]), 'angle': 3.963977537616133, 'cur_iter': 2360}
-SimNode: 3350, {'pos': array([380.45098755, 538.58154247]), 'angle': 3.6218222083434473, 'cur_iter': 3350}
-SimNode: 4340, {'pos': array([387.30339265, 556.48779484]), 'angle': 4.141621852637435, 'cur_iter': 4340}
+SimNode: 60, {'pos': array([51.6667637 , 58.44633194]), 'angle': 0.0, 'cur_iter': 60}
+SimNode: 540, {'pos': array([289.07747128,  11.50357654]), 'angle': 0.0, 'cur_iter': 540}
+SimNode: 1109, {'pos': array([298.98567839,  66.52165134]), 'angle': 0.0, 'cur_iter': 1109}
+SimNode: 1211, {'pos': array([378.7934347 , 216.62402318]), 'angle': 0.0, 'cur_iter': 1211}
+SimNode: 1231, {'pos': array([380.38145749, 225.29450155]), 'angle': 0.0, 'cur_iter': 1231}
+SimNode: 1271, {'pos': array([385.65678622, 239.70412925]), 'angle': 0.0, 'cur_iter': 1271}
+SimNode: 1411, {'pos': array([484.63557071, 286.59611144]), 'angle': 0.0, 'cur_iter': 1411}
+SimNode: 1431, {'pos': array([492.49611401, 311.09432646]), 'angle': 0.0, 'cur_iter': 1431}
+SimNode: 1441, {'pos': array([487.56624507, 327.01519861]), 'angle': 0.0, 'cur_iter': 1441}
+SimNode: 1451, {'pos': array([487.78849439, 328.33290117]), 'angle': 0.0, 'cur_iter': 1451}
+SimNode: 1571, {'pos': array([419.67560238, 516.37713518]), 'angle': 0.0, 'cur_iter': 1571}
+SimNode: 1711, {'pos': array([637.47899005, 600.07975618]), 'angle': 0.0, 'cur_iter': 1711}
