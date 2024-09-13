@@ -21,7 +21,10 @@ class PMReplayableViewer(BaseViewer):
         self.cur_scene = pygame.surface.Surface((w,h))
 
     def draw_line(self, start, end, color=(0, 0, 0)):
-        pygame.draw.line(self.display, color, start, end)
+        self.drawings.append( lambda :pygame.draw.line(self.cur_scene, color, start, end))
+    def draw_circle(self, center, radius, color=(0, 0, 0)):
+        self.drawings.append( lambda :pygame.draw.circle(self.cur_scene, color, center, radius))
+
 
 
     def show(self,realtime=True):
@@ -41,7 +44,7 @@ class PMReplayableViewer(BaseViewer):
                 self.cur_scene.fill((255, 255, 255))
                 self.sim.draw_on(draw_ops)
                 for d in self.drawings:
-                    d.draw(self.display)
+                    d()
                 self.display.blit(self.cur_scene, (0, 0))
                 if realtime:
                     clock.tick(self.fps)

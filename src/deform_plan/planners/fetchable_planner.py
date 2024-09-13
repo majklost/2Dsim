@@ -63,7 +63,6 @@ class FetchAblePlanner(BasePlanner):
                 break
             cur_cnt = i+1
             #now I am saving checkpoint that is collision free
-            # if ((start.all_iter_cnt+cur_cnt) % self.sampling_period) == 0: #iter_cnt is here to make sampling consistent
             if cur_cnt % self.sampling_period == 0 and cur_cnt != 0:
                 exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
                 response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
@@ -72,32 +71,6 @@ class FetchAblePlanner(BasePlanner):
         if not collided:
             exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
             response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
-        # while True:
-        #     if not self.guider(self.simulator, start, goal, guider_data,cur_iter_cnt):
-        #         break
-        #     if cur_iter_cnt > self.max_iter_cnt:
-        #         break
-        #
-        #
-        #     self.simulator.step()
-        #     cur_iter_cnt += 1
-        #
-        #
-        #
-        #
-        #     if ((start.all_iter_cnt+cur_iter_cnt) % self.sampling_period) == 0: #iter_cnt is here to make sampling consistent
-        #         # print("Cur Iter: ", cur_iter_cnt)
-        #         exported_data = self.exporter(self.simulator, start, goal, cur_iter_cnt)
-        #         response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_iter_cnt, goal, start, start.all_iter_cnt+cur_iter_cnt))
-        #
-
-
-
-        # print("Final cur Iter: ", cur_iter_cnt)
-        #
-
-        # exported_data = self.exporter(self.simulator, start, goal, cur_iter_cnt)
-        # response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_iter_cnt, goal, start, start.all_iter_cnt+cur_iter_cnt))
         return response
 
     def create_checkpoint(self,exported_data:dict,
@@ -139,31 +112,12 @@ class FetchAblePlanner(BasePlanner):
         self.simulator: Simulator
         self.simulator.import_from(parent_sim_space)
 
-        # run = True
-        # cur_iter_cnt = 0
-        # while  run:
-        #     if not self.guider(self.simulator, parent, node.replayer.real_goal, parent_guider_data,cur_iter_cnt):
-        #         break
-        #
-        #     if cur_iter_cnt > self.max_iter_cnt:
-        #         break
-        #     self.simulator.step()
-        #     cur_iter_cnt += 1
 
         for i in range(node.replayer.segment_iter_cnt):
             #pick direction
             if not self.guider(self.simulator, parent, node.replayer.real_goal, parent_guider_data,i):
                 break
             self.simulator.step()
-            #if collided do not continue and do not create checkpoint
-            # if self.end_condition(self.simulator, parent, node.replayer.real_goal, i):
-            #     collided = True
-            #     break
-
-
-
-
-
         node.sim_export = self.simulator.export()
         return node
 

@@ -16,7 +16,7 @@ from deform_plan.saveables.replayable_path import ReplayablePath
 
 #obstacles
 cfg = PMConfig()
-rect = Rectangle([50,50],10,10,DYNAMIC)
+rect = Rectangle([50,50],30,10,DYNAMIC)
 obstacle = Rectangle([150,300],300,50,STATIC)
 obstacle2 = Rectangle([650,300],300,50,STATIC)
 cross = Cross([400,300],90,10,KINEMATIC)
