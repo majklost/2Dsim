@@ -24,7 +24,8 @@ class PMSingleBodyObject(BaseSingleBodyObject):
     def collision_data(self, value: CollisionData):
         self._collision_data = value
 
-
+    def __deepcopy__(self, memodict=None):
+        return self
 
 
     @property

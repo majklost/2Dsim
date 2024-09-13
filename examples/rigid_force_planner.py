@@ -5,7 +5,7 @@ from deform_plan.simulators.PM.pm_simulator import Simulator
 from deform_plan.assets.PM import *
 from deform_plan.utils.PM_debug_viewer import DebugViewer
 from deform_plan.planners.fetchable_planner import FetchAblePlanner, FetchablePlannerRequest
-from deform_plan.messages.nodes.sim_node import NodeReached, NodeGoal
+from deform_plan.messages.sim_node import NodeReached, NodeGoal
 
 cfg = PMConfig()
 rect = Rectangle([50,50],100,10,DYNAMIC)

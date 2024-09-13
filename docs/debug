@@ -1,50 +1,34 @@
-oba chteji
-43.57960625788371 574.9097892513555 5.040186291677449 7364.330031470578
-43.57960625788371 574.9097892513555 5.040186291677449 7364.330031470578
-co zacatecni pozice?
-OK
-
-
-jen simulovane:
-SimNode: 1200, {'pos': array([388.65176552, 179.2456735 ]), 'angle': 5.114188552509252, 'cur_iter': 1200},
- PARENT: SimNode: 1180, {'pos': array([388.03864201, 180.51540188]), 'angle': 5.103156792952245, 'cur_iter': 1180},
- PARENT: SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
- PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
- PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
- PARENT: None
-SimNode: 1220, {'pos': array([389.07832389, 179.85094622]), 'angle': 5.10385037493741, 'cur_iter': 1220},
- PARENT: SimNode: 1180, {'pos': array([388.03864201, 180.51540188]), 'angle': 5.103156792952245, 'cur_iter': 1180},
- PARENT: SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
- PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
- PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
- PARENT: None
-SimNode: 1240, {'pos': array([389.50488225, 180.45621894]), 'angle': 5.093512197365567, 'cur_iter': 1240},
- PARENT: SimNode: 1180, {'pos': array([388.03864201, 180.51540188]), 'angle': 5.103156792952245, 'cur_iter': 1180},
- PARENT: SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
- PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
- PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
- PARENT: None
-SimNode: 1260, {'pos': array([389.93144062, 181.06149166]), 'angle': 5.0831740197937245, 'cur_iter': 1260},
- PARENT: SimNode: 1180, {'pos': array([388.03864201, 180.51540188]), 'angle': 5.103156792952245, 'cur_iter': 1180},
- PARENT: SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
- PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
- PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
- PARENT: None
-SimNode: 1280, {'pos': array([390.35799899, 181.66676438]), 'angle': 5.072835842221882, 'cur_iter': 1280},
- PARENT: SimNode: 1180, {'pos': array([388.03864201, 180.51540188]), 'angle': 5.103156792952245, 'cur_iter': 1180},
- PARENT: SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
- PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
- PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
- PARENT: None
-SimNode: 1299, {'pos': array([390.76322944, 182.24177346]), 'angle': 5.063014573528632, 'cur_iter': 1299},
- PARENT: SimNode: 1180, {'pos': array([388.03864201, 180.51540188]), 'angle': 5.103156792952245, 'cur_iter': 1180},
- PARENT: SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
- PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
- PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
- PARENT: None
-dohravane
-SimNode: 1177, {'pos': array([386.02375233, 181.44883366]), 'angle': 5.0380048787775795, 'cur_iter': 1177},
- PARENT: SimNode: 1061, {'pos': array([383.56679061, 178.24125874]), 'angle': 5.085884466765669, 'cur_iter': 1061},
- PARENT: SimNode: 418, {'pos': array([381.32225749, 157.52521937]), 'angle': 5.1608661773123155, 'cur_iter': 418},
- PARENT: SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0},
- PARENT: None
+SIMUL
+iter:  0
+iter:  100
+iter:  200
+iter:  300
+iter:  400
+iter:  500
+iter:  600
+iter:  700
+iter:  800
+iter:  900
+iter:  1000
+Reached goal in iter:  1025
+Done, time taken:  47.711089849472046
+Path saved to velocity.rpath
+SimNode: 0, {'pos': array([50., 50.]), 'angle': 0.0, 'cur_iter': 0}
+SimNode: 280, {'pos': array([495.46198256, 194.56740021]), 'angle': 3.469386114413311, 'cur_iter': 280}
+SimNode: 1270, {'pos': array([487.11637353, 222.22233911]), 'angle': 3.5296869687910637, 'cur_iter': 1270}
+SimNode: 1410, {'pos': array([487.290919  , 225.86055434]), 'angle': 3.5069792841626826, 'cur_iter': 1410}
+SimNode: 1410, {'pos': array([486.88383752, 227.47674197]), 'angle': -1.0268644058009664, 'cur_iter': 1410}
+SimNode: 1440, {'pos': array([471.52128907, 276.80661679]), 'angle': 0.5144606633216756, 'cur_iter': 1440}
+SimNode: 1450, {'pos': array([476.3332888 , 286.84381166]), 'angle': 0.7190899717924593, 'cur_iter': 1450}
+SimNode: 1500, {'pos': array([475.96802569, 289.86469042]), 'angle': 0.7346798002609715, 'cur_iter': 1500}
+SimNode: 1500, {'pos': array([476.00355103, 290.09667226]), 'angle': 0.7378768629045033, 'cur_iter': 1500}
+SimNode: 1500, {'pos': array([476.00693345, 290.12454132]), 'angle': 0.7384934757718088, 'cur_iter': 1500}
+SimNode: 1500, {'pos': array([475.91878985, 290.28394072]), 'angle': 0.7436562758669706, 'cur_iter': 1500}
+SimNode: 1500, {'pos': array([475.94445962, 290.35039055]), 'angle': 0.7443830668662695, 'cur_iter': 1500}
+SimNode: 1500, {'pos': array([475.94891502, 290.36680666]), 'angle': 0.7445283440161818, 'cur_iter': 1500}
+SimNode: 1500, {'pos': array([475.94167755, 290.38338739]), 'angle': 0.7446186013244477, 'cur_iter': 1500}
+SimNode: 1540, {'pos': array([488.67198007, 328.93666812]), 'angle': 1.239582051639529, 'cur_iter': 1540}
+SimNode: 1620, {'pos': array([530.14854939, 457.40726475]), 'angle': 2.5430585683335036, 'cur_iter': 1620}
+SimNode: 2360, {'pos': array([370.68873471, 507.65854977]), 'angle': 3.963977537616133, 'cur_iter': 2360}
+SimNode: 3350, {'pos': array([380.45098755, 538.58154247]), 'angle': 3.6218222083434473, 'cur_iter': 3350}
+SimNode: 4340, {'pos': array([387.30339265, 556.48779484]), 'angle': 4.141621852637435, 'cur_iter': 4340}

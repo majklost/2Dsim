@@ -1,0 +1,2 @@
+class BaseViewer:
+    pass

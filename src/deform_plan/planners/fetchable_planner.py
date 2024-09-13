@@ -1,124 +1,171 @@
 """Planner for planning one rigid object"""
-import numpy as np
+
+from copy import deepcopy
+from typing import Callable,Any
 #TODO: rewrite to better use - now just PoC
 
-from deform_plan.planners.base_planner import BasePlanner
-from ..messages.fetchable_plan_messages import FetchablePlannerRequest, FetchablePlannerResponse
+from .base_planner import BasePlanner
 from ..simulators.PM.pm_simulator import Simulator
-from deform_plan.messages.nodes.sim_node import NodeReached, NodeGoal
+from ..messages.sim_node import SimNode, Replayer
+from ..messages.planner_messages import PlannerResponse
 
 
 
 class FetchAblePlanner(BasePlanner):
-    def __init__(self,simulator:Simulator, movable_index:int,
+    """
+    Planner that allows some simulation be left only to be fetched later
+    """
+    def __init__(self,simulator:Simulator,
+                 guider: Callable[[Simulator,SimNode,Any,dict,int],bool],
+                 end_condition: Callable[[Simulator,SimNode,Any,int],bool],
+                 exporter: Callable[[Simulator,SimNode|None,Any,int],dict],
                  max_iter_cnt: int = 1000,
-                 only_simuls: bool = False
-                 ):
-        super().__init__(simulator)
+                 only_simuls: bool = False,
+                 sampling_period =20,
 
-        # self.simulator = simulator
+                 ):
+
+
+        self.simulator = simulator
+        self.guider = guider
+        self.end_condition = end_condition
+        self.exporter = exporter
         self.only_simuls = only_simuls
         self.max_iter_cnt = max_iter_cnt
-        self.movable_idx = movable_index
         self.after_load_clb = None
-        self.iter_cnt = 0
+        self.sampling_period = sampling_period
 
 
 
 
 
-    def check_path(self, request: FetchablePlannerRequest) -> FetchablePlannerResponse:
-
-        start = request.start #type: NodeReached
-        goal = request.goal #type: NodeGoal
-        response = FetchablePlannerResponse()
+    def check_path(self, start:SimNode, goal:Any) -> PlannerResponse:
+        response = PlannerResponse()
         if start.sim_export is None:
             self._fetch_simspace(start)
-        cur_iter_cnt = 0
 
         self.simulator: Simulator #cast the type
         self.simulator.import_from(start.sim_export)
         if self.after_load_clb is not None:
             self.after_load_clb(self.simulator)
-        # print(goal.info_vec[-1])
+        guider_data = deepcopy(start.guider_data)
+        collided = False
 
-        while self._guide_to_goal(goal):
+        cur_cnt = 0
+        for i in range(self.max_iter_cnt):
+            cur_cnt = i
+            #pick direction
+            if not self.guider(self.simulator, start, goal, guider_data,i):
+                break
             self.simulator.step()
-
-            if self._check_end():
+            #if collided do not continue and do not create checkpoint
+            if self.end_condition(self.simulator, start, goal, i):
+                collided = True
                 break
-            cur_iter_cnt += 1
-            if cur_iter_cnt > self.max_iter_cnt:
-                break
-            if cur_iter_cnt % 20 == 0:
-                print("Cur Iter: ", cur_iter_cnt)
-            self.iter_cnt = cur_iter_cnt+start.iter_cnt
+            #now I am saving checkpoint that is collision free
+            if ((start.all_iter_cnt+i) % self.sampling_period) == 0: #iter_cnt is here to make sampling consistent
+                exported_data = self.exporter(self.simulator, start, goal, i)
+                response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, i, goal, start, start.all_iter_cnt+i))
 
-            response.checkpoints.append(self.create_checkpoint(self.iter_cnt, goal, start))
-        print("Final cur Iter: ", cur_iter_cnt)
-        response.checkpoints.append(self.create_checkpoint(self.iter_cnt, goal, start))
+
+        # if not collided:
+        #     exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
+        #     response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
+
+        # while True:
+        #     if not self.guider(self.simulator, start, goal, guider_data,cur_iter_cnt):
+        #         break
+        #     if cur_iter_cnt > self.max_iter_cnt:
+        #         break
+        #
+        #
+        #     self.simulator.step()
+        #     cur_iter_cnt += 1
+        #
+        #
+        #
+        #
+        #     if ((start.all_iter_cnt+cur_iter_cnt) % self.sampling_period) == 0: #iter_cnt is here to make sampling consistent
+        #         # print("Cur Iter: ", cur_iter_cnt)
+        #         exported_data = self.exporter(self.simulator, start, goal, cur_iter_cnt)
+        #         response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_iter_cnt, goal, start, start.all_iter_cnt+cur_iter_cnt))
+        #
+
+
+
+        # print("Final cur Iter: ", cur_iter_cnt)
+        #
+
+        # exported_data = self.exporter(self.simulator, start, goal, cur_iter_cnt)
+        # response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_iter_cnt, goal, start, start.all_iter_cnt+cur_iter_cnt))
         return response
 
-    def create_checkpoint(self,iter_cnt:int, goal: NodeGoal,parent:NodeReached) -> NodeReached:
+    def create_checkpoint(self,exported_data:dict,
+                          guider_data:dict,
+                          cur_iter_cnt:int,
+                          goal: Any,parent:SimNode,
+                          all_iter_cnt:int) -> SimNode:
+        """
+        Create a SimNode from the given data
+        :param exported_data: data that exported gave
+        :param guider_data: data that guider gave
+        :param cur_iter_cnt: iteration from last checkpoint that contains simulation
+        :param goal: goal of the segment
+        :param parent:  parent of the node
+        :param all_iter_cnt: iteration from the start
+        :return: SimNode
+        """
+
+        replayer = Replayer(segment_iter_cnt=cur_iter_cnt,real_goal=goal,parent=parent)
         if self.only_simuls:
-            return NodeReached(iter_cnt,sim_export=self.simulator.export())
+            return SimNode(all_iter_cnt=all_iter_cnt,exporter_data=exported_data, guider_data=deepcopy(guider_data), replayer=replayer,sim_export=self.simulator.export())
         else:
-            replayer = NodeReached.Replayer(real_goal=goal, parent=parent)
-            return NodeReached(iter_cnt,replayer=replayer)
+            return SimNode(all_iter_cnt=all_iter_cnt,exporter_data=exported_data, guider_data=deepcopy(guider_data), replayer=replayer)
 
-    def _check_end(self):
-        x = self.simulator.movable_objects[self.movable_idx].collision_data
-        if x is not None:
-            return True
-        return False
-        # return self.simulator.movable_objects[self.movable_idx].collision_data is not None
 
-    def form_start_node(self) -> NodeReached:
-        return NodeReached(0, sim_export=self.simulator.export())
+    def form_start_node(self) -> SimNode:
+        replayer = Replayer(segment_iter_cnt=0,real_goal=None,parent=None)
+        export = self.exporter(self.simulator, None, None, 0)
+        return SimNode(export,dict(), sim_export=self.simulator.export(), all_iter_cnt=0, replayer=replayer)
 
-    def _fetch_simspace(self, node: NodeReached):
+    def _fetch_simspace(self, node: SimNode):
         if node.replayer is None:
             raise ValueError("No replayer in node without simSpace")
-
-        parent_simSpace = node.replayer.parent.sim_export
-        if parent_simSpace is None:
+        parent = node.replayer.parent
+        parent_guider_data = deepcopy(parent.guider_data)
+        parent_sim_space = parent.sim_export
+        if parent_sim_space is None:
             raise ValueError("No simSpace in parent")
         self.simulator: Simulator
-        self.simulator.import_from(parent_simSpace)
-        for i in range(node.iter_cnt):
-            #give forces like before
-            self._guide_to_goal(node.replayer.real_goal)
-            #simulate
+        self.simulator.import_from(parent_sim_space)
+
+        # run = True
+        # cur_iter_cnt = 0
+        # while  run:
+        #     if not self.guider(self.simulator, parent, node.replayer.real_goal, parent_guider_data,cur_iter_cnt):
+        #         break
+        #
+        #     if cur_iter_cnt > self.max_iter_cnt:
+        #         break
+        #     self.simulator.step()
+        #     cur_iter_cnt += 1
+
+        for i in range(node.replayer.segment_iter_cnt+1):
+            #pick direction
+            if not self.guider(self.simulator, parent, node.replayer.real_goal, parent_guider_data,i):
+                break
             self.simulator.step()
+            #if collided do not continue and do not create checkpoint
+            # if self.end_condition(self.simulator, parent, node.replayer.real_goal, i):
+            #     collided = True
+            #     break
+
+
+
+
+
         node.sim_export = self.simulator.export()
-        node.replayer = None
         return node
-
-    def _guide_to_goal(self, goal: NodeGoal):
-        """
-        MOST IMPORTANT FUNCTION
-        TODO: extract as separate class
-        :param goal:
-        :return:
-        """
-        pos = goal.pos
-        rot = goal.rot
-        force = goal.force
-        rot_diff = rot - self.simulator.movable_objects[self.movable_idx].orientation
-        direction = pos - self.simulator.movable_objects[self.movable_idx].position
-        dir_len = np.linalg.norm(direction)
-        if dir_len < 2:
-            return False
-        coef = 1
-        if dir_len < 10:
-            coef = dir_len/10
-
-        direction /= dir_len
-
-
-        self.simulator.movable_objects[self.movable_idx].apply_force(np.pad(direction*force*coef,(0,2)))
-        self.simulator.movable_objects[self.movable_idx].angular_velocity =  rot_diff * 0.1
-        return True
 
 
 

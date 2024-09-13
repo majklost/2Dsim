@@ -57,7 +57,7 @@ class DebugViewer:
                 self.want_running = False
 
     def draw_line(self, start, end, color=(0, 0, 0)):
-        pygame.draw.line(self.display, color, start, end)
+        self.drawings.append(self._Line(start, end, color))
 
     def draw_circle(self, pos, radius, color=(0, 0, 0)):
         self.drawings.append(self._Circle(pos, radius, color))
@@ -70,3 +70,12 @@ class DebugViewer:
 
         def draw(self, display):
             pygame.draw.circle(display, self.color, self.pos, self.radius)
+
+    class _Line:
+        def __init__(self, start, end, color):
+            self.start = start
+            self.end = end
+            self.color = color
+
+        def draw(self, display):
+            pygame.draw.line(display, self.color, self.start, self.end)

@@ -1,0 +1,1 @@
+"""Describes path by series of command that were done to simulator, for persistent save"""

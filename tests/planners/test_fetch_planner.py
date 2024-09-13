@@ -3,7 +3,7 @@ import numpy as np
 from deform_plan.simulators.PM.pm_simulator import Simulator
 from deform_plan.assets.PM import *
 from deform_plan.planners.fetchable_planner import FetchAblePlanner, FetchablePlannerRequest
-from deform_plan.messages.nodes.sim_node import NodeReached, NodeGoal
+from deform_plan.messages.sim_node import NodeReached, NodeGoal
 
 class TestPlanner:
     def prepare(self):

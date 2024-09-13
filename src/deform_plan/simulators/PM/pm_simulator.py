@@ -1,6 +1,7 @@
 
 import pymunk
-
+from pymunk.pygame_util import DrawOptions
+import random
 from typing import List
 from dataclasses import dataclass
 
@@ -9,7 +10,10 @@ from deform_plan.assets.PM import PMSingleBodyObject,PMMultiBodyObject, PMConfig
 from ..base_simulator import Simulator as BaseSimulator, BaseSimulatorExport
 from .collision_data import CollisionData
 
-import random
+
+
+
+
 
 
 class Simulator(BaseSimulator):
@@ -47,7 +51,6 @@ class Simulator(BaseSimulator):
     def fps(self):
         return self._FPS
 
-
     def _process_config(self, config: PMConfig):
         self._space.gravity = (0,config.gravity)
         self._space.damping = config.damping
@@ -79,6 +82,8 @@ class Simulator(BaseSimulator):
         # o2.color = (0,255,0,0)
 
         return True
+    def __deepcopy__(self, memodict={}):
+        return self
 
     def _end_collision(self, arbiter, space, data):
         b1 = arbiter.shapes[0]
@@ -115,8 +120,10 @@ class Simulator(BaseSimulator):
 
     def _collision_handling(self):
         handler = self._space.add_default_collision_handler()
-        handler.begin = lambda a,s,d : self._begin_collision(a,s,d)
-        handler.separate = lambda a,s,d : self._end_collision(a,s,d)
+        begin_fnc = lambda a,s,d : self._begin_collision(a,s,d)
+        sep_fnc = lambda a,s,d : self._end_collision(a,s,d)
+        handler.begin = begin_fnc
+        handler.separate = sep_fnc
 
 
     def step(self):
@@ -197,6 +204,13 @@ class Simulator(BaseSimulator):
 
     # def get_force_template(self):
     #     return [b.get_force_template() for b in self.movable_objects]
+    def draw_on(self, dops: DrawOptions):
+        """
+        Draw the simulator on the screen
+        :param dops: DrawOptions object
+        :return:
+        """
+        self._space.debug_draw(dops)
 
 
 
