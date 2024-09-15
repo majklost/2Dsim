@@ -1,4 +1,6 @@
 from  .base_storage import BaseStorage
+import sys
+sys.setrecursionlimit(10000)
 # code taken from https://www.geeksforgeeks.org/search-and-insertion-in-k-dimensional-tree/
 # nearest neighbour search implemented myself
 # A structure to represent node of kd tree
@@ -28,6 +30,8 @@ class KDTree(BaseStorage):
         return self.tree.nearestNeighbour(self.root,point,distancefnc)
 
 
+    def get_all_points(self):
+        return self.tree.get_all_points(self.root)
 
 class _KDTree:
 
@@ -104,6 +108,9 @@ class _KDTree:
             best_node = root.point
 
         # choose the branch that is closer to the point
+        # if cd ==3:
+        #     if point[cd] < root.point[cd]:
+        #         return best_node, best_dist
         if point[cd] < root.point[cd]:
             next_branch = root.left
             opposite_branch = root.right
@@ -133,3 +140,13 @@ class _KDTree:
     def search(cls, root, point):
         # Pass current depth as 0
         return cls._searchRec(root, point, 0)
+
+    @classmethod
+    def get_all_points(cls, root):
+        ll = []
+        rl = []
+        if root.left:
+            ll = cls.get_all_points(root.left)
+        if root.right:
+            rl = cls.get_all_points(root.right)
+        return ll + [root.point] + rl

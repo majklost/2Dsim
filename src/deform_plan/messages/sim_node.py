@@ -1,3 +1,5 @@
+import numpy as np
+
 from deform_plan.simulators.PM.pm_simulator import PMExport
 
 class SimNode:
@@ -11,6 +13,7 @@ class SimNode:
     def __str__(self):
         # return f"SimNode: {self.all_iter_cnt}, {self.exporter_data},\n PARENT: {self.replayer.parent}"
         return f"SimNode: {self.all_iter_cnt}, {self.exporter_data}"
+
 class Replayer:
     """
     Class to replay the path

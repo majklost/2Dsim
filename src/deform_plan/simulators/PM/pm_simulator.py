@@ -22,6 +22,7 @@ class Simulator(BaseSimulator):
                  config: PMConfig,
                  movable_objects: List[PMSingleBodyObject| PMMultiBodyObject],
                  fixed_objects: List[PMSingleBodyObject| PMMultiBodyObject],
+                 threaded=False
                  ):
         super().__init__(movable_objects, fixed_objects)
         self.movable_objects : List[PMSingleBodyObject| PMMultiBodyObject]
@@ -30,7 +31,7 @@ class Simulator(BaseSimulator):
         self._width = None
         self.movable_objects = movable_objects #overload so that the type checker does not complain
         self.fixed_objects = fixed_objects
-        self._space = pymunk.Space()
+        self._space = pymunk.Space(threaded=threaded)
 
         self._process_config(config)
         self._add_objects_to_space()
@@ -57,6 +58,7 @@ class Simulator(BaseSimulator):
         self._FPS = config.FPS
         self._width = config.width
         self._height = config.height
+        self._space.collision_slope = config.collision_slope
 
     def _add_objects_to_space(self):
         for i,obj in enumerate(self.movable_objects):
@@ -83,7 +85,7 @@ class Simulator(BaseSimulator):
 
         return True
     def __deepcopy__(self, memodict={}):
-        return self
+        raise NotImplementedError("Deepcopy not implemented")
 
     def _end_collision(self, arbiter, space, data):
         b1 = arbiter.shapes[0]
@@ -104,14 +106,14 @@ class Simulator(BaseSimulator):
         if hasattr(body, 'moveId'):
             cid = body.moveId
             if type(cid) == tuple:
-                return self.movable_objects[cid[0]][cid[1]]
+                return self.movable_objects[cid[0]].get_body(cid[1:])
             else:
                 return self.movable_objects[cid]
         elif hasattr(body, 'fixedId'):
             cid = body.fixedId
 
             if type(cid) ==tuple:
-                return self.fixed_objects[cid[0]][cid[1]]
+                return self.fixed_objects[cid[0]].get_body(cid[1:])
             else:
                 return self.fixed_objects[cid]
         raise ValueError("Object with no ID")
@@ -123,12 +125,17 @@ class Simulator(BaseSimulator):
         handler.begin = begin_fnc
         handler.separate = sep_fnc
 
+    def _save_manual_forces(self):
+        for obj in self.movable_objects:
+            obj.save_manual_forces()
+
 
     def step(self):
         """
         Make a step in the simulation
         :return:
         """
+        self._save_manual_forces()
         self._space.step(1/self._FPS)
         self._steps += 1
         if self.debuggerclb is not None:
@@ -181,18 +188,20 @@ class Simulator(BaseSimulator):
         for b in self._space.bodies:
             if hasattr(b, 'moveId'):
                 cid = b.moveId
-                if cid is tuple:
-                    self.movable_objects[cid[0]][cid[1]].body = b
+                if isinstance(cid,tuple):
+                    self.movable_objects[cid[0]].link_body(b,cid[1:])
                 else:
                     self.movable_objects[cid].body = b
+                    self.movable_objects[cid].shapes = b.shapes
                     self.movable_objects[cid].collision_data = None
 
             if hasattr(b, 'fixedId'):
                 cid = b.fixedId
-                if cid is tuple:
-                    self.fixed_objects[cid[0]][cid[1]].body = b
+                if isinstance(cid,tuple):
+                    self.fixed_objects[cid[0]].link_body(b,cid[1:])
                 else:
                     self.fixed_objects[cid].body = b
+                    self.fixed_objects[cid].shapes = b.shapes
                     self.fixed_objects[cid].collision_data = None
 
     def get_debug_data(self):

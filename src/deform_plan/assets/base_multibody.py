@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Tuple
 
 class BaseMultiBodyObject(ABC):
     def __init__(self):
@@ -45,11 +46,23 @@ class BaseMultiBodyObject(ABC):
         """
         raise NotImplementedError
 
+
+
     @abstractmethod
-    def apply_force(self, force):
+    def link_body(self, body,index: Tuple[int,...]):
         """
-        Apply force to the object
-        :param force: force to apply
+        Link body to the object
+        :param body: body to link
+        :param index: index of the body, custom for each object
+        :return:
+        """
+        pass
+
+    @abstractmethod
+    def get_body(self, index: Tuple[int,...]):
+        """
+        Get body of the object
+        :param index: index of the body, custom for each object
         :return:
         """
         pass

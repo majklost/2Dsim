@@ -13,7 +13,7 @@ class RandomBlock(PMSingleBodyObject):
         self.angular_velocity = 1
         self.color = (0, 255, 0, 255)
         self.r = r
-        np.random.seed(seed)
+        random.seed(seed)
         vertices = [self._get_vertex() for _ in range(8)]
         shape = pymunk.Poly(self.body, vertices)
         self.shapes = [shape]

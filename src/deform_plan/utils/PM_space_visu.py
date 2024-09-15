@@ -23,6 +23,7 @@ def show_sim(sim:Simulator, show_constraints=False, clb: Callable[[pygame.Surfac
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.quit()
                 return
         clock.tick(fps)
         pygame.display.update()
@@ -37,5 +38,9 @@ def make_draw_circle(pos,radius,color=pygame.Color("blue")):
         pygame.draw.circle(surface,color,pos,radius)
     return draw_circle
 
-
+def make_draw_rect(pos:np.array,width,height,angle,color=pygame.Color("green")):
+    def draw_rect(surface):
+        rect = pygame.Rect(pos[0],pos[1],width,height)
+        pygame.draw.rect(surface,color,rect)
+    return draw_rect
 

@@ -58,19 +58,21 @@ class FetchAblePlanner(BasePlanner):
                 break
             self.simulator.step()
             #if collided do not continue and do not create checkpoint
-            if self.end_condition(self.simulator, start, goal, cur_cnt):
+            if self.end_condition(self.simulator, start, goal, guider_data,cur_cnt):
                 collided = True
                 break
             cur_cnt = i+1
             #now I am saving checkpoint that is collision free
-            if cur_cnt % self.sampling_period == 0 and cur_cnt != 0:
+            if cur_cnt % self.sampling_period == 0 and cur_cnt != 1:
                 exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
                 response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
-
+            # exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
+            # response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
 
         if not collided:
             exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
             response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
+        # response.checkpoints = response.checkpoints[::self.sampling_period]
         return response
 
     def create_checkpoint(self,exported_data:dict,

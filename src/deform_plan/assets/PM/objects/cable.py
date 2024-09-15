@@ -11,7 +11,7 @@ class SpringParams:
         self.damping = damping
 
 STANDARD_LINEAR_PARAMS = SpringParams(5000, 10)
-STANDARD_ROTARY_PARAMS = SpringParams(500, 10)
+STANDARD_ROTARY_PARAMS = SpringParams(3000, 10)
 
 class Cable(PMMultiBodyObject):
     def __init__(self, pos:np.array, length:float, num_links:int, thickness:int=2,
@@ -60,20 +60,19 @@ class Cable(PMMultiBodyObject):
 
     @property
     def position(self):
-        return self.bodies[0].position
-
-    @position.setter
-    def position(self, value:np.array):
-        self.bodies[0].position = value
+        """Returns position CoM of all segments"""
+        return np.mean([b.position for b in self.bodies], axis=0)
 
 
     @property
     def orientation(self):
+
         raise NotImplementedError
 
     @property
     def velocity(self):
-        raise NotImplementedError
+        """Returns sum of velocities of all segments"""
+        return sum([np.linalg.norm(b.velocity) for b in self.bodies])
 
     @property
     def angular_velocity(self):

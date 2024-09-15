@@ -1,15 +1,22 @@
 import numpy as np
+
 from ..simulators.PM.pm_simulator import Simulator
 from ..messages.sim_node import SimNode
 from ..storages.kd_tree import KDTree
-def make_guider(movable_idx,max_vel):
+# from ..storages.brute_force import BruteForce as KDTree
+def make_guider(movable_idx,max_vel,min_vel):
     def guider_fnc(sim:Simulator,start:SimNode,goal,guider_data:dict,cur_iter_cnt):
         guided_obj = sim.movable_objects[movable_idx]
-        if cur_iter_cnt==0 and not np.any(np.isclose(guided_obj.position,start.exporter_data["pos"])):
-            if start.exporter_data["cur_iter"] != start.all_iter_cnt:
-                raise ValueError("iter cnt differs: ", start.exporter_data["cur_iter"], start.all_iter_cnt)
+        if cur_iter_cnt==0:
+            if not np.any(np.isclose(guided_obj.position,start.exporter_data["pos"])):
+                if start.exporter_data["cur_iter"] != start.all_iter_cnt:
+                    raise ValueError("iter cnt differs: ", start.exporter_data["cur_iter"], start.all_iter_cnt)
 
-            raise ValueError("start pos differs: ", guided_obj.position, start.exporter_data["pos"])
+                raise ValueError("start pos differs: ", guided_obj.position, start.exporter_data["pos"])
+            if goal.iter_cnt - start.all_iter_cnt <=0:
+                raise ValueError("Impossible iter diff given: ", goal.iter_cnt, start.all_iter_cnt)
+
+
 
         pos = goal.pos
         rot = goal.rot
@@ -18,20 +25,23 @@ def make_guider(movable_idx,max_vel):
         direction = pos - sim.movable_objects[movable_idx].position
         iter_diff = iter_cnt - (start.all_iter_cnt+cur_iter_cnt)
         time_diff = iter_diff * 1/sim.fps
-        if iter_diff <=0:
+        vel = direction / time_diff
+
+        vel_scalar = np.linalg.norm(vel)
+        vel_length_one = vel / vel_scalar
+        coef = max(min(vel_scalar,max_vel),min_vel)
+        vel = coef * vel_length_one
+        iter_diff = vel_scalar/coef * iter_diff
+        time_diff = iter_diff * 1 / sim.fps
+
+        if np.linalg.norm(direction)< 5:
             guided_obj.velocity = np.array([0,0])
             guided_obj.angular_velocity = 0
             return False
-        vel = direction / time_diff
-
-        vel_scalar  = np.linalg.norm(vel)
-        vel_length_one = vel / vel_scalar
-        coef = min(vel_scalar,max_vel)
-        vel = coef * vel_length_one
-
 
         guider_data["prev_vel"] = vel
         angu_vel = rot_diff / time_diff
+        # print("angu_vel: ", angu_vel)
 
         guided_obj.velocity = vel
         guided_obj.angular_velocity = angu_vel
@@ -39,9 +49,10 @@ def make_guider(movable_idx,max_vel):
     return guider_fnc
 
 def make_end_condition(movable_idx):
-    def end_condition(sim:Simulator,start:SimNode,goal,cur_iter_cnt):
+    def end_condition(sim:Simulator,start:SimNode,goal,guider_data,cur_iter_cnt):
         guided_obj = sim.movable_objects[movable_idx]
         if guided_obj.collision_data is not None:
+            guided_obj.collision_data = None
             return True
         return False
     return end_condition
@@ -90,15 +101,17 @@ def distance_fnc(g:Goal,p:Point):
     if g.iter_cnt <= p[3]:
         return float("inf")
     else:
-        return ((g.pos[0]- p[0])**2 + (g.pos[1]-p[1])**2 +0*(g.rot-p[2])**2)**0.5
+        return (sum((g[i] - p[i]) ** 2 for i in range(3))) **0.5
+    # return (sum((g[i] - p[i]) ** 2 for i in range(3))) ** 0.5
 
 class StorageWrapper:
     def __init__(self, goal, threshold=2):
         self.goal = goal
-        self.tree =KDTree(4)
+        self.tree =KDTree(3)
         self.want_next_iter = True
         self.threshold = threshold
         self._end_node :SimNode|None = None
+        self.best_dist = float("inf")
 
 
     def save_to_storage(self, node:SimNode):
@@ -108,9 +121,11 @@ class StorageWrapper:
         point = Point(node,x,y,r,iter)
         dist = distance_fnc(self.goal,point)
 
-        if dist < 10:
-            self.want_next_iter = False
+        if dist < self.best_dist:
+            if dist<10:
+                self.want_next_iter = False
             self._end_node = node
+            self.best_dist = dist
         self.tree.insert(point)
 
     def get_nearest(self,g:Goal):
@@ -121,6 +136,9 @@ class StorageWrapper:
         # print(self.tree.root)
         res =self.tree.nearest_neighbour(g,distance_fnc).node
         return res
+
+    def get_all_points(self):
+        return [x.node  for x in self.tree.get_all_points()]
 
     def get_path(self):
         path =[]

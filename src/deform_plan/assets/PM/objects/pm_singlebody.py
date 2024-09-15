@@ -1,3 +1,4 @@
+import pygame
 import pymunk
 import numpy as np
 
@@ -10,11 +11,15 @@ class PMSingleBodyObject(BaseSingleBodyObject):
     def __init__(self,body_type):
         super().__init__()
         self._collision_data = None #type: CollisionData
-        self.shapes = []
+        self.shapes = set()
         self._body = pymunk.Body(body_type=body_type)
         self._color = (0, 0, 0, 0)
         self._density = .01
         self.collision_clb = None
+        self._manual_force = np.array([0,0])
+
+    def __deepcopy__(self, memodict={}):
+        raise NotImplementedError("Deepcopy not implemented")
 
     @property
     def collision_data(self):
@@ -23,9 +28,6 @@ class PMSingleBodyObject(BaseSingleBodyObject):
     @collision_data.setter
     def collision_data(self, value: CollisionData):
         self._collision_data = value
-
-    def __deepcopy__(self, memodict=None):
-        return self
 
 
     @property
@@ -99,7 +101,7 @@ class PMSingleBodyObject(BaseSingleBodyObject):
             shape.density = self._density
             space.add(shape)
 
-    def set_ID(self, ID: int | tuple[int,int], moveable: bool = True):
+    def set_ID(self, ID: int | tuple[int,...], moveable: bool = True):
         """
         Used by simulator to set the ID of the object, so that it can be identified in the simulator
         :param ID:
@@ -122,15 +124,38 @@ class PMSingleBodyObject(BaseSingleBodyObject):
 
     @color.setter
     def color(self, color):
+
         self._color = color
         for s in self.shapes:
-            s.color = color
+            s.color = pygame.Color(color)
 
     def apply_force(self, force: np.array, global_coords=True):
 
-        direction = force[:2]
-        pos = force[2:]
+        if len(force) ==4:
+            direction = force[:2].tolist()
+            pos = force[2:].tolist()
+        elif len(force) ==2:
+            direction = force.tolist()
+            pos = [0,0]
+        else:
+            raise ValueError("Force must be 4 or 2 element array")
+
+
         if global_coords:
             rm = rot_matrix(-self.orientation)
-            direction = np.dot(rm, direction)
-        self._body.apply_force_at_local_point(direction.tolist(), force[2:].tolist())
+            direction = np.dot(rm, direction).tolist()
+
+        self._body.apply_force_at_local_point(direction, pos)
+
+    def get_manual_force(self) -> np.array:
+        """
+        :return: Force applied to the CoG of given body
+        """
+        return self._manual_force
+
+    def save_manual_forces(self):
+        """
+        Save the manual forces applied to the body
+        :return:
+        """
+        self._manual_force = np.array([self._body.force.x,self._body.force.y])

@@ -1,16 +1,21 @@
-from typing import List
+from typing import List, Tuple
 from abc import  abstractmethod
 
 from ...base_multibody import BaseMultiBodyObject
 from .pm_singlebody import PMSingleBodyObject
 
 class PMMultiBodyObject(BaseMultiBodyObject):
+    """abstract class for multi body object, preimplemented for linear
+    objects - e.g. Cable"""
     def __init__(self):
         super().__init__()
         self.bodies = [] # type: List[PMSingleBodyObject]
         self._density = 1
         self._friction = 0.5
         self._color = (0, 0, 0, 0)
+
+    def __deepcopy__(self, memodict={}):
+        raise NotImplementedError("Deepcopy not implemented")
 
     def __getitem__(self, item) -> PMSingleBodyObject:
         return self.bodies[item]
@@ -35,22 +40,21 @@ class PMMultiBodyObject(BaseMultiBodyObject):
         body.friction = self.friction
         self.bodies.append(body)
 
-    def set_ID(self, ID : int, moveable=bool):
+    def set_ID(self, base_ID : int, moveable=bool):
+        """
+        Default setId that expects linear indexing
+        Must be overloaded if the object has different indexing (e.g) square indexing
+        :param base_ID:
+        :param moveable:
+        :return:
+        """
         if moveable:
             for i,b in enumerate(self.bodies):
-                b.set_ID((ID,i),moveable=True)
+                b.set_ID((base_ID,i),moveable=True)
         else:
             for i,b in enumerate(self.bodies):
-                b.set_ID((ID,i),moveable=False)
+                b.set_ID((base_ID,i),moveable=False)
 
-    def apply_force(self, force, index=None):
-        # self.bodies[index[1]].apply_force(force)
-        if index is None:
-            for i in range(len(self.bodies)):
-                self.bodies[i].apply_force(force[i])
-        else:
-            for i in index:
-                self.bodies[i].apply_force(force[i])
     @property
     def color(self):
         return self._color
@@ -88,24 +92,35 @@ class PMMultiBodyObject(BaseMultiBodyObject):
         for b in self.bodies:
             b.friction = friction
 
+    def link_body(self, body,index: Tuple[int,...]):
+        if len(index) == 1:
+            self.bodies[index[0]].collision_data = None
+            self.bodies[index[0]].body = body
+            self.bodies[index[0]].shapes = body.shapes
+        else:
+            raise ValueError("Linking of multidimensional bodies not implemented")
+
+    def get_body(self, index: Tuple[int,...]):
+        return self.bodies[index[0]]
+
+    def save_manual_forces(self):
+        for b in self.bodies:
+            b.save_manual_forces()
+
 
     @property
-    @abstractmethod
     def position(self):
         raise NotImplementedError("This is abstract class")
 
     @property
-    @abstractmethod
     def orientation(self):
         raise NotImplementedError("This is abstract class")
 
     @property
-    @abstractmethod
     def velocity(self):
         raise NotImplementedError("This is abstract class")
 
     @property
-    @abstractmethod
     def angular_velocity(self):
         raise NotImplementedError("This is abstract class")
 

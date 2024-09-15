@@ -20,6 +20,7 @@ class DebugViewer:
         self.want_running = True
         self.controller = None # type: PMCableController
         self.drawings = []
+        self.draw_clb = None
         if not render_constraints:
             self.draw_options.flags = DrawOptions.DRAW_SHAPES
 
@@ -30,9 +31,11 @@ class DebugViewer:
         # new rendered image, will be prepared to be rendered
         self.cur_scene.fill((255, 255, 255))
         space.debug_draw(self.draw_options)
-        self.display.blit(self.cur_scene, (0, 0))
         for d in self.drawings:
-            d.draw(self.display)
+            d.draw(self.cur_scene)
+        if self.draw_clb:
+            self.draw_clb(self.cur_scene)
+        self.display.blit(self.cur_scene, (0, 0))
         pygame.display.update()
         if self.realtime:
             self.clock.tick(self.FPS)
