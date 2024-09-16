@@ -14,8 +14,8 @@ import deform_plan.rrt_utils.cable_rrt as vutils
 
 
 CABLE_LENGTH = 400
-SEGMENT_NUM = 30
-MAX_FORCE =100
+SEGMENT_NUM = 70
+MAX_FORCE =800
 cfg = PMConfig()
 cable= Cable([0,0],400,SEGMENT_NUM,thickness=5)
 obstacle_g = RandomObstacleGroup(np.array([100,200]),200,200,4,3,seed=10)
@@ -27,7 +27,7 @@ sim = Simulator(cfg, [cable], [obstacle_g])
 
 lb = np.array([300,300,0])
 ub = np.array([500,500,2*np.pi])
-sampler = BezierSampler(CABLE_LENGTH,SEGMENT_NUM,lb,ub,seed=9)
+sampler = BezierSampler(CABLE_LENGTH,SEGMENT_NUM,lb,ub,seed=15)
 points = sampler.sample()
 # control_idxs = [i for i in range(SEGMENT_NUM)]
 control_idxs = [0, 10,SEGMENT_NUM-1]

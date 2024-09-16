@@ -6,10 +6,10 @@ from deform_plan.utils.PM_debug_viewer import DebugViewer
 from deform_plan.controllers.PM_rectangle_controller import PMRectangleController
 
 cfg = PMConfig()
-
+rand_block = RandomBlock([400,600],200,STATIC,seed=10)
 rect = Rectangle([100,100],200,20,DYNAMIC)
 obstacle = Rectangle([400,200],100,100,STATIC)
-sim = Simulator(cfg, [rect], [obstacle])
+sim = Simulator(cfg, [rect], [rand_block,obstacle])
 sim.damping = .1
 
 rect_controller = PMRectangleController(rect, moving_force=20000)

@@ -9,7 +9,7 @@ class PMConfig:
     width: int = 800
     height: int = 800
     FPS: int = 60
-    collision_slope: float = 0.05
+    collision_slope: float = 0.01
 
 DYNAMIC = pymunk.Body.DYNAMIC
 KINEMATIC = pymunk.Body.KINEMATIC

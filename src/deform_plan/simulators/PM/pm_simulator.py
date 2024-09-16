@@ -55,10 +55,11 @@ class Simulator(BaseSimulator):
     def _process_config(self, config: PMConfig):
         self._space.gravity = (0,config.gravity)
         self._space.damping = config.damping
+        # self._space.co
         self._FPS = config.FPS
         self._width = config.width
         self._height = config.height
-        self._space.collision_slope = config.collision_slope
+        self._space.collision_slop = config.collision_slope
 
     def _add_objects_to_space(self):
         for i,obj in enumerate(self.movable_objects):

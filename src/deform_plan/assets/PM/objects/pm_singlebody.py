@@ -11,10 +11,10 @@ class PMSingleBodyObject(BaseSingleBodyObject):
     def __init__(self,body_type):
         super().__init__()
         self._collision_data = None #type: CollisionData
-        self.shapes = set()
-        self._body = pymunk.Body(body_type=body_type)
+        self.shapes = []
+        self._body = pymunk.Body(body_type=body_type, mass=0,moment=0)
         self._color = (0, 0, 0, 0)
-        self._density = .01
+        self.density = .01
         self.collision_clb = None
         self._manual_force = np.array([0,0])
 
