@@ -1,3 +1,4 @@
+import numpy as np
 # code taken from https://www.geeksforgeeks.org/search-and-insertion-in-k-dimensional-tree/
 # nearest neighbour search implemented myself
 # A structure to represent node of kd tree

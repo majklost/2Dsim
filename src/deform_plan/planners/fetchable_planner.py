@@ -21,7 +21,7 @@ class FetchAblePlanner(BasePlanner):
                  exporter: Callable[[Simulator,SimNode|None,Any,int],dict],
                  max_iter_cnt: int = 1000,
                  only_simuls: bool = False,
-                 sampling_period =20,
+                 sampling_period =2000,
 
                  ):
 

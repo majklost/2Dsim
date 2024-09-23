@@ -17,22 +17,25 @@ CABLE_LENGTH = 400
 SEGMENT_NUM = 70
 MAX_FORCE =800
 cfg = PMConfig()
-cable= Cable([0,0],400,SEGMENT_NUM,thickness=5)
-obstacle_g = RandomObstacleGroup(np.array([100,200]),200,200,4,3,seed=10)
+cable= Cable([20,20],400,SEGMENT_NUM,thickness=5)
+obstacle_g = RandomObstacleGroup(np.array([100,200]),200,200,4,3,seed=25)
+top = Rectangle([400,0],800,20,STATIC)
+bottom = Rectangle([400,800],800,20,STATIC)
+left = Rectangle([0,400],20,800,STATIC)
+right = Rectangle([800,400],20,800,STATIC)
 
 
-
-
-sim = Simulator(cfg, [cable], [obstacle_g])
+# sim = Simulator(cfg, [cable], [top,bottom,left,right])
+sim = Simulator(cfg, [cable], [obstacle_g,top,bottom,left,right])
 
 lb = np.array([300,300,0])
 ub = np.array([500,500,2*np.pi])
-sampler = BezierSampler(CABLE_LENGTH,SEGMENT_NUM,lb,ub,seed=15)
-points = sampler.sample()
+sampler = BezierSampler(CABLE_LENGTH,SEGMENT_NUM,lb,ub,seed=16)
+points = sampler.sample(x=300,y=750,angle=0)
 # control_idxs = [i for i in range(SEGMENT_NUM)]
 control_idxs = [0, 10,SEGMENT_NUM-1]
 guider = vutils.make_guider(0,control_idxs,MAX_FORCE)
-ender = vutils.make_end_cond_all_vel(0,MAX_FORCE/3,10)
+ender = vutils.make_end_cond_all_vel(0,MAX_FORCE/3,5)
 planner = FetchAblePlanner(sim,guider,ender,vutils.make_exporter(0),max_iter_cnt=50000)
 print(points)
 
@@ -49,7 +52,7 @@ db.draw_clb = draw
 
 start = planner.form_start_node()
 
-planner.check_path(start,points)
+planner.check_path(start,vutils.Point(points))
 
 
 

@@ -23,6 +23,8 @@ class ReplayablePath:
         self.goal = goal
         self.guider = guider
         self.additional_data = additional_data
+        if additional_data is None:
+            self.additional_data = {}
 
     def save(self, filepath):
         with open(filepath, 'wb') as f:

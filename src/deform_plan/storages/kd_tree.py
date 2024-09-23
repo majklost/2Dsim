@@ -1,5 +1,8 @@
-from  .base_storage import BaseStorage
 import sys
+# from numpy.linalg import norm
+norm = lambda x:x
+from  .base_storage import BaseStorage
+
 sys.setrecursionlimit(10000)
 # code taken from https://www.geeksforgeeks.org/search-and-insertion-in-k-dimensional-tree/
 # nearest neighbour search implemented myself
@@ -50,7 +53,7 @@ class _KDTree:
 
         # Compare the new point with root on current dimension 'cd'
         # and decide the left or right subtree
-        if point[cd] < root.point[cd]:
+        if norm(point[cd]) < norm(root.point[cd]):
             root.left = cls._insertRec(root.left, point, depth + 1)
         else:
             root.right = cls._insertRec(root.right, point, depth + 1)
@@ -90,7 +93,7 @@ class _KDTree:
         cd = depth % cls.k
 
         # Compare point with root with respect to cd (Current dimension)
-        if point[cd] < root.point[cd]:
+        if norm(point[cd]) < norm(root.point[cd]):
             return cls._searchRec(root.left, point, depth + 1)
 
         return cls._searchRec(root.right, point, depth + 1)
@@ -111,7 +114,7 @@ class _KDTree:
         # if cd ==3:
         #     if point[cd] < root.point[cd]:
         #         return best_node, best_dist
-        if point[cd] < root.point[cd]:
+        if norm(point[cd]) < norm(root.point[cd]):
             next_branch = root.left
             opposite_branch = root.right
         else:
@@ -123,7 +126,7 @@ class _KDTree:
                                                         best_node=best_node)
 
         # check if the other branch may have a closer point
-        if abs(point[cd] - root.point[cd]) < best_dist:
+        if norm(point[cd] - root.point[cd]) < best_dist:
             best_node, best_dist = cls._nearestNeighbourRec(opposite_branch, point, distancefnc, depth + 1,
                                                             best_dist=best_dist,
                                                             best_node=best_node)

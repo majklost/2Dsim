@@ -49,8 +49,17 @@ class BezierSampler(BaseSampler):
         self.last_angles = []
         self.ndim_sampler = NDIMSampler(lower_bounds, upper_bounds)
 
-    def sample(self):
-        curve_points = self._get_curve_points()
+    def sample(self,x=None,y=None,angle=None):
+
+        xo,yo,angleo = self.ndim_sampler.sample()
+        if x is None:
+            x = xo
+        if y is None:
+            y = yo
+        if angle is None:
+            angle = angleo
+
+        curve_points = self._get_curve_points(x,y,angle)
         directions = self._calc_directions(curve_points)
 
         dir_lengths = [np.linalg.norm(d) for d in directions]
@@ -60,7 +69,7 @@ class BezierSampler(BaseSampler):
         self.last_sampled = self._create_midpoints(self._dirs_to_points(curve_points[0], new_dirs))
         return self.last_sampled
 
-    def _get_curve_points(self):
+    def _get_curve_points(self,x,y,angle):
         x_controls = np.random.uniform(0, 20, 2)
         y_controls = np.random.uniform(-20, 20, 2)
         A = np.array([0, 0])
@@ -70,7 +79,7 @@ class BezierSampler(BaseSampler):
         bezier = create_bezier(A, B, C, D)
 
 
-        x,y,angle = self.ndim_sampler.sample()
+
 
         points = [rot_matrix(angle) @ bezier(t) + np.array([x,y]) for t in np.linspace(0, 1, self.cable_segments_num + 1)]
         return points

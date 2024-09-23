@@ -27,10 +27,13 @@ class PMReplayableViewer(BaseViewer):
 
 
 
-    def show(self,realtime=True):
+    def show(self,realtime=True,constraints=False):
         self.sim.import_from(self.path[0].sim_export)
         clock = pygame.time.Clock()
         draw_ops = DrawOptions(self.cur_scene)
+        if not constraints:
+            draw_ops.flags = DrawOptions.DRAW_SHAPES
+
         for n in self.path[1:]:
             parent = n.replayer.parent
             parent_guider_data = parent.guider_data
@@ -59,6 +62,7 @@ class PMReplayableViewer(BaseViewer):
             if event.type == pygame.QUIT:
                 return True
         return False
+
 
 
 
