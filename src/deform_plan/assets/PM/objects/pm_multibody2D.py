@@ -10,8 +10,7 @@ class PMMultibody2D(PMMultiBodyObject):
 
     def link_body(self, body,index: Tuple[int,...]):
         if len(index) ==2:
-            self.bodies[index[0]][index[1]].collision_data = None
-            self.bodies[index[0]][index[1]].body = body
+            self.bodies[index[0]][index[1]].link_body(body)
         else:
             raise NotImplementedError("Linking 2D bodies not implemented")
 

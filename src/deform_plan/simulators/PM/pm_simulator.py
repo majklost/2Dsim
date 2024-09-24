@@ -74,13 +74,18 @@ class Simulator(BaseSimulator):
         # print("Collision detected")
 
 
-        o1 = self._identify_object(b1.body)
-        o2 = self._identify_object(b2.body)
+        cid1,movable1 = self._get_id(b1.body)
+        cid2,movable2 = self._get_id(b2.body)
+        # same_object = movable1 == movable2 and cid1[0] == cid2[0]
+        o1 = self._get_object(cid1, movable1)
+        o2 = self._get_object(cid2, movable2)
 
-        data1 = CollisionData(arbiter.normal, b2, o2)
-        data2 = CollisionData(-arbiter.normal, b1, o1)
-        o1.collision_data = data1
-        o2.collision_data = data2
+        data1 = CollisionData(arbiter.normal, b2, o2, cid2[1:])
+        data2 = CollisionData(-arbiter.normal, b1, o1, cid1[1:])
+
+        o1.collision_start(data1)
+        o2.collision_start(data2)
+
         # o1.color = (255,0,0,0)
         # o2.color = (0,255,0,0)
 
@@ -93,24 +98,32 @@ class Simulator(BaseSimulator):
         b2 = arbiter.shapes[1]
         # print("Collision ended")
 
-        o1 = self._identify_object(b1.body)
-        o2 = self._identify_object(b2.body)
-        if o1.collision_data is not None:
-            o1.collision_data = None
-        if o2.collision_data is not None:
-            o2.collision_data = None
+        cid1,movable1 = self._get_id(b1.body)
+        cid2,movable2 = self._get_id(b2.body)
+        # same_object = movable1 == movable2 and cid1[0] == cid2[0]
 
+        o1 = self._get_object(cid1, movable1)
+        o2 = self._get_object(cid2, movable2)
 
+        data1 = CollisionData(arbiter.normal, b2, o2, cid2[1:])
+        data2 = CollisionData(-arbiter.normal, b1, o1, cid1[1:])
+        o1.collision_end(data1)
+        o2.collision_end(data2)
+    def _get_object(self, cid, movable):
+        if movable:
+            return self.movable_objects[cid[0]]
+        else:
+            return self.fixed_objects[cid[0]]
 
-
-    def _identify_object(self, body):
+    @staticmethod
+    def _get_id( body):
         if hasattr(body, 'moveId'):
             cid = body.moveId
-            return self.movable_objects[cid[0]].get_body(cid[1:])
+            return cid,True
 
         elif hasattr(body, 'fixedId'):
             cid = body.fixedId
-            return self.fixed_objects[cid[0]].get_body(cid[1:])
+            return cid,False
 
         raise ValueError("Object with no ID")
 

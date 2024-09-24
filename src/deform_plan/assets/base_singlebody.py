@@ -29,3 +29,9 @@ class BaseSingleBodyObject(ABC):
     def apply_force(self, force):
         pass
 
+    @abstractmethod
+    def collision_start(self, collsion_data):
+        pass
+    @abstractmethod
+    def collision_end(self, collsion_data):
+        pass

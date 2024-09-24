@@ -52,7 +52,6 @@ def make_end_condition(movable_idx):
     def end_condition(sim:Simulator,start:SimNode,goal,guider_data,cur_iter_cnt):
         guided_obj = sim.movable_objects[movable_idx]
         if guided_obj.collision_data is not None:
-            guided_obj.collision_data = None
             return True
         return False
     return end_condition

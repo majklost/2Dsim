@@ -25,11 +25,6 @@ class PMSingleBodyObject(BaseSingleBodyObject):
     def collision_data(self):
         return self._collision_data
 
-    @collision_data.setter
-    def collision_data(self, value: CollisionData):
-        self._collision_data = value
-
-
     @property
     def body(self) -> pymunk.Body:
         """
@@ -169,4 +164,10 @@ class PMSingleBodyObject(BaseSingleBodyObject):
             raise ValueError("Linking of subbody of single body object")
         self._body = body
         self.shapes = body.shapes
-        self.collision_data = None
+        self._collision_data = None
+
+    def collision_start(self, collsion_data):
+        self._collision_data = collsion_data
+
+    def collision_end(self, collsion_data):
+        self._collision_data = None

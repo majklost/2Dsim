@@ -94,9 +94,7 @@ class PMMultiBodyObject(BaseMultiBodyObject):
 
     def link_body(self, body,index: Tuple[int,...]):
         if len(index) == 1:
-            self.bodies[index[0]].collision_data = None
-            self.bodies[index[0]].body = body
-            self.bodies[index[0]].shapes = body.shapes
+            self.bodies[index[0]].link_body(body, index[1:])
         else:
             raise ValueError("Linking of multidimensional bodies not implemented")
 
@@ -125,4 +123,8 @@ class PMMultiBodyObject(BaseMultiBodyObject):
         raise NotImplementedError("This is abstract class")
 
 
+    def collision_start(self, collision_data):
+        pass
 
+    def collision_end(self, collision_data):
+        pass

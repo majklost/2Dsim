@@ -66,3 +66,9 @@ class BaseMultiBodyObject(ABC):
         :return:
         """
         pass
+    @abstractmethod
+    def collision_start(self, collsion_data):
+        pass
+    @abstractmethod
+    def collision_end(self, collsion_data):
+        pass
