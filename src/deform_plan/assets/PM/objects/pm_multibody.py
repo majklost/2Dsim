@@ -40,7 +40,7 @@ class PMMultiBodyObject(BaseMultiBodyObject):
         body.friction = self.friction
         self.bodies.append(body)
 
-    def set_ID(self, base_ID : int, moveable=bool):
+    def set_ID(self, base_ID : tuple[int], moveable=bool):
         """
         Default setId that expects linear indexing
         Must be overloaded if the object has different indexing (e.g) square indexing
@@ -50,10 +50,10 @@ class PMMultiBodyObject(BaseMultiBodyObject):
         """
         if moveable:
             for i,b in enumerate(self.bodies):
-                b.set_ID((base_ID,i),moveable=True)
+                b.set_ID((base_ID[0],i),moveable=True)
         else:
             for i,b in enumerate(self.bodies):
-                b.set_ID((base_ID,i),moveable=False)
+                b.set_ID((base_ID[0],i),moveable=False)
 
     @property
     def color(self):

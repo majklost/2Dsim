@@ -85,7 +85,7 @@ print("Best dist: ", storage.best_dist)
 path= storage.get_path()
 if len(path) != 0:
     rp = ReplayablePath(sim,path,goal,guider)
-    rp.save("./data/velocity.rpath")
+    rp.save("./data/good_velocity.rpath")
 
 all_pnts = storage.get_all_points()
 print("Number of points: ",len(all_pnts))

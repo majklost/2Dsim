@@ -48,5 +48,5 @@ def replay_cable():
 
 
 if __name__ == '__main__':
-    replay_cable()
-    # replay_velocity()
+    # replay_cable()
+    replay_velocity()

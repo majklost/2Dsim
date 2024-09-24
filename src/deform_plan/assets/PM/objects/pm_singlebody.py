@@ -101,7 +101,7 @@ class PMSingleBodyObject(BaseSingleBodyObject):
             shape.density = self._density
             space.add(shape)
 
-    def set_ID(self, ID: int | tuple[int,...], moveable: bool = True):
+    def set_ID(self, ID:  tuple[int,...], moveable: bool = True):
         """
         Used by simulator to set the ID of the object, so that it can be identified in the simulator
         :param ID:
@@ -159,3 +159,14 @@ class PMSingleBodyObject(BaseSingleBodyObject):
         :return:
         """
         self._manual_force = np.array([self._body.force.x,self._body.force.y])
+    def get_body(self, tup_index: tuple[int,...]):
+        if len(tup_index) != 0:
+            raise ValueError("Tried to get subbody of single body object")
+        return self
+
+    def link_body(self, body, index: tuple[int,...]):
+        if len(index) !=0:
+            raise ValueError("Linking of subbody of single body object")
+        self._body = body
+        self.shapes = body.shapes
+        self.collision_data = None

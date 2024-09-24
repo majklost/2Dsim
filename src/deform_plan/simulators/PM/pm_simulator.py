@@ -63,10 +63,10 @@ class Simulator(BaseSimulator):
 
     def _add_objects_to_space(self):
         for i,obj in enumerate(self.movable_objects):
-            obj.set_ID(i,moveable=True)
+            obj.set_ID((i,),moveable=True)
             obj.add_to_space(self._space)
         for i,obj in enumerate(self.fixed_objects):
-            obj.set_ID(i,moveable=False)
+            obj.set_ID((i,),moveable=False)
             obj.add_to_space(self._space)
     def _begin_collision(self, arbiter:pymunk.Arbiter, space, data):
         b1 = arbiter.shapes[0]
@@ -106,17 +106,12 @@ class Simulator(BaseSimulator):
     def _identify_object(self, body):
         if hasattr(body, 'moveId'):
             cid = body.moveId
-            if type(cid) == tuple:
-                return self.movable_objects[cid[0]].get_body(cid[1:])
-            else:
-                return self.movable_objects[cid]
+            return self.movable_objects[cid[0]].get_body(cid[1:])
+
         elif hasattr(body, 'fixedId'):
             cid = body.fixedId
+            return self.fixed_objects[cid[0]].get_body(cid[1:])
 
-            if type(cid) ==tuple:
-                return self.fixed_objects[cid[0]].get_body(cid[1:])
-            else:
-                return self.fixed_objects[cid]
         raise ValueError("Object with no ID")
 
     def _collision_handling(self):
@@ -189,21 +184,13 @@ class Simulator(BaseSimulator):
         for b in self._space.bodies:
             if hasattr(b, 'moveId'):
                 cid = b.moveId
-                if isinstance(cid,tuple):
-                    self.movable_objects[cid[0]].link_body(b,cid[1:])
-                else:
-                    self.movable_objects[cid].body = b
-                    self.movable_objects[cid].shapes = b.shapes
-                    self.movable_objects[cid].collision_data = None
+                self.movable_objects[cid[0]].link_body(b,cid[1:])
 
-            if hasattr(b, 'fixedId'):
+            else:
                 cid = b.fixedId
-                if isinstance(cid,tuple):
-                    self.fixed_objects[cid[0]].link_body(b,cid[1:])
-                else:
-                    self.fixed_objects[cid].body = b
-                    self.fixed_objects[cid].shapes = b.shapes
-                    self.fixed_objects[cid].collision_data = None
+                self.fixed_objects[cid[0]].link_body(b,cid[1:])
+
+
 
     def get_debug_data(self):
         """

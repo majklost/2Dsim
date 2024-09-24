@@ -52,7 +52,7 @@ db.draw_clb = draw
 
 start = planner.form_start_node()
 
-planner.check_path(start,vutils.Point(points))
+planner.check_path(start,vutils.Point(points, None))
 
 
 
