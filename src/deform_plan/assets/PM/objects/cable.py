@@ -10,8 +10,8 @@ class SpringParams:
         self.stiffness = stiffness
         self.damping = damping
 
-STANDARD_LINEAR_PARAMS = SpringParams(5000, 10)
-STANDARD_ROTARY_PARAMS = SpringParams(3000, 10)
+STANDARD_LINEAR_PARAMS = SpringParams(2000, 10)
+STANDARD_ROTARY_PARAMS = SpringParams(500, 10)
 
 class Cable(PMMultiBodyObject):
     def __init__(self, pos:np.array, length:float, num_links:int, thickness:int=2,
@@ -42,7 +42,7 @@ class Cable(PMMultiBodyObject):
         for i in range(self.num_links - 1):
             spring = pymunk.constraints.DampedSpring(self.bodies[i].body, self.bodies[i + 1].body, (0.3 * segment_length, 0),
                                                      (-0.3 * segment_length, 0), 0.4 * segment_length,
-                                                     self.linear_params.stiffness / segment_length,
+                                                     self.linear_params.stiffness,
                                                      self.linear_params.damping)
             self.linear_springs.append(spring)
 

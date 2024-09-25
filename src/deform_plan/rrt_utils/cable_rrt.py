@@ -10,6 +10,7 @@ from ..assets.PM import *
 
 def make_guider(movable_idx: int, allow_control_idxs: list, max_force: float, distance_thresh=8):
     def guider_fnc(sim: Simulator, start: SimNode, goal, guider_data, cur_iter_cnt):
+
         guided_obj = sim.movable_objects[movable_idx]
         guider_data["give_up"] = True
         if not isinstance(guided_obj, Cable):
@@ -20,7 +21,11 @@ def make_guider(movable_idx: int, allow_control_idxs: list, max_force: float, di
         # print("vecs: ", vecs)
         distances = list(map(lambda x: np.linalg.norm(x), vecs))
         unit_vecs = list(map(lambda x: x / np.linalg.norm(x), vecs))
-        ok_cnt = 0 
+        ok_cnt = 0
+
+        if len(guided_obj.self_collision_idxs) >0:
+            crossed_path_handler(guided_obj, guider_data,allow_control_idxs,goal)
+
 
         for i in allow_control_idxs:
             coef = 1
@@ -32,7 +37,6 @@ def make_guider(movable_idx: int, allow_control_idxs: list, max_force: float, di
             # if guided_obj.bodies[i].collision_data is not None:
             #     cd = guided_obj.bodies[i].collision_data
             #     print(cd.other_body)
-
 
 
         if ok_cnt == len(allow_control_idxs):
@@ -151,3 +155,22 @@ class StorageWrapper:
             cur = cur.replayer.parent
 
         return list(reversed(path))
+
+
+def crossed_path_handler(guided_obj: Cable, guider_data: dict,control_idxs,goal):
+    #check if the path is crossed
+    for i in range(len(goal.points)):
+        for j in range(i+1,len(goal.points)):
+            p1 = guided_obj.bodies[i].position
+            g1 = goal.points[i]
+            p2 = guided_obj.bodies[j].position
+            g2 = goal.points[j]
+            if intersect(p1,p2,g1,g2):
+                print("Path crossed")
+                guider_data["give_up"] = True
+                return
+
+def intersect(A, B, C, D):
+    def ccw(p1, p2, p3):
+        return (p3[1] - p1[1]) * (p2[0] - p1[0]) > (p2[1] - p1[1]) * (p3[0] - p1[0])
+    return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)

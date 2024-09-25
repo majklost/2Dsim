@@ -8,7 +8,7 @@ from deform_plan.simulators.PM.collision_data import CollisionData
 
 
 class PMSingleBodyObject(BaseSingleBodyObject):
-    def __init__(self,body_type):
+    def __init__(self,body_type, track_colisions=True):
         super().__init__()
         self._collision_data = None #type: CollisionData
         self.shapes = []
@@ -17,6 +17,7 @@ class PMSingleBodyObject(BaseSingleBodyObject):
         self.density = .01
         self.collision_clb = None
         self._manual_force = np.array([0,0])
+        self.track_colisions = track_colisions
 
     def __deepcopy__(self, memodict={}):
         raise NotImplementedError("Deepcopy not implemented")

@@ -1,18 +1,24 @@
 from typing import List, Tuple
 from abc import  abstractmethod
 
+from deform_plan.simulators.PM.collision_data import CollisionData
 from ...base_multibody import BaseMultiBodyObject
 from .pm_singlebody import PMSingleBodyObject
 
 class PMMultiBodyObject(BaseMultiBodyObject):
     """abstract class for multi body object, preimplemented for linear
     objects - e.g. Cable"""
-    def __init__(self):
+    def __init__(self,track_colisions=True,ignore_neighbour_collision=True):
         super().__init__()
         self.bodies = [] # type: List[PMSingleBodyObject]
         self._density = 1
         self._friction = 0.5
         self._color = (0, 0, 0, 0)
+        self.self_collision_idxs = set()
+        self.outer_collision_idxs = set()
+        self.ignore_neighbour_collision = ignore_neighbour_collision
+        self.track_colisions = track_colisions
+
 
     def __deepcopy__(self, memodict={}):
         raise NotImplementedError("Deepcopy not implemented")
@@ -28,11 +34,6 @@ class PMMultiBodyObject(BaseMultiBodyObject):
 
     def __setitem__(self, key, value):
         self.bodies[key] = value
-
-    @property
-    def collision_data(self):
-        raise NotImplementedError("MultiBodyObject does not have collision data")
-
 
     def append(self, body:PMSingleBodyObject):
         body.color = self.color
@@ -121,10 +122,48 @@ class PMMultiBodyObject(BaseMultiBodyObject):
     @property
     def angular_velocity(self):
         raise NotImplementedError("This is abstract class")
+    @staticmethod
+    def are_neighbours(idx1: Tuple[int,...], idx2: Tuple[int,...]):
+        """
+        Check if two bodies are neighbours
+        :param idx1:
+        :param idx2:
+        :return:
+        """
+        if len(idx1) != len(idx2):
+            raise ValueError("Indexes must have the same length")
+        for i1, i2 in zip(idx1, idx2):
+            if abs(i1 - i2) > 1:
+                return False
+        return True
+
+    def collision_start(self, cd: CollisionData):
+        cd.read_level += 1
+        self_col = (cd.other_body == self)
+        if self_col:
+            if self.ignore_neighbour_collision and self.are_neighbours(cd.my_body_idx, cd.other_body_idx):
+                return
+            self._handle_self_collision(cd)
+        else:
+            # print("Add: ", cd.other_body_idx)
+            self.outer_collision_idxs.add(cd.my_body_idx)
+            self.bodies[cd.my_body_idx[cd.read_level]].collision_start(cd)
+    def _handle_self_collision(self, cd: CollisionData):
+        self.self_collision_idxs.add((cd.my_body_idx, cd.other_body_idx))
+        self.bodies[cd.my_body_idx[cd.read_level]].collision_start(cd)
 
 
-    def collision_start(self, collision_data):
-        pass
-
-    def collision_end(self, collision_data):
-        pass
+    def collision_end(self, cd: CollisionData):
+        cd.read_level += 1
+        self_col = (cd.other_body == self)
+        if self_col:
+            if self.ignore_neighbour_collision and self.are_neighbours(cd.my_body_idx, cd.other_body_idx):
+                return
+            if (cd.my_body_idx, cd.other_body_idx) in self.self_collision_idxs:
+                self.self_collision_idxs.remove((cd.my_body_idx, cd.other_body_idx))
+                self.bodies[cd.my_body_idx[cd.read_level]].collision_end(cd)
+        else:
+            # print("Remove: ", cd.other_body_idx)
+            if cd.my_body_idx in self.outer_collision_idxs:
+                self.outer_collision_idxs.remove(cd.my_body_idx)
+                self.bodies[cd.my_body_idx[cd.read_level]].collision_end(cd)

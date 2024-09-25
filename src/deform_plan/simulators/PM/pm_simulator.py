@@ -80,11 +80,12 @@ class Simulator(BaseSimulator):
         o1 = self._get_object(cid1, movable1)
         o2 = self._get_object(cid2, movable2)
 
-        data1 = CollisionData(arbiter.normal, b2, o2, cid2[1:])
-        data2 = CollisionData(-arbiter.normal, b1, o1, cid1[1:])
-
-        o1.collision_start(data1)
-        o2.collision_start(data2)
+        if o1.track_colisions:
+            data1 = CollisionData(arbiter.normal, b2, o2, cid1,cid2)
+            o1.collision_start(data1)
+        if o2.track_colisions:
+            data2 = CollisionData(-arbiter.normal, b1, o1, cid2,cid1)
+            o2.collision_start(data2)
 
         # o1.color = (255,0,0,0)
         # o2.color = (0,255,0,0)
@@ -104,11 +105,12 @@ class Simulator(BaseSimulator):
 
         o1 = self._get_object(cid1, movable1)
         o2 = self._get_object(cid2, movable2)
-
-        data1 = CollisionData(arbiter.normal, b2, o2, cid2[1:])
-        data2 = CollisionData(-arbiter.normal, b1, o1, cid1[1:])
-        o1.collision_end(data1)
-        o2.collision_end(data2)
+        if o1.track_colisions:
+            data1 = CollisionData(arbiter.normal, b2, o2, cid1,cid2)
+            o1.collision_end(data1)
+        if o2.track_colisions:
+            data2 = CollisionData(-arbiter.normal, b1, o1, cid2,cid1)
+            o2.collision_end(data2)
     def _get_object(self, cid, movable):
         if movable:
             return self.movable_objects[cid[0]]
