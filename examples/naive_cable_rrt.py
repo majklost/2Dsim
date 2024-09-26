@@ -15,21 +15,28 @@ from deform_plan.planners.fetchable_planner import FetchAblePlanner
 import deform_plan.rrt_utils.cable_rrt as vutils
 
 from helpers.cable_map import get_standard_simulator
+
+CUMSAMPLES = 0
+CUMCHECK_PATH = 0
+CUMSTORAGESEARCH = 0
+CUMSTORAGESAVE = 0
+
+
 CABLE_LENGTH = 400
-SEGMENT_NUM = 20
+SEGMENT_NUM = 70
 MAX_FORCE =800
 cfg = PMConfig()
 cable= Cable([100,50],400,SEGMENT_NUM,thickness=5)
-obstacle_g = RandomObstacleGroup(np.array([100,200]),200,200,3,3,seed=25)
+obstacle_g = RandomObstacleGroup(np.array([100,200]),150,400,3,3,seed=20)
 sim = get_standard_simulator(cable,obstacle_g)
 
 
 lb = np.array([0,0,0])
 ub = np.array([800,800,2*np.pi])
 sampler = BezierSampler(CABLE_LENGTH,SEGMENT_NUM,lb,ub,seed=16)
-goal_points = sampler.sample(x=300,y=750,angle=0)
-control_idxs = [i for i in range(SEGMENT_NUM)]
-# control_idxs = [0,SEGMENT_NUM-1]
+goal_points = sampler.sample(x=550,y=700,angle=np.pi)
+# control_idxs = [i for i in range(SEGMENT_NUM)]
+control_idxs = [0,SEGMENT_NUM-1]
 # control_idxs = [0]
 guider = vutils.make_guider(0,control_idxs,MAX_FORCE)
 ender = vutils.make_end_cond_all_vel(0,MAX_FORCE/3,5)
@@ -50,22 +57,45 @@ start = planner.form_start_node()
 storage = vutils.StorageWrapper(GOAL)
 storage.save_to_storage(start)
 st = time.time()
-for i in range(500):
+for i in range(100):
     if i % 10 == 0:
         print("iter: ",i)
+        print("time_in_sim: ", sim.cumsimtime)
+    # t1 = time.time()
     points = sampler.sample()
-    q_rand = vutils.Point(points,None)
+    # t2 = time.time()
+    if storage.try_goal:
+        print("Trying goal")
+        points = goal_points
+        storage.try_goal = False
 
+    q_rand = vutils.Point(points,None)
+    # t3 = time.time()
     q_near = storage.get_nearest(q_rand)
+    # t4 = time.time()
     # print("qrand: ",q_rand)
     response = planner.check_path(q_near,q_rand)
+    # t5 = time.time()
     for res in response.checkpoints:
         storage.save_to_storage(res)
     if not storage.want_next_iter:
         print("Found path")
         break
+    # t6 = time.time()
+    # CUMSAMPLES += t2-t1
+    # CUMSTORAGESEARCH += t4-t3
+    # CUMCHECK_PATH += t5-t4
+    # CUMSTORAGESAVE += t6-t5
 endt = time.time()
 print("Time: ",endt-st)
+# endt = st = 0
+# print("Cum samples: ",CUMSAMPLES)
+# print("Cum storage search: ",CUMSTORAGESEARCH)
+# print("Cum check path: ",CUMCHECK_PATH)
+# print("Cum storage save: ",CUMSTORAGESAVE)
+
+
+
 print("Best distance: ",storage.best_dist)
 path = storage.get_path()
 print(path)

@@ -167,3 +167,11 @@ class PMMultiBodyObject(BaseMultiBodyObject):
             if cd.my_body_idx in self.outer_collision_idxs:
                 self.outer_collision_idxs.remove(cd.my_body_idx)
                 self.bodies[cd.my_body_idx[cd.read_level]].collision_end(cd)
+
+    def collision_clear(self):
+        for idx in self.outer_collision_idxs:
+            self.get_body(idx[1:]).collision_clear()
+        self.outer_collision_idxs.clear()
+        for idx in self.self_collision_idxs:
+            self.get_body([idx[0][1]]).collision_clear()
+        self.self_collision_idxs.clear()

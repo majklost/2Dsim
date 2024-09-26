@@ -10,37 +10,39 @@ from ..assets.PM import *
 
 def make_guider(movable_idx: int, allow_control_idxs: list, max_force: float, distance_thresh=8):
     def guider_fnc(sim: Simulator, start: SimNode, goal, guider_data, cur_iter_cnt):
-
+        if cur_iter_cnt == 0:
+            guider_data["mode"] = 0
         guided_obj = sim.movable_objects[movable_idx]
         guider_data["give_up"] = True
         if not isinstance(guided_obj, Cable):
             raise ValueError("Trying to guide non-cable object with cable guarder: ", guided_obj)
         guided_obj = cast(Cable, guided_obj)
 
-        vecs = list(map(lambda g, b: (g - b.position), goal.points, guided_obj.bodies))
-        # print("vecs: ", vecs)
-        distances = list(map(lambda x: np.linalg.norm(x), vecs))
-        unit_vecs = list(map(lambda x: x / np.linalg.norm(x), vecs))
-        ok_cnt = 0
+        forces,ok_cnt = get_linear_forces(guided_obj, goal, max_force, allow_control_idxs)
 
-        if len(guided_obj.self_collision_idxs) >0:
-            crossed_path_handler(guided_obj, guider_data,allow_control_idxs,goal)
+        # if len(guided_obj.self_collision_idxs) >0 and guider_data["mode"] == 0:
+        #     guider_data["mode"] = 1
+        #
+        #     pair = guided_obj.self_collision_idxs.pop()
+        #     print("pair: ",pair)
+        #     mid_segment_idx = (pair[0][1] + pair[1][1]) // 2
+        #     left_shorter = mid_segment_idx < len(guided_obj.bodies) // 2
+        #     is_ccw = ccw(guided_obj.bodies[0].position, guided_obj.bodies[mid_segment_idx].position,
+        #                  guided_obj.bodies[-1].position)
+        #     guider_data["mode1_data"] = (mid_segment_idx,left_shorter)
+
+
+
+        # if guider_data["mode"] == 1:
+        #     get_rotation_forces(guided_obj,forces,max_force,guider_data,allow_control_idxs)
 
 
         for i in allow_control_idxs:
-            coef = 1
-            if distances[i] < distance_thresh:
-                ok_cnt += 1
-                coef = distances[i] / distance_thresh
-
-            guided_obj.bodies[i].apply_force(unit_vecs[i] * max_force / len(allow_control_idxs) * coef)
-            # if guided_obj.bodies[i].collision_data is not None:
-            #     cd = guided_obj.bodies[i].collision_data
-            #     print(cd.other_body)
+            guided_obj.bodies[i].apply_force(forces[i])
 
 
         if ok_cnt == len(allow_control_idxs):
-            print("OK")
+            # print("OK")
             return False
 
         return True
@@ -101,8 +103,8 @@ def make_exporter(movable_idx: int):
 def distance_fnc(a: 'Point', b: 'Point'):
     return np.linalg.norm(a.mean - b.mean)
 
-def sum_points_distance(a: 'Point', b: 'Point'):
-    return np.linalg.norm(a.points - b.points, axis=1).sum()
+def max_points_distance(a: 'Point', b: 'Point'):
+    return np.linalg.norm(a.points - b.points, axis=1).max()
 
 
 class Point:
@@ -119,28 +121,32 @@ class Point:
 
 
 class StorageWrapper:
-    def __init__(self, goal, threshold=50):
+    def __init__(self, goal, threshold=250, goal_threshold=10):
         self.goal = goal
         self.threshold = threshold
         self.tree = KDTree(2)
         self._end_node: SimNode | None = None
         self.best_dist = float("inf")
         self.want_next_iter = True
+        self.try_goal = False
+        self.goal_threshold = goal_threshold
 
     def save_to_storage(self, node: SimNode):
         points = node.exporter_data["points"]
         point = Point(points,node)
-        dist = sum_points_distance(point, self.goal)
+        dist = max_points_distance(point, self.goal)
+        if dist < self.threshold:
+            self.try_goal = True
+            self.threshold /= 1.5
+        if dist < self.goal_threshold:
+            self.want_next_iter = False
         if dist < self.best_dist:
-            if dist < self.threshold:
-                self.want_next_iter = False
-
             self._end_node = node
             self.best_dist = dist
         self.tree.insert(point)
 
     def get_nearest(self, point: Point):
-        return self.tree.nearest_neighbour(point, distancefnc=distance_fnc).node
+        return self.tree.nearest_neighbour(point, distancefnc=max_points_distance).node
 
     def get_path(self):
         path = []
@@ -157,20 +163,46 @@ class StorageWrapper:
         return list(reversed(path))
 
 
-def crossed_path_handler(guided_obj: Cable, guider_data: dict,control_idxs,goal):
-    #check if the path is crossed
-    for i in range(len(goal.points)):
-        for j in range(i+1,len(goal.points)):
-            p1 = guided_obj.bodies[i].position
-            g1 = goal.points[i]
-            p2 = guided_obj.bodies[j].position
-            g2 = goal.points[j]
-            if intersect(p1,p2,g1,g2):
-                print("Path crossed")
-                guider_data["give_up"] = True
-                return
 
-def intersect(A, B, C, D):
-    def ccw(p1, p2, p3):
-        return (p3[1] - p1[1]) * (p2[0] - p1[0]) > (p2[1] - p1[1]) * (p3[0] - p1[0])
-    return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
+
+def get_linear_forces(guided_obj: Cable, goal, max_force, allow_control_idxs):
+    vecs = list(map(lambda g, b: (g - b.position), goal.points, guided_obj.bodies))
+    distances = list(map(lambda x: np.linalg.norm(x), vecs))
+    unit_vecs = list(map(lambda x: x / np.linalg.norm(x), vecs))
+    ok_cnt = 0
+    forces = np.zeros((len(guided_obj.bodies), 2))
+    for i in allow_control_idxs:
+        coef = 1
+        if distances[i] < 8:
+            ok_cnt += 1
+            coef = distances[i] / 8
+
+        forces[i] = unit_vecs[i] * max_force * coef/len(allow_control_idxs)
+    return forces, ok_cnt
+
+def get_rotation_forces(guided_obj,forces,max_force, guider_data,allow_control_idxs):
+    mid_segment_idx,left_shorter = guider_data["mode1_data"]
+    mid_pos = guided_obj.bodies[mid_segment_idx].position
+    left_pos = guided_obj.bodies[0].position
+    right_pos = guided_obj.bodies[-1].position
+
+    # if ccw(left_pos, mid_pos, right_pos):
+    #     guider_data["mode"] = 0
+    #     return
+
+    if left_shorter:
+        unit_m_l = (left_pos - mid_pos) / np.linalg.norm(left_pos - mid_pos)
+
+
+
+        for i in allow_control_idxs:
+            if i < mid_segment_idx:
+                forces[i] *= 0
+    else:
+        for i in allow_control_idxs:
+            if i >= mid_segment_idx:
+                forces[i] *= 0
+
+def ccw(A,B,C):
+    return (C[1]-A[1]) * (B[0]-A[0]) > (B[1]-A[1]) * (C[0]-A[0])
+

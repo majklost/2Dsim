@@ -172,3 +172,6 @@ class PMSingleBodyObject(BaseSingleBodyObject):
 
     def collision_end(self, collsion_data):
         self._collision_data = None
+
+    def collision_clear(self):
+        self._collision_data = None

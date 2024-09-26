@@ -4,6 +4,7 @@ from pymunk.pygame_util import DrawOptions
 import random
 from typing import List
 from dataclasses import dataclass
+import time
 
 
 from deform_plan.assets.PM import PMSingleBodyObject,PMMultiBodyObject, PMConfig
@@ -32,6 +33,7 @@ class Simulator(BaseSimulator):
         self.movable_objects = movable_objects #overload so that the type checker does not complain
         self.fixed_objects = fixed_objects
         self._space = pymunk.Space(threaded=threaded)
+        self.cumsimtime = 0
 
         self._process_config(config)
         self._add_objects_to_space()
@@ -146,8 +148,12 @@ class Simulator(BaseSimulator):
         Make a step in the simulation
         :return:
         """
+
         self._save_manual_forces()
+        # start = time.time()
         self._space.step(1/self._FPS)
+        # end = time.time()
+        # self.cumsimtime += end-start
         self._steps += 1
         if self.debuggerclb is not None:
             if self.debuggerclb(self._space):
@@ -182,6 +188,10 @@ class Simulator(BaseSimulator):
         self._width = simulator.width
         self._height = simulator.height
         self._FPS = simulator.FPS
+        for b in self.movable_objects:
+            b.collision_clear()
+        for b in self.fixed_objects:
+            b.collision_clear()
         # print(self.movable_objects[0])
         self._collect_objects()
         if simulator.movable_data is not None or simulator.fixed_data is not None:

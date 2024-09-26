@@ -1,6 +1,7 @@
 """Planner for planning one rigid object"""
 
 from copy import deepcopy
+import time
 from typing import Callable,Any
 #TODO: rewrite to better use - now just PoC
 
@@ -41,6 +42,7 @@ class FetchAblePlanner(BasePlanner):
 
     def check_path(self, start:SimNode, goal:Any) -> PlannerResponse:
         response = PlannerResponse()
+
         if start.sim_export is None:
             self._fetch_simspace(start)
 
