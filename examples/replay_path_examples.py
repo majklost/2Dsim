@@ -5,7 +5,8 @@ from deform_plan.viewers.PM_replayable_viewer import PMReplayableViewer
 
 def replay_velocity():
     rv = PMReplayableViewer("data/good_velocity.rpath")
-
+    if rv.additional_data is not None and "time" in rv.additional_data:
+        print("Time: ", rv.additional_data["time"])
 
 
 
@@ -71,6 +72,6 @@ def replay_low_segment_cable():
 
 
 if __name__ == '__main__':
-    replay_cable()
-    # replay_velocity()
+    # replay_cable()
+    replay_velocity()
     # replay_low_segment_cable()

@@ -35,6 +35,12 @@ class FetchAblePlanner(BasePlanner):
         self.max_iter_cnt = max_iter_cnt
         self.after_load_clb = None
         self.sampling_period = sampling_period
+        self.PREPARATION = 0
+        self.GUIDER = 0
+        self.SIMULATOR = 0
+        self.ENDER = 0
+        self.EXPORTER = 0
+        self.REST = 0
 
 
 
@@ -42,27 +48,37 @@ class FetchAblePlanner(BasePlanner):
 
     def check_path(self, start:SimNode, goal:Any) -> PlannerResponse:
         response = PlannerResponse()
-
+        # t1 = time.time()
         if start.sim_export is None:
             self._fetch_simspace(start)
+        # t2 = time.time()
 
         self.simulator: Simulator #cast the type
+
         self.simulator.import_from(start.sim_export)
+
         if self.after_load_clb is not None:
             self.after_load_clb(self.simulator)
+
         guider_data = deepcopy(start.guider_data)
+
         collided = False
 
         cur_cnt = 0
+        # self.PREPARATION += t2-t1
         for i in range(self.max_iter_cnt):
             #pick direction
             if not self.guider(self.simulator, start, goal, guider_data,cur_cnt):
                 break
+            # t3 = time.time()
             self.simulator.step()
+            # t4 = time.time()
             #if collided do not continue and do not create checkpoint
+            # t5 = time.time()
             if self.end_condition(self.simulator, start, goal, guider_data,cur_cnt):
                 collided = True
                 break
+            # t6 = time.time()
             cur_cnt = i+1
             #now I am saving checkpoint that is collision free
             if cur_cnt % self.sampling_period == 0 and cur_cnt != 1:
@@ -70,10 +86,17 @@ class FetchAblePlanner(BasePlanner):
                 response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
             # exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
             # response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
-
+            # t7 = time.time()
+            # self.GUIDER += t4-t3
+            # self.SIMULATOR += t5-t4
+            # self.ENDER += t6-t5
+            # self.EXPORTER += t7-t6
+        # t8 = time.time()
         if not collided:
             exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
             response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
+        # t9 = time.time()
+        # self.REST += t9-t3
         # response.checkpoints = response.checkpoints[::self.sampling_period]
         return response
 

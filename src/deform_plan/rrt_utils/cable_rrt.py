@@ -56,7 +56,7 @@ def make_guider(movable_idx: int, allow_control_idxs: list, max_force: float, di
             # if guided_obj.bodies[i].collision_data is no
         return True
 
-    return guider_fnc
+    return guider_dummy
 
 
 def make_end_cond_all_vel(movable_idx: int, force_thresh=300, seg_vel_max_t=50):
@@ -83,7 +83,7 @@ def make_end_cond_all_vel(movable_idx: int, force_thresh=300, seg_vel_max_t=50):
     def end_cond_dummy(sim: Simulator, start: SimNode, goal, guider_data, cur_iter_cnt):
         return cur_iter_cnt > 300
 
-    return end_cond_vel
+    return end_cond_dummy
 
 
 def make_exporter(movable_idx: int):
@@ -124,7 +124,7 @@ class StorageWrapper:
     def __init__(self, goal, threshold=250, goal_threshold=10):
         self.goal = goal
         self.threshold = threshold
-        self.tree = KDTree(2)
+        self.tree = KDTree(2,max_points_distance)
         self._end_node: SimNode | None = None
         self.best_dist = float("inf")
         self.want_next_iter = True
@@ -146,7 +146,7 @@ class StorageWrapper:
         self.tree.insert(point)
 
     def get_nearest(self, point: Point):
-        return self.tree.nearest_neighbour(point, distancefnc=max_points_distance).node
+        return self.tree.nearest_neighbour(point).node
 
     def get_path(self):
         path = []

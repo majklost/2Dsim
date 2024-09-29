@@ -20,10 +20,11 @@ CUMSAMPLES = 0
 CUMCHECK_PATH = 0
 CUMSTORAGESEARCH = 0
 CUMSTORAGESAVE = 0
+SHITOKOLO = 0
 
 
 CABLE_LENGTH = 400
-SEGMENT_NUM = 70
+SEGMENT_NUM = 30
 MAX_FORCE =800
 cfg = PMConfig()
 cable= Cable([100,50],400,SEGMENT_NUM,thickness=5)
@@ -40,7 +41,7 @@ control_idxs = [0,SEGMENT_NUM-1]
 # control_idxs = [0]
 guider = vutils.make_guider(0,control_idxs,MAX_FORCE)
 ender = vutils.make_end_cond_all_vel(0,MAX_FORCE/3,5)
-planner = FetchAblePlanner(sim,guider,ender,vutils.make_exporter(0),max_iter_cnt=300,only_simuls=True,sampling_period=2000)
+planner = FetchAblePlanner(sim,guider,ender,vutils.make_exporter(0),max_iter_cnt=300,only_simuls=False,sampling_period=2000)
 
 GOAL = vutils.Point(goal_points,None)
 def draw(surf):
@@ -57,11 +58,11 @@ start = planner.form_start_node()
 storage = vutils.StorageWrapper(GOAL)
 storage.save_to_storage(start)
 st = time.time()
-for i in range(100):
+for i in range(1000):
+    t1 = time.time()
     if i % 10 == 0:
         print("iter: ",i)
-        print("time_in_sim: ", sim.cumsimtime)
-    # t1 = time.time()
+        print("time_in_sim: ", sim.SIMTIME)
     points = sampler.sample()
     # t2 = time.time()
     if storage.try_goal:
@@ -72,22 +73,38 @@ for i in range(100):
     q_rand = vutils.Point(points,None)
     # t3 = time.time()
     q_near = storage.get_nearest(q_rand)
-    # t4 = time.time()
+    t4 = time.time()
     # print("qrand: ",q_rand)
     response = planner.check_path(q_near,q_rand)
-    # t5 = time.time()
+    t5 = time.time()
     for res in response.checkpoints:
         storage.save_to_storage(res)
     if not storage.want_next_iter:
         print("Found path")
         break
-    # t6 = time.time()
+    t6 = time.time()
+    SHITOKOLO += t4 - t1 + t6-t5
+    CUMCHECK_PATH += t5-t4
+
     # CUMSAMPLES += t2-t1
     # CUMSTORAGESEARCH += t4-t3
     # CUMCHECK_PATH += t5-t4
     # CUMSTORAGESAVE += t6-t5
 endt = time.time()
 print("Time: ",endt-st)
+print("preparation-fetching:", planner.PREPARATION)
+print("guider:", planner.GUIDER)
+print("simulator:", sim.SIMTIME)
+print("checkpath:", planner.SIMULATOR)
+print("ender:", planner.ENDER)
+print("exporter:", planner.EXPORTER)
+print("shitokolo:", SHITOKOLO)
+print("rest:", planner.REST)
+
+
+# print("collectTime", sim.COLLECTTIME)
+# print("collectClearTime", sim.COLLCLEARTIME)
+
 # endt = st = 0
 # print("Cum samples: ",CUMSAMPLES)
 # print("Cum storage search: ",CUMSTORAGESEARCH)

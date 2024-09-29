@@ -23,6 +23,6 @@ def get_standard_simulator(cable, obstacle_group=None):
     for f in fixed_objects:
         f.track_colisions = False
 
-    sim = Simulator(cfg, [cable], fixed_objects)
+    sim = Simulator(cfg, [cable], fixed_objects, threaded=False)
     return sim
 

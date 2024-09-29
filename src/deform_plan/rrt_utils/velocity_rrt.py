@@ -106,7 +106,7 @@ def distance_fnc(g:Goal,p:Point):
 class StorageWrapper:
     def __init__(self, goal, threshold=2):
         self.goal = goal
-        self.tree =KDTree(3)
+        self.tree =KDTree(distance_fnc,3)
         self.want_next_iter = True
         self.threshold = threshold
         self._end_node :SimNode|None = None
@@ -133,7 +133,7 @@ class StorageWrapper:
         # iter = g.iter_cnt
         # point = Point(None,x,y,r,iter)
         # print(self.tree.root)
-        res =self.tree.nearest_neighbour(g,distance_fnc).node
+        res =self.tree.nearest_neighbour(g).node
         return res
 
     def get_all_points(self):

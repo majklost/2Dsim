@@ -8,7 +8,7 @@ from deform_plan.simulators.PM.collision_data import CollisionData
 
 
 class PMSingleBodyObject(BaseSingleBodyObject):
-    def __init__(self,body_type, track_colisions=True):
+    def __init__(self,body_type, track_colisions=False):
         super().__init__()
         self._collision_data = None #type: CollisionData
         self.shapes = []

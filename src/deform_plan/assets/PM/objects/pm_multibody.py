@@ -8,7 +8,7 @@ from .pm_singlebody import PMSingleBodyObject
 class PMMultiBodyObject(BaseMultiBodyObject):
     """abstract class for multi body object, preimplemented for linear
     objects - e.g. Cable"""
-    def __init__(self,track_colisions=True,ignore_neighbour_collision=True):
+    def __init__(self,track_colisions=False,ignore_neighbour_collision=True):
         super().__init__()
         self.bodies = [] # type: List[PMSingleBodyObject]
         self._density = 1

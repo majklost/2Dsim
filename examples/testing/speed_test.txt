@@ -15,6 +15,9 @@ Time:  8.978219270706177
 time_in_sim:  3.324531078338623
 Time:  41.64674377441406
 
+
+ALL TESTS DONE WITH 70 segments
+
 40 seconds 100 iterations
 CHECKPATH = 38 seconds
 Cum samples:  0.12438321113586426
@@ -22,3 +25,57 @@ Cum storage search:  0.030268430709838867
 Cum check path:  38.555734157562256
 Cum storage save:  0.010898590087890625
 Best distance:  283.6946835360095
+
+Time:  39.48473930358887
+preparation: 2.9914228916168213
+guider: 15.002909660339355
+simulator: 6.607821226119995 - 3 seconds are safe manual forces
+ender: 12.249737739562988
+exporter: 0.051679372787475586
+
+WITHOUT GUIDER AND ENDER
+
+guider: 0.7359182834625244
+simulator: 3.732485771179199
+ender: 0.05132937431335449
+exporter: 0.04433631896972656
+space_copying: 3.0777
+
+
+checkpath - takes 10 second from 10 seconds - with only_simuls
+in it:
+simulation 3.7 seconds
+importing space 3 seconds
+guider 1 second
+rest 2.59 (create checkpoint when simulation finished)
+
+without only_simuls: 11 seconds
+guider: 0.7273654937744141
+simulator: 5.025580644607544
+ender: 0.05111503601074219
+exporter: 0.04383373260498047
+shitokolo: 0.1772909164428711
+rest: 0.01737809181213379
+import_simspace: 2.63
+export checkpoint: 2.3
+
+Planning with only_simuls:
+    check_path - 10 seconds
+        copy_space - 2.68
+        fetch_space - 3.44 (rewind space by simulation)
+        main loop - 4.22
+            guider - 0.7
+            stepping - 3.6
+    guider - 1 second
+Simulation sum - 5 second, without collision handlers - 2.38 seconds
+
+speedups:
+critical - guider, ender
+important - collision handlers
+not important - exporter, space_copying
+
+"""
+Proc je RRT velocity tak rychle?
+Protoze hodne boura - bez bourani trva 100 iteraci 7 sekund
+s bouranim 0.02 sekundy
+

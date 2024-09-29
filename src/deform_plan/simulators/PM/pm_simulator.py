@@ -33,8 +33,8 @@ class Simulator(BaseSimulator):
         self.movable_objects = movable_objects #overload so that the type checker does not complain
         self.fixed_objects = fixed_objects
         self._space = pymunk.Space(threaded=threaded)
-        self.cumsimtime = 0
 
+        self.SIMTIME = 0
         self._process_config(config)
         self._add_objects_to_space()
         self._collision_handling()
@@ -138,9 +138,7 @@ class Simulator(BaseSimulator):
         handler.begin = begin_fnc
         handler.separate = sep_fnc
 
-    def _save_manual_forces(self):
-        for obj in self.movable_objects:
-            obj.save_manual_forces()
+
 
 
     def step(self):
@@ -148,18 +146,14 @@ class Simulator(BaseSimulator):
         Make a step in the simulation
         :return:
         """
-
-        self._save_manual_forces()
-        # start = time.time()
+        t1 = time.time()
         self._space.step(1/self._FPS)
-        # end = time.time()
-        # self.cumsimtime += end-start
         self._steps += 1
         if self.debuggerclb is not None:
             if self.debuggerclb(self._space):
                 return True
-
-
+        t2 = time.time()
+        self.SIMTIME += t2-t1
         return False
 
     def apply_forces(self, forces: List, indexes: List[int]=None):
@@ -183,7 +177,9 @@ class Simulator(BaseSimulator):
         if self._fingerprint != simulator.sim_fingerprint:
             raise ValueError("Simulator fingerprint does not match")
 
+
         self._space = simulator.space.copy()
+
         self._steps = simulator.steps
         self._width = simulator.width
         self._height = simulator.height
@@ -196,6 +192,7 @@ class Simulator(BaseSimulator):
         self._collect_objects()
         if simulator.movable_data is not None or simulator.fixed_data is not None:
             raise NotImplementedError("Importing of the nodes is not implemented yet")
+
 
 
     def export(self)->'PMExport':

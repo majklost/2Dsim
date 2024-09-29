@@ -17,6 +17,7 @@ from deform_plan.saveables.replayable_path import ReplayablePath
 #obstacles
 cfg = PMConfig()
 rect = Rectangle([50,50],60,10,DYNAMIC)
+rect.track_colisions = True
 obstacle = Rectangle([150,300],300,50,STATIC)
 obstacle2 = Rectangle([650,300],300,50,STATIC)
 obstacle3 = Rectangle([350,500],700,50,STATIC)
@@ -62,6 +63,8 @@ storage.save_to_storage(start)
 t = time.time()
 for i in range(50000):
     if i%100 == 0:
+        print("simtime:", sim.SIMTIME)
+        print("time: ",time.time()-t)
         print("iter: ", i)
 
     x,y,rot,iter_cnt = sampler.sample()
@@ -85,6 +88,7 @@ print("Best dist: ", storage.best_dist)
 path= storage.get_path()
 if len(path) != 0:
     rp = ReplayablePath(sim,path,goal,guider)
+    rp.additional_data["time"] = tt
     rp.save("./data/good_velocity.rpath")
 
 all_pnts = storage.get_all_points()

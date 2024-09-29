@@ -21,7 +21,8 @@ class Node:
             yield from self.right
 
 class KDTree(BaseStorage):
-    def __init__(self,k=3):
+    def __init__(self, distancefnc, k=3):
+        super().__init__(distancefnc)
         self.root = None
         self.tree = _KDTree
         self.tree.k = k
@@ -29,8 +30,8 @@ class KDTree(BaseStorage):
     def insert(self,point):
         self.root = self.tree.insert(self.root,point)
 
-    def nearest_neighbour(self,point,distancefnc):
-        return self.tree.nearestNeighbour(self.root,point,distancefnc)
+    def nearest_neighbour(self,point):
+        return self.tree.nearestNeighbour(self.root,point,self.distancefnc)
 
 
     def get_all_points(self):
