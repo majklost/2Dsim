@@ -16,9 +16,10 @@ STANDARD_ROTARY_PARAMS = SpringParams(500, 10)
 class Cable(PMMultiBodyObject):
     def __init__(self, pos:np.array, length:float, num_links:int, thickness:int=2,
                  linear_params:'SpringParams'=STANDARD_LINEAR_PARAMS,
-                 rotary_params:'SpringParams'=STANDARD_ROTARY_PARAMS
+                 rotary_params:'SpringParams'=STANDARD_ROTARY_PARAMS,
+                 track_colisions=True
                  ):
-        super().__init__()
+        super().__init__(track_colisions=track_colisions)
         self.length = length
         self.num_links = num_links
         self.thickness = thickness

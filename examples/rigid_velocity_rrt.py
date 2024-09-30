@@ -12,7 +12,7 @@ from deform_plan.samplers.ndim_sampler import NDIMSampler
 import deform_plan.rrt_utils.velocity_rrt as vutils
 from deform_plan.utils.PM_space_visu import show_sim, make_draw_circle,make_draw_line
 from deform_plan.saveables.replayable_path import ReplayablePath
-
+from deform_plan.utils.analytics import print_analytics
 
 #obstacles
 cfg = PMConfig()
@@ -24,13 +24,27 @@ obstacle3 = Rectangle([350,500],700,50,STATIC)
 obstacle4 = Rectangle([800-350,600],700,50,STATIC)
 cross = Cross([400,300],90,10,KINEMATIC)
 cross.angular_velocity = np.pi/4
+GUIDER_PERIOD = 10
+STEP_CNT = 5000
+ANALYTICS = True
 
-
-sim = Simulator(cfg, [rect], [obstacle,obstacle2,obstacle3,obstacle4,cross],threaded=False)
+sim = Simulator(cfg, [rect], [obstacle,obstacle2,obstacle3,obstacle4,cross])
+# sim = Simulator(cfg, [rect], [obstacle,obstacle2,cross])
 
 guider = vutils.make_guider(0,2000,100)
 
-planner = FetchAblePlanner(sim,guider,vutils.make_end_condition(0),vutils.make_exporter(0),only_simuls=False,sampling_period=2000,max_iter_cnt=50000)
+planning_fncs = {
+    "guider": guider,
+    "fail_condition": vutils.make_fail_condition(0),
+    "reached_condition": vutils.make_reached_condition(0),
+    "exporter": vutils.make_exporter(0)
+}
+
+planner = FetchAblePlanner(sim,planning_fncs,
+                           only_simuls=False,
+                           sampling_period=2000,
+                           max_iter_cnt=5000,
+                           guider_period=GUIDER_PERIOD,track_analytics=ANALYTICS)
 
 pos = [700,700]
 # pos = [400,450]
@@ -42,6 +56,7 @@ show_sim(sim,clb=draw)
 
 # dbg = DebugViewer(sim,realtime=False)
 # dbg.draw_circle(pos,5,(255,0,0))
+
 
 
 goal = vutils.Goal()
@@ -60,13 +75,13 @@ sampler = NDIMSampler(lower_b,upper_b,5)
 
 storage = vutils.StorageWrapper(goal)
 storage.save_to_storage(start)
+TOTAL_STEP = STEP_CNT
+SHITOKOLO = 0
 t = time.time()
-for i in range(50000):
-    if i%100 == 0:
-        print("simtime:", sim.SIMTIME)
-        print("time: ",time.time()-t)
+for i in range(STEP_CNT):
+    if i%200 == 0:
         print("iter: ", i)
-
+    t1 = time.time()
     x,y,rot,iter_cnt = sampler.sample()
     # print(x,y,rot,iter_cnt)
     g = vutils.Goal()
@@ -76,18 +91,22 @@ for i in range(50000):
     g.iter_cnt = iter_cnt
     q_near = storage.get_nearest(g)
     # near_neigh.append(q_near)
+    t2 = time.time()
     response = planner.check_path(q_near,g)
+    t3 = time.time()
     for r in response.checkpoints:
         storage.save_to_storage(r)
     if not storage.want_next_iter:
-        print("Reached goal in iter: ",i)
+        print("Reached goal in iter: ",TOTAL_STEP)
         break
+    t4 = time.time()
+    SHITOKOLO += t4-t3 + t2 -t1
 tt = time.time()-t
 print("Done, time taken: ",tt)
 print("Best dist: ", storage.best_dist)
 path= storage.get_path()
 if len(path) != 0:
-    rp = ReplayablePath(sim,path,goal,guider)
+    rp = ReplayablePath(sim,path,goal,guider,vutils.make_reached_condition(0),guider_period=GUIDER_PERIOD)
     rp.additional_data["time"] = tt
     rp.save("./data/good_velocity.rpath")
 
@@ -115,7 +134,8 @@ for p in path:
     print(p)
 
 show_sim(sim,clb=clb)
-
+print("Shit okolo: ", SHITOKOLO)
+print_analytics(planner.analytics,TOTAL_STEP)
 
 
 

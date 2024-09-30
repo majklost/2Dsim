@@ -1,8 +1,8 @@
 """Planner for planning one rigid object"""
-
-from copy import deepcopy
 import time
+from copy import deepcopy
 from typing import Callable,Any
+
 #TODO: rewrite to better use - now just PoC
 
 from .base_planner import BasePlanner
@@ -11,95 +11,158 @@ from ..messages.sim_node import SimNode, Replayer
 from ..messages.planner_messages import PlannerResponse
 
 
+# guider: Callable[[Simulator,SimNode,Any,dict,int],bool],
+#                  fail_condition: Callable[[Simulator,SimNode,Any,int],bool],
+#                  reached_condition: Callable[[Simulator,SimNode,Any,int],bool],
+#                  exporter: Callable[[Simulator,SimNode|None,Any,int],dict],
 
 class FetchAblePlanner(BasePlanner):
     """
     Planner that allows some simulation be left only to be fetched later
     """
     def __init__(self,simulator:Simulator,
-                 guider: Callable[[Simulator,SimNode,Any,dict,int],bool],
-                 end_condition: Callable[[Simulator,SimNode,Any,int],bool],
-                 exporter: Callable[[Simulator,SimNode|None,Any,int],dict],
+
+                 planning_functions:dict,
                  max_iter_cnt: int = 1000,
                  only_simuls: bool = False,
                  sampling_period =2000,
+                 guider_period = 1,
+                 track_analytics = False
 
                  ):
 
 
         self.simulator = simulator
-        self.guider = guider
-        self.end_condition = end_condition
-        self.exporter = exporter
+        self.guider = planning_functions["guider"]
+        self.fail_condition = planning_functions["fail_condition"]
+        self.reached_condition = planning_functions["reached_condition"]
+        self.exporter = planning_functions["exporter"]
         self.only_simuls = only_simuls
         self.max_iter_cnt = max_iter_cnt
         self.after_load_clb = None
         self.sampling_period = sampling_period
-        self.PREPARATION = 0
-        self.GUIDER = 0
-        self.SIMULATOR = 0
-        self.ENDER = 0
-        self.EXPORTER = 0
-        self.REST = 0
+        self.guider_period = guider_period
+        self.analytics = {
+            "TIMES":{
+            "GUIDER": 0,
+            "FAIL": 0,
+            "REACHED": 0,
+            "FETCH": 0,
+            "IMPORT": 0,
+            "EXPORT": 0,
+            "SIMULATOR": 0,
+            "GUIDER_COPY": 0,
+            },
+            "SUM_STEP_CNT" : 0,
+            "FILLED_CNT": 0,
+            "COLLIDED_CNT": 0
+
+        }
+        self.track_analytics = track_analytics
 
 
+    def _check_path_analytics(self,start,goal):
+        response = PlannerResponse()
+        if start.sim_export is None:
+            t1 = time.time()
+            self._fetch_simspace(start)
+            t2 = time.time()
+            self.analytics["TIMES"]["FETCH"] += t2-t1
+        else:
+            t1 = time.time()
+            self.simulator.import_from(start.sim_export)
+            t2 = time.time()
+            self.analytics["TIMES"]["IMPORT"] += t2-t1
 
+        self.simulator: Simulator  # cast the type
+        if self.after_load_clb is not None:
+            self.after_load_clb(self.simulator)
+        t1 = time.time()
+        guider_data = deepcopy(start.guider_data)
+        t2 = time.time()
+        self.analytics["TIMES"]["GUIDER_COPY"] += t2-t1
+        collided = False
+        cur_cnt = 0
+        for i in range(self.max_iter_cnt):
+            t1 = time.time()
+            if self.reached_condition(self.simulator, start, goal, guider_data, cur_cnt):
+                break
+            t2 = time.time()
+            if i % self.guider_period == 0:
+                self.guider(self.simulator, start, goal, guider_data, cur_cnt)
+            t3 = time.time()
+            self.simulator.step()
+            t4 = time.time()
+            if self.fail_condition(self.simulator, start, goal, guider_data, cur_cnt):
+                collided = True
+                break
+            t5 = time.time()
+            cur_cnt = i + 1
+            if cur_cnt % self.sampling_period == 0 and cur_cnt != 1:
+                exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
+                response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start,
+                                                                   start.all_iter_cnt + cur_cnt))
+            t6 =time.time()
+            self.analytics["TIMES"]["REACHED"] += t2-t1
+            self.analytics["TIMES"]["GUIDER"] += t3 - t2
+            self.analytics["TIMES"]["SIMULATOR"] += t4 - t3
+            self.analytics["TIMES"]["FAIL"] += t5 - t4
+            self.analytics["TIMES"]["EXPORT"] += t6 - t5
+        t7 = time.time()
+        self.analytics["SUM_STEP_CNT"] += cur_cnt
+
+        if not collided:
+            exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
+            response.checkpoints.append(
+                self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt + cur_cnt))
+        t8 =time.time()
+        self.analytics["TIMES"]["EXPORT"] += t8-t7
+        if cur_cnt == self.max_iter_cnt:
+            self.analytics["FILLED_CNT"] += 1
+        if collided:
+            self.analytics["COLLIDED_CNT"] += 1
+
+        return response
+
+
+    def _check_path(self,start,goal):
+            response = PlannerResponse()
+            if start.sim_export is None:
+                self._fetch_simspace(start)
+            else:
+                self.simulator.import_from(start.sim_export)
+
+            self.simulator: Simulator #cast the type
+            if self.after_load_clb is not None:
+                self.after_load_clb(self.simulator)
+
+            guider_data = deepcopy(start.guider_data)
+            collided = False
+            cur_cnt = 0
+            for i in range(self.max_iter_cnt):
+                if self.reached_condition(self.simulator, start, goal, guider_data,cur_cnt):
+                    break
+                if i% self.guider_period ==0:
+                    self.guider(self.simulator, start, goal, guider_data,cur_cnt)
+                self.simulator.step()
+                if self.fail_condition(self.simulator, start, goal, guider_data,cur_cnt):
+                    collided = True
+                    break
+                cur_cnt = i+1
+                if cur_cnt % self.sampling_period == 0 and cur_cnt != 1:
+                    exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
+                    response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
+            if not collided:
+                exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
+                response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
+            return response
 
 
     def check_path(self, start:SimNode, goal:Any) -> PlannerResponse:
-        response = PlannerResponse()
-        # t1 = time.time()
-        if start.sim_export is None:
-            self._fetch_simspace(start)
-        # t2 = time.time()
-
-        self.simulator: Simulator #cast the type
-
-        self.simulator.import_from(start.sim_export)
-
-        if self.after_load_clb is not None:
-            self.after_load_clb(self.simulator)
-
-        guider_data = deepcopy(start.guider_data)
-
-        collided = False
-
-        cur_cnt = 0
-        # self.PREPARATION += t2-t1
-        for i in range(self.max_iter_cnt):
-            #pick direction
-            if not self.guider(self.simulator, start, goal, guider_data,cur_cnt):
-                break
-            # t3 = time.time()
-            self.simulator.step()
-            # t4 = time.time()
-            #if collided do not continue and do not create checkpoint
-            # t5 = time.time()
-            if self.end_condition(self.simulator, start, goal, guider_data,cur_cnt):
-                collided = True
-                break
-            # t6 = time.time()
-            cur_cnt = i+1
-            #now I am saving checkpoint that is collision free
-            if cur_cnt % self.sampling_period == 0 and cur_cnt != 1:
-                exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
-                response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
-            # exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
-            # response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
-            # t7 = time.time()
-            # self.GUIDER += t4-t3
-            # self.SIMULATOR += t5-t4
-            # self.ENDER += t6-t5
-            # self.EXPORTER += t7-t6
-        # t8 = time.time()
-        if not collided:
-            exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
-            response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
-        # t9 = time.time()
-        # self.REST += t9-t3
-        # response.checkpoints = response.checkpoints[::self.sampling_period]
-        return response
-
+        if self.track_analytics:
+            return self._check_path_analytics(start,goal)
+        else:
+            return self._check_path(start,goal)
     def create_checkpoint(self,exported_data:dict,
                           guider_data:dict,
                           cur_iter_cnt:int,
@@ -135,17 +198,26 @@ class FetchAblePlanner(BasePlanner):
         parent_guider_data = deepcopy(parent.guider_data)
         parent_sim_space = parent.sim_export
         if parent_sim_space is None:
-            raise ValueError("No simSpace in parent")
+            # raise ValueError("No simSpace in parent")
+            self._fetch_simspace(parent)
+
         self.simulator: Simulator
-        self.simulator.import_from(parent_sim_space)
+        if parent_sim_space is not None:
+            self.simulator.import_from(parent_sim_space)
 
 
         for i in range(node.replayer.segment_iter_cnt):
             #pick direction
-            if not self.guider(self.simulator, parent, node.replayer.real_goal, parent_guider_data,i):
+            if self.reached_condition(self.simulator, parent, node.replayer.real_goal, parent_guider_data,i):
                 break
+
+            if i% self.guider_period ==0:
+                self.guider(self.simulator, parent, node.replayer.real_goal, parent_guider_data,i)
+
             self.simulator.step()
-        node.sim_export = self.simulator.export()
+        node.replayed_cnt +=1
+        if node.replayed_cnt >= 1:
+            node.sim_export = self.simulator.export()
         return node
 
 

@@ -13,10 +13,10 @@ cfg = PMConfig()
 
 obstacle_g = RandomObstacleGroup(np.array([100,200]),200,200,4,3,seed=20)
 obstacle_g.color = (0,255,0,255)
-cable = Cable([100,100],400,20,thickness=5)
+cable = Cable([100,100],400,70,thickness=5)
 sim = Simulator(cfg, [cable], [obstacle_g])
 
-cable_controller = PMCableController(cable,moving_force=800)
+cable_controller = PMCableController(cable,moving_force=900)
 
 
 dbg = DebugViewer(sim,realtime=True)

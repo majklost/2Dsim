@@ -31,7 +31,7 @@ class KDTree(BaseStorage):
         self.root = self.tree.insert(self.root,point)
 
     def nearest_neighbour(self,point):
-        return self.tree.nearestNeighbour(self.root,point,self.distancefnc)
+        return self.tree.nearestNeighbour(self.root,point,distancefnc=self.distancefnc)
 
 
     def get_all_points(self):

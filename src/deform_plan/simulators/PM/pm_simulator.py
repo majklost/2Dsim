@@ -11,8 +11,11 @@ from deform_plan.assets.PM import PMSingleBodyObject,PMMultiBodyObject, PMConfig
 from ..base_simulator import Simulator as BaseSimulator, BaseSimulatorExport
 from .collision_data import CollisionData
 
+def placer_start(a,s,d):
+    return d['obj']._begin_collision(a, s, d)
 
-
+def placer_end(a,s,d):
+    return d['obj']._end_collision(a, s, d)
 
 
 
@@ -133,8 +136,11 @@ class Simulator(BaseSimulator):
 
     def _collision_handling(self):
         handler = self._space.add_default_collision_handler()
+        # handler.data['obj'] = self
         begin_fnc = lambda a,s,d : self._begin_collision(a,s,d)
         sep_fnc = lambda a,s,d : self._end_collision(a,s,d)
+        # begin_fnc = placer_start(a,s,d,self)
+        # end_fnc = placer_end(a,s,d,self)
         handler.begin = begin_fnc
         handler.separate = sep_fnc
 
@@ -146,14 +152,14 @@ class Simulator(BaseSimulator):
         Make a step in the simulation
         :return:
         """
-        t1 = time.time()
+        # t1 = time.time()
         self._space.step(1/self._FPS)
+        # t2 = time.time()
+        # self.SIMTIME += t2-t1
         self._steps += 1
         if self.debuggerclb is not None:
             if self.debuggerclb(self._space):
                 return True
-        t2 = time.time()
-        self.SIMTIME += t2-t1
         return False
 
     def apply_forces(self, forces: List, indexes: List[int]=None):
@@ -174,12 +180,11 @@ class Simulator(BaseSimulator):
         :return: Simulator object
         """
         # print(self.movable_objects[0])
-        if self._fingerprint != simulator.sim_fingerprint:
-            raise ValueError("Simulator fingerprint does not match")
+        # if self._fingerprint != simulator.sim_fingerprint:
+        #     raise ValueError("Simulator fingerprint does not match")
 
 
         self._space = simulator.space.copy()
-
         self._steps = simulator.steps
         self._width = simulator.width
         self._height = simulator.height

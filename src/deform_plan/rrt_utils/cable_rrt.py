@@ -19,24 +19,7 @@ def make_guider(movable_idx: int, allow_control_idxs: list, max_force: float, di
         guided_obj = cast(Cable, guided_obj)
 
         forces,ok_cnt = get_linear_forces(guided_obj, goal, max_force, allow_control_idxs)
-
-        # if len(guided_obj.self_collision_idxs) >0 and guider_data["mode"] == 0:
-        #     guider_data["mode"] = 1
-        #
-        #     pair = guided_obj.self_collision_idxs.pop()
-        #     print("pair: ",pair)
-        #     mid_segment_idx = (pair[0][1] + pair[1][1]) // 2
-        #     left_shorter = mid_segment_idx < len(guided_obj.bodies) // 2
-        #     is_ccw = ccw(guided_obj.bodies[0].position, guided_obj.bodies[mid_segment_idx].position,
-        #                  guided_obj.bodies[-1].position)
-        #     guider_data["mode1_data"] = (mid_segment_idx,left_shorter)
-
-
-
-        # if guider_data["mode"] == 1:
-        #     get_rotation_forces(guided_obj,forces,max_force,guider_data,allow_control_idxs)
-
-
+        guider_data["forces"] = forces
         for i in allow_control_idxs:
             guided_obj.bodies[i].apply_force(forces[i])
 
@@ -56,7 +39,25 @@ def make_guider(movable_idx: int, allow_control_idxs: list, max_force: float, di
             # if guided_obj.bodies[i].collision_data is no
         return True
 
-    return guider_dummy
+    return guider_fnc
+
+def make_reached_condition(movable_idx: int):
+    def reached_condition(sim: Simulator, start: SimNode, goal, guider_data:dict, cur_iter_cnt):
+        guided_obj = sim.movable_objects[movable_idx]
+        forces = guider_data.get("forces",None)
+        if forces is None:
+            return False
+
+        dist_sum =np.inf
+        for i in range(len(guided_obj.bodies)):
+            guided_obj.bodies[i].apply_force(forces[i])
+            dist_sum = min(dist_sum,np.linalg.norm(guided_obj.bodies[i].position-goal.points[i]))
+
+
+
+        return dist_sum < 5
+
+    return reached_condition
 
 
 def make_end_cond_all_vel(movable_idx: int, force_thresh=300, seg_vel_max_t=50):
@@ -81,7 +82,7 @@ def make_end_cond_all_vel(movable_idx: int, force_thresh=300, seg_vel_max_t=50):
         return False
 
     def end_cond_dummy(sim: Simulator, start: SimNode, goal, guider_data, cur_iter_cnt):
-        return cur_iter_cnt > 300
+        return len(sim.movable_objects[movable_idx].outer_collision_idxs) != 0
 
     return end_cond_dummy
 
@@ -124,7 +125,7 @@ class StorageWrapper:
     def __init__(self, goal, threshold=250, goal_threshold=10):
         self.goal = goal
         self.threshold = threshold
-        self.tree = KDTree(2,max_points_distance)
+        self.tree = KDTree(max_points_distance,2)
         self._end_node: SimNode | None = None
         self.best_dist = float("inf")
         self.want_next_iter = True

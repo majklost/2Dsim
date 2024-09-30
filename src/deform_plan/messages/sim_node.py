@@ -9,6 +9,7 @@ class SimNode:
         self.replayer = replayer
         self.exporter_data = exporter_data
         self.guider_data = guider_data
+        self.replayed_cnt = 0
 
     def __str__(self):
         # return f"SimNode: {self.all_iter_cnt}, {self.exporter_data},\n PARENT: {self.replayer.parent}"

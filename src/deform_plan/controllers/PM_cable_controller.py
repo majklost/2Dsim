@@ -71,7 +71,7 @@ class PMCableController:
         if keys[pygame.K_DOWN]:
             force_template[1] = self.moving_force
 
-        # self.cable.bodies[self.current].velocity = (force_template[:2]/2)
+        # self.cable.bodies[self.current].velocity = (force_template[:2]/8)
         #
         self.cable.bodies[self.current].apply_force(force_template)
 

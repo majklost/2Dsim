@@ -34,11 +34,6 @@ def make_guider(movable_idx,max_vel,min_vel):
         iter_diff = vel_scalar/coef * iter_diff
         time_diff = iter_diff * 1 / sim.fps
 
-        if np.linalg.norm(direction)< 5:
-            guided_obj.velocity = np.array([0,0])
-            guided_obj.angular_velocity = 0
-            return False
-
         guider_data["prev_vel"] = vel
         angu_vel = rot_diff / time_diff
         # print("angu_vel: ", angu_vel)
@@ -48,14 +43,19 @@ def make_guider(movable_idx,max_vel,min_vel):
         return True
     return guider_fnc
 
-def make_end_condition(movable_idx):
-    def end_condition(sim:Simulator,start:SimNode,goal,guider_data,cur_iter_cnt):
+def make_fail_condition(movable_idx):
+    def fail_condition(sim:Simulator,start:SimNode,goal,guider_data,cur_iter_cnt):
         guided_obj = sim.movable_objects[movable_idx]
         if guided_obj.collision_data is not None:
             return True
         return False
-    return end_condition
-
+    return fail_condition
+def make_reached_condition(movable_idx):
+    def reached_condition(sim:Simulator,start:SimNode,goal,guider_data,cur_iter_cnt):
+        guided_obj = sim.movable_objects[movable_idx]
+        direction = goal.pos - sim.movable_objects[movable_idx].position
+        return np.linalg.norm(direction) < 5
+    return reached_condition
 
 def make_exporter(movable_idx):
     def exporter(sim:Simulator,start:SimNode|None,goal,cur_iter_cnt):

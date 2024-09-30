@@ -34,7 +34,7 @@ points = sampler.sample(x=350,y=550,angle=np.pi)
 control_idxs = [0,10,50,SEGMENT_NUM-1]
 guider = vutils.make_guider(0,control_idxs,MAX_FORCE)
 ender = vutils.make_end_cond_all_vel(0,MAX_FORCE/3,10)
-planner = FetchAblePlanner(sim,guider,ender,vutils.make_exporter(0),max_iter_cnt=50000)
+planner = FetchAblePlanner(sim,guider,ender,vutils.make_reached_condition(0),vutils.make_exporter(0),max_iter_cnt=50000)
 print(points)
 
 def draw(surf):
