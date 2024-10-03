@@ -44,12 +44,12 @@ if __name__ == "__main__":
     cable = Cable([100, 70], 400, SEGMENT_NUM, thickness=5)
     obstacle_g = RandomObstacleGroup(np.array([50, 300]), 200, 200, 4, 4, radius=100,seed=20)
     bounding = Boundings(cfg.width, cfg.height)
-    sim = Simulator(cfg, [cable], [bounding,obstacle_g], threaded=False)
+    sim = Simulator(cfg, [cable], [bounding,obstacle_g], threaded=False,unstable_sim=True)
 
     GUIDER_PERIOD = 5
 
     SHITOKOLO = 0
-    STEPS = 15000
+    STEPS = 10000
     lb = np.array([0, 0, 0])
     ub = np.array([800, 800, 2 * np.pi])
     sampler = BezierSampler(CABLE_LENGTH, SEGMENT_NUM, lb, ub, seed=16)
@@ -70,15 +70,15 @@ if __name__ == "__main__":
     planner = FetchAblePlanner(sim,
                                control_fnc,
                                max_iter_cnt=500,
-                               only_simuls=False,
-                               sampling_period=10,
+                               only_simuls=True,
+                               sampling_period=30,
                                guider_period=GUIDER_PERIOD,
                                  track_analytics=True
                                )
     GOAL = Point.from_points(goal_points, control_idxs)
     start = planner.form_start_node()
 
-    storage = StorageWrapper(GOAL,20,control_idxs)
+    storage = StorageWrapper(GOAL,10,control_idxs)
     storage.save_to_storage(start)
 
 
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     st = time.time()
     for i in range(STEPS):
         t1 = time.time()
-        if i % 20 == 0:
+        if i % 100 == 0:
             print("iter: ", i)
         q_rand = Point.from_points(sampler.sample(),control_idxs)
         if storage.try_goal:
@@ -118,6 +118,8 @@ if __name__ == "__main__":
         SHITOKOLO += t4-t3 +t2-t1
     endt = time.time()
     print("Time: ", endt-st)
+    planner.analytics["TOTAL"] = endt-st
+    planner.analytics["SHITOKOLO"] = SHITOKOLO
     print_analytics(planner.analytics, STEPS)
     print("SHITOKOLO: ", SHITOKOLO)
     print("Best dist: ", storage.best_dist)

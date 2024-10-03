@@ -6,7 +6,7 @@ def replay_week1_cable():
     g = rv.goal
     for p in g.main_points:
         rv.draw_circle(p, 5, (0, 0, 255))
-    rv.show(False)
+    rv.show(True)
 
 
 

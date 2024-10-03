@@ -56,7 +56,7 @@ class PMCableController:
                 p = from_pygame(event.pos, pygame.display.get_surface())
                 for i, obj in enumerate(self.cable.bodies):
                     for s in obj.shapes:
-                        dist = s.point_query(p).distancefnc
+                        dist = s.point_query(p).distance
                         if dist < 0:
                             self._set_current(i)
                             break

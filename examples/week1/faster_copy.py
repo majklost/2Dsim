@@ -30,7 +30,7 @@ def get_simulator():
     rect = Rectangle([150,50],20,20,DYNAMIC)
     cable[-1].body.body_type = KINEMATIC
     cable[0].body.body_type = STATIC
-    sim = Simulator(cfg, [cable], [rect])
+    sim = Simulator(cfg, [cable], [rect],unstable_sim=True)
     return sim
 
 
@@ -42,9 +42,8 @@ tester  = get_simulator()
 
 cable =  sim.movable_objects[0]
 
-# dbg = DebugViewer(sim,realtime=False)
 #step it a bit
-for i in range(1000):
+for i in range(10000):
     if i % 1000 < 250:
         cable[-1].velocity = 10,0
     elif i % 1000 < 500:
@@ -115,6 +114,8 @@ def compare_sims(sim1:Simulator,sim2 :Simulator):
 
 
 
+dbg = DebugViewer(tester,realtime=False)
+# dbg2 = DebugViewer(sim,realtime=False)
 exported = sim.export()
 tester.import_from(exported)
 compare_sims(sim,tester)

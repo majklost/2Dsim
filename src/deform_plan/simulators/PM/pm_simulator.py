@@ -26,9 +26,11 @@ class Simulator(BaseSimulator):
                  config: PMConfig,
                  movable_objects: List[PMSingleBodyObject| PMMultiBodyObject],
                  fixed_objects: List[PMSingleBodyObject| PMMultiBodyObject],
-                 threaded=False
+                 threaded=False,
+                 unstable_sim=False
                  ):
         super().__init__(movable_objects, fixed_objects)
+        self.unstable_sim = unstable_sim
         self.movable_objects : List[PMSingleBodyObject| PMMultiBodyObject]
         self._FPS = None
         self._height = None
@@ -171,33 +173,32 @@ class Simulator(BaseSimulator):
         """
         pass
 
-    def _untested_copy(self, foreign_space:pymunk.Space):
-        self._space.iterations = foreign_space.iterations
-        self._space.gravity = foreign_space.gravity
-        self._space.damping = foreign_space.damping
-        self._space.idle_speed_threshold = foreign_space.idle_speed_threshold
-        self._space.sleep_time_threshold = foreign_space.sleep_time_threshold
-        self._space.collision_slop = foreign_space.collision_slop
-        self._space.collision_bias = foreign_space.collision_bias
-        self._space.collision_persistence = foreign_space.collision_persistence
-        assert  self._space.threads == foreign_space.threads
-        assert self._space.threaded == foreign_space.threaded
+    def _untested_import(self, fake_space):
+        self._space.iterations = fake_space["iterations"]
+        self._space.gravity = fake_space["gravity"]
+        self._space.damping = fake_space["damping"]
+        self._space.idle_speed_threshold = fake_space["idle_speed_threshold"]
+        self._space.sleep_time_threshold = fake_space["sleep_time_threshold"]
+        self._space.collision_slop = fake_space["collision_slop"]
+        self._space.collision_bias = fake_space["collision_bias"]
+        self._space.collision_persistence = fake_space["collision_persistence"]
+        fake_boides = fake_space["bodies"]
+        for i in range(len(fake_boides)):
+            self._space.bodies[i].position = fake_boides[i].position
+            self._space.bodies[i].velocity = fake_boides[i].velocity
+            self._space.bodies[i].angular_velocity = fake_boides[i].angular_velocity
+            self._space.bodies[i].angle = fake_boides[i].angle
+            self._space.bodies[i].force = fake_boides[i].force
+            self._space.bodies[i].torque = fake_boides[i].torque
 
-
-
-        for i in range(len(foreign_space.bodies)):
-            self._space.bodies[i].position = foreign_space.bodies[i].position
-            self._space.bodies[i].velocity = foreign_space.bodies[i].velocity
-            self._space.bodies[i].angle = foreign_space.bodies[i].angle
-            self._space.bodies[i].angular_velocity = foreign_space.bodies[i].angular_velocity
-            self._space.bodies[i].force = foreign_space.bodies[i].force
-            self._space.bodies[i].torque = foreign_space.bodies[i].torque
-
-
-            # self._space.bodies[i].
-            # self._space.bodies[i] = foreign_space.bodies[i].copy()
-            # print(self._space.bodies[i],foreign_space.bodies[i])
-
+    def _untested_export(self):
+        export_space = {"iterations": self._space.iterations, "gravity": self._space.gravity,
+                        "damping": self._space.damping, "idle_speed_threshold": self._space.idle_speed_threshold,
+                        "sleep_time_threshold": self._space.sleep_time_threshold,
+                        "collision_slop": self._space.collision_slop, "collision_bias": self._space.collision_bias,
+                        "collision_persistence": self._space.collision_persistence,
+                        "bodies": [b.copy() for b in self._space.bodies]}
+        return export_space
 
     def import_from(self, simulator: 'PMExport'):
         """
@@ -210,9 +211,10 @@ class Simulator(BaseSimulator):
         #     raise ValueError("Simulator fingerprint does not match")
 
 
-        self._space = simulator.space.copy()
-
-        # self._untested_copy(simulator.space)
+        if self.unstable_sim:
+            self._untested_import(simulator.space)
+        else:
+            self._space = simulator.space.copy()
         self._steps = simulator.steps
         self._width = simulator.width
         self._height = simulator.height
@@ -233,7 +235,15 @@ class Simulator(BaseSimulator):
         Exports nodes from the simulator so it can be reused later
         :return:
         """
-        return PMExport(self._space.copy(), self._steps, self._width, self._height, self._FPS, self._fingerprint)
+
+
+        if self.unstable_sim:
+            fake_space = self._untested_export()
+        else:
+            fake_space = self._space.copy()
+        return PMExport(fake_space, self._steps, self._width, self._height, self._FPS, self._fingerprint)
+
+        # return PMExport(self._space.copy(), self._steps, self._width, self._height, self._FPS, self._fingerprint)
 
     def _collect_objects(self):
         for b in self._space.bodies:
@@ -269,7 +279,7 @@ class Simulator(BaseSimulator):
 
 @dataclass
 class PMExport(BaseSimulatorExport):
-    space: pymunk.Space
+    space: pymunk.Space | dict
     steps: int
     width: int
     height: int
@@ -277,8 +287,6 @@ class PMExport(BaseSimulatorExport):
     sim_fingerprint: int
     movable_data: List =None #TODO: Implement parsing of the nodes
     fixed_data: List =None
-
-
 
 
 
