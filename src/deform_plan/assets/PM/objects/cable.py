@@ -61,8 +61,8 @@ class Cable(PMMultiBodyObject):
 
     @property
     def position(self):
-        """Returns position CoM of all segments"""
-        return np.mean([b.position for b in self.bodies], axis=0)
+        """Returns position of all segments"""
+        return np.array([b.position for b in self.bodies])
 
 
     @property

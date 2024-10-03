@@ -117,6 +117,11 @@ class GNATNode:
                     if cur_dist-r > self.R[i,j,1] or cur_dist+r < self.R[i,j,0]:
                         pruned[j] = True
         return cur_best, r
+    def get_all_points(self):
+        pts = [self.point]
+        for child in self.children:
+            pts += child.get_all_points()
+        return pts
 
 
 
@@ -133,17 +138,17 @@ class GNATNode:
     def __repr__(self):
         return self.__str__()
 
-class Bucket:
-    def __init__(self, bucket_size):
-        self.bucket_size = bucket_size
-        self.points = []
-        self.num_points = 0
-    def insert(self, point):
-        if self.num_points < self.bucket_size:
-            self.points.append(point)
-            self.num_points += 1
-        else:
-            raise ValueError("Bucket is full")
+# class Bucket:
+#     def __init__(self, bucket_size):
+#         self.bucket_size = bucket_size
+#         self.points = []
+#         self.num_points = 0
+#     def insert(self, point):
+#         if self.num_points < self.bucket_size:
+#             self.points.append(point)
+#             self.num_points += 1
+#         else:
+#             raise ValueError("Bucket is full")
 
 
 
@@ -161,8 +166,15 @@ class GNAT(BaseStorage):
     def nearest_neighbour(self, point):
         if self.root is None:
             return None
-        return (self.root.nearest_neighbour(point, np.inf)[0].point)
+        return self.root.nearest_neighbour(point, np.inf)[0].point
 
+    def get_all_points(self):
+        if self.root is None:
+            raise ValueError("Root is None")
+        pts = []
+        for ch in self.root.children:
+            pts += ch.get_all_points()
+        return pts
 
 if __name__ == "__main__":
 

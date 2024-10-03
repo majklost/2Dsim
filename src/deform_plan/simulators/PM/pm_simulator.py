@@ -171,6 +171,32 @@ class Simulator(BaseSimulator):
         """
         pass
 
+    def _untested_copy(self, foreign_space:pymunk.Space):
+        self._space.iterations = foreign_space.iterations
+        self._space.gravity = foreign_space.gravity
+        self._space.damping = foreign_space.damping
+        self._space.idle_speed_threshold = foreign_space.idle_speed_threshold
+        self._space.sleep_time_threshold = foreign_space.sleep_time_threshold
+        self._space.collision_slop = foreign_space.collision_slop
+        self._space.collision_bias = foreign_space.collision_bias
+        self._space.collision_persistence = foreign_space.collision_persistence
+        assert  self._space.threads == foreign_space.threads
+        assert self._space.threaded == foreign_space.threaded
+
+
+
+        for i in range(len(foreign_space.bodies)):
+            self._space.bodies[i].position = foreign_space.bodies[i].position
+            self._space.bodies[i].velocity = foreign_space.bodies[i].velocity
+            self._space.bodies[i].angle = foreign_space.bodies[i].angle
+            self._space.bodies[i].angular_velocity = foreign_space.bodies[i].angular_velocity
+            self._space.bodies[i].force = foreign_space.bodies[i].force
+            self._space.bodies[i].torque = foreign_space.bodies[i].torque
+
+
+            # self._space.bodies[i].
+            # self._space.bodies[i] = foreign_space.bodies[i].copy()
+            # print(self._space.bodies[i],foreign_space.bodies[i])
 
 
     def import_from(self, simulator: 'PMExport'):
@@ -185,6 +211,8 @@ class Simulator(BaseSimulator):
 
 
         self._space = simulator.space.copy()
+
+        # self._untested_copy(simulator.space)
         self._steps = simulator.steps
         self._width = simulator.width
         self._height = simulator.height

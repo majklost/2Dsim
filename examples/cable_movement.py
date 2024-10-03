@@ -25,5 +25,7 @@ dbg.controller = cable_controller
 # sim.export()
 
 for i in range(10000):
+    if i %10 ==0:
+        print(cable.outer_collision_idxs)
     if sim.step():
         break

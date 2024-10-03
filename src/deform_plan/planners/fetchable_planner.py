@@ -55,7 +55,8 @@ class FetchAblePlanner(BasePlanner):
             },
             "SUM_STEP_CNT" : 0,
             "FILLED_CNT": 0,
-            "COLLIDED_CNT": 0
+            "COLLIDED_CNT": 0,
+            "REACHED_CNT": 0
 
         }
         self.track_analytics = track_analytics
@@ -86,6 +87,7 @@ class FetchAblePlanner(BasePlanner):
         for i in range(self.max_iter_cnt):
             t1 = time.time()
             if self.reached_condition(self.simulator, start, goal, guider_data, cur_cnt):
+                self.analytics["REACHED_CNT"] += 1
                 break
             t2 = time.time()
             if i % self.guider_period == 0:
@@ -216,7 +218,7 @@ class FetchAblePlanner(BasePlanner):
 
             self.simulator.step()
         node.replayed_cnt +=1
-        if node.replayed_cnt >= 1:
+        if node.replayed_cnt >=1:
             node.sim_export = self.simulator.export()
         return node
 

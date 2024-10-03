@@ -67,11 +67,16 @@ def replay_low_segment_cable():
 
     draw_path(rv)
 
-    rv.show(False)
+    rv.show(True)
 
+def replay_week1_cable():
+    rv = PMReplayableViewer("./week1/data/cable_rrt")
+    rv.show(True)
 
 
 if __name__ == '__main__':
-    replay_cable()
+    # replay_cable()
+
+    replay_week1_cable()
     # replay_velocity()
     # replay_low_segment_cable()

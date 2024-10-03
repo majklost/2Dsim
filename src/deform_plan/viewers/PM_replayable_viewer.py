@@ -7,7 +7,7 @@ from ..saveables.replayable_path import ReplayablePath
 from .base_viewer import BaseViewer
 
 class PMReplayableViewer(BaseViewer):
-    def __init__(self, replay_file):
+    def __init__(self, replay_file,allow_outer_render=True):
         replay_data = dill.load(open(replay_file, 'rb')) #type: ReplayablePath
         self.guider = replay_data.guider
         self.guider_period = replay_data.guider_period
@@ -21,6 +21,15 @@ class PMReplayableViewer(BaseViewer):
         w,h,self.fps = self.sim.get_debug_data()
         self.display = pygame.display.set_mode((w, h))
         self.cur_scene = pygame.surface.Surface((w,h))
+        if allow_outer_render:
+            self.drawing_fnc = self.additional_data.get("drawing_fnc", None)
+            if self.drawing_fnc is None:
+                print("No drawing function provided")
+        else:
+            print("Outer render is not allowed")
+            self.drawing_fnc = None
+
+
 
     def draw_line(self, start, end, color=(0, 0, 0)):
         self.drawings.append( lambda :pygame.draw.line(self.cur_scene, color, start, end))
@@ -44,11 +53,14 @@ class PMReplayableViewer(BaseViewer):
 
             for i in range(n.replayer.segment_iter_cnt):
                 if self.reached_condition(self.sim, parent, n.replayer.real_goal, parent_guider_data, i):
+                    print("Reached condition")
                     break
                 if i % self.guider_period == 0:
                     self.guider(self.sim, parent, n.replayer.real_goal, parent_guider_data, i)
                 self.sim.step()
                 self.cur_scene.fill((255, 255, 255))
+                if self.drawing_fnc is not None:
+                    self.drawing_fnc(self.sim,self.cur_scene, self.additional_data)
                 self.sim.draw_on(draw_ops)
                 for d in self.drawings:
                     d()

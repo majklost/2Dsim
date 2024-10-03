@@ -25,10 +25,10 @@ obstacle4 = Rectangle([800-350,600],700,50,STATIC)
 cross = Cross([400,300],90,10,KINEMATIC)
 cross.angular_velocity = np.pi/4
 GUIDER_PERIOD = 10
-STEP_CNT = 5000
+STEP_CNT = 1000
 ANALYTICS = True
 
-sim = Simulator(cfg, [rect], [obstacle,obstacle2,obstacle3,obstacle4,cross])
+sim = Simulator(cfg, [rect], [obstacle,obstacle2,obstacle3,cross])
 # sim = Simulator(cfg, [rect], [obstacle,obstacle2,cross])
 
 guider = vutils.make_guider(0,2000,100)
@@ -42,7 +42,7 @@ planning_fncs = {
 
 planner = FetchAblePlanner(sim,planning_fncs,
                            only_simuls=False,
-                           sampling_period=2000,
+                           sampling_period=100,
                            max_iter_cnt=5000,
                            guider_period=GUIDER_PERIOD,track_analytics=ANALYTICS)
 
@@ -97,6 +97,7 @@ for i in range(STEP_CNT):
     for r in response.checkpoints:
         storage.save_to_storage(r)
     if not storage.want_next_iter:
+        TOTAL_STEP = i
         print("Reached goal in iter: ",TOTAL_STEP)
         break
     t4 = time.time()

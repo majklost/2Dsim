@@ -24,9 +24,9 @@ def make_guider(movable_idx: int, allow_control_idxs: list, max_force: float, di
             guided_obj.bodies[i].apply_force(forces[i])
 
 
-        if ok_cnt == len(allow_control_idxs):
-            # print("OK")
-            return False
+        # if ok_cnt == len(allow_control_idxs):
+        #     print("OK")
+        #     return False
 
         return True
 
@@ -47,15 +47,20 @@ def make_reached_condition(movable_idx: int):
         forces = guider_data.get("forces",None)
         if forces is None:
             return False
-
-        dist_sum =np.inf
+        # dist_sum = 0
         for i in range(len(guided_obj.bodies)):
-            guided_obj.bodies[i].apply_force(forces[i])
-            dist_sum = min(dist_sum,np.linalg.norm(guided_obj.bodies[i].position-goal.points[i]))
+            guided_obj.bodies[i].apply_force_middle(forces[i])
+            # dist_sum = max(dist_sum,np.linalg.norm(guided_obj.bodies[i].position-goal.points[i]))
+        # dist_sum = np.linalg.norm(guided_obj.position-goal.points, axis=1).max()
 
-
-
-        return dist_sum < 5
+        return False
+        #
+        #
+        #
+        # cond = dist_sum < 20
+        # if cond:
+        #     print("Reached")
+        # return cond
 
     return reached_condition
 
@@ -82,6 +87,7 @@ def make_end_cond_all_vel(movable_idx: int, force_thresh=300, seg_vel_max_t=50):
         return False
 
     def end_cond_dummy(sim: Simulator, start: SimNode, goal, guider_data, cur_iter_cnt):
+        # return False
         return len(sim.movable_objects[movable_idx].outer_collision_idxs) != 0
 
     return end_cond_dummy

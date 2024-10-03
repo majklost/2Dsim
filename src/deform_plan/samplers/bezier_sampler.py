@@ -99,7 +99,7 @@ class BezierSampler(BaseSampler):
 
     @staticmethod
     def _create_midpoints(points):
-        midpoints = [(points[i] + points[i + 1]) / 2 for i in range(len(points) - 1)]
+        midpoints = np.array([(points[i] + points[i + 1]) / 2 for i in range(len(points) - 1)])
         return midpoints
 
     @staticmethod

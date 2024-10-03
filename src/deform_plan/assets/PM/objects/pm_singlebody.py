@@ -124,6 +124,10 @@ class PMSingleBodyObject(BaseSingleBodyObject):
         self._color = color
         for s in self.shapes:
             s.color = pygame.Color(color)
+    def apply_force_middle(self,force):
+        # force = rot_matrix(-self.orientation) @ force
+        # self._body.apply_force_at_local_point((force[0],force[1]), (0,0))
+        self._body.apply_force_at_world_point((force[0],force[1]), self._body.position)
 
     def apply_force(self, force: np.array, global_coords=True):
 

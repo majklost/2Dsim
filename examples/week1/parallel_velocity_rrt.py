@@ -31,9 +31,15 @@ def make_planners(num_planners):
 
         sim = Simulator(cfg, [rect], [obstacle, obstacle2, obstacle3, obstacle4, cross])
         guider = vutils.make_guider(0, 2000, 100)
+        planning_fncs = {
+            'guider': guider,
+            'fail_condition': vutils.make_fail_condition(0),
+            'reached_condition': vutils.make_reached_condition(0),
+            'exporter': vutils.make_exporter(0)
 
-        planner = FetchAblePlanner(sim, guider, vutils.make_fail_condition(0), vutils.make_reached_condition(0),
-                                   vutils.make_exporter(0), only_simuls=False, sampling_period=2000, max_iter_cnt=5000,
+
+        }
+        planner = FetchAblePlanner(sim, planning_fncs, only_simuls=False, sampling_period=2000, max_iter_cnt=5000,
                                    guider_period=GUIDER_PERIOD)
         planners.append(planner)
     return planners

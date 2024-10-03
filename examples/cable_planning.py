@@ -29,12 +29,18 @@ sim = get_standard_simulator(cable)
 lb = np.array([300,300,0])
 ub = np.array([500,500,2*np.pi])
 sampler = BezierSampler(CABLE_LENGTH,SEGMENT_NUM,lb,ub,seed=16)
-points = sampler.sample(x=350,y=550,angle=np.pi)
+points = sampler.sample(x=350,y=550,angle=0)
 # control_idxs = [i for i in range(SEGMENT_NUM)]
 control_idxs = [0,10,50,SEGMENT_NUM-1]
 guider = vutils.make_guider(0,control_idxs,MAX_FORCE)
 ender = vutils.make_end_cond_all_vel(0,MAX_FORCE/3,10)
-planner = FetchAblePlanner(sim,guider,ender,vutils.make_reached_condition(0),vutils.make_exporter(0),max_iter_cnt=50000)
+planning_fncs ={
+    "guider": guider,
+    "fail_condition": ender,
+    "reached_condition": vutils.make_reached_condition(0),
+    "exporter": vutils.make_exporter(0)
+}
+planner = FetchAblePlanner(sim,planning_fncs,max_iter_cnt=50000)
 print(points)
 
 def draw(surf):

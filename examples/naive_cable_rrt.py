@@ -19,7 +19,7 @@ from helpers.cable_map import get_standard_simulator
 
 
 CABLE_LENGTH = 400
-SEGMENT_NUM = 70
+SEGMENT_NUM = 10
 MAX_FORCE =1200
 cfg = PMConfig()
 cable= Cable([100,50],400,SEGMENT_NUM,thickness=5)
@@ -62,6 +62,7 @@ start = planner.form_start_node()
 storage = vutils.StorageWrapper(GOAL)
 storage.save_to_storage(start)
 st = time.time()
+REAL_STEPS = STEPS
 for i in range(STEPS):
     t1 = time.time()
     if i % 40 == 0:
@@ -82,6 +83,7 @@ for i in range(STEPS):
         storage.save_to_storage(res)
     if not storage.want_next_iter:
         print("Found path")
+        REAL_STEPS = i
         break
     t6 = time.time()
     SHITOKOLO += t4 - t1 + t6-t5
@@ -101,4 +103,4 @@ rp.save("./data/cable.rpath")
 
 print("ShitOKOLO: ", SHITOKOLO)
 
-print_analytics(planner.analytics)
+print_analytics(planner.analytics,REAL_STEPS)
