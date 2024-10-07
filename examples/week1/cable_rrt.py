@@ -119,9 +119,9 @@ if __name__ == "__main__":
     endt = time.time()
     print("Time: ", endt-st)
     planner.analytics["TOTAL"] = endt-st
-    planner.analytics["SHITOKOLO"] = SHITOKOLO
+    planner.analytics["OUTSIDE_CHPATH"] = SHITOKOLO
     print_analytics(planner.analytics, STEPS)
-    print("SHITOKOLO: ", SHITOKOLO)
+    print("OUTSIDE_CHPATH: ", SHITOKOLO)
     print("Best dist: ", storage.best_dist)
     path = storage.get_path()
     all_nodes = storage.get_all_points()

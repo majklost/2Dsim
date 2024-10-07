@@ -17,10 +17,11 @@ from scipy.spatial import distance_matrix
 from deform_plan.messages.sim_node import SimNode
 from deform_plan.simulators.PM.pm_simulator import Simulator
 from deform_plan.storages.GNAT import GNAT
+from examples.week2.config import CONFIG
 
 
-MAIN_PTS_NUM = 4
-MIN_STRETCH_IDX = 0.7
+MAIN_PTS_NUM = CONFIG["MAIN_PTS_NUM"]
+MIN_STRETCH_IDX = CONFIG["MIN_STRETCH_IDX"]
 
 def distance(p1: 'Point', p2:'Point'):
     return distance_inner(p1.main_points, p2.main_points)

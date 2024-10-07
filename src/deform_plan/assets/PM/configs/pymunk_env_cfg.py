@@ -10,6 +10,8 @@ class PMConfig:
     height: int = 800
     FPS: int = 60
     collision_slope: float = 0.01
+    def __str__(self):
+        return f"PMConfig: gravity:{self.gravity}, damping:{self.damping}, width:{self.width}, height:{self.height}, FPS:{self.FPS}, collision_slope:{self.collision_slope}"
 
 DYNAMIC = pymunk.Body.DYNAMIC
 KINEMATIC = pymunk.Body.KINEMATIC

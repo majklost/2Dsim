@@ -6,7 +6,7 @@ def print_analytics(analytics,steps):
             f.write(f"{k}: {v}\n")
             total += v
         f.write("Total in check_path: "+str(total)+"\n")
-        f.write("Shit okolo:" + str(analytics["SHITOKOLO"]) +"\n")
+        f.write("Outside Check_path:" + str(analytics["OUTSIDE_CHPATH"]) +"\n")
         f.write("Average_step_cnt: "+str(analytics["SUM_STEP_CNT"]/steps)+"\n")
         f.write("Filled_cnt: "+str(analytics["FILLED_CNT"])+"\n")
         f.write("Collided_cnt: "+str(analytics["COLLIDED_CNT"])+"\n")

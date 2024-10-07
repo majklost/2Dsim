@@ -14,6 +14,7 @@ from deform_plan.utils.analytics import print_analytics
 from deform_plan.samplers.bezier_sampler import BezierSampler
 from deform_plan.planners.fetchable_planner import FetchAblePlanner
 from examples.week2.w2_utils import *
+from examples.week2.config import CONFIG
 
 def draw(sim,surf,additional_data:dict):
     import pygame
@@ -38,24 +39,24 @@ def draw(sim,surf,additional_data:dict):
 
 
 if __name__ == "__main__":
-    CABLE_LENGTH = 400
-    SEGMENT_NUM = 70
-    MAX_FORCE_PER_SEGMENT = .1
-    cfg = PMConfig()
+    CABLE_LENGTH = CONFIG["CABLE_LENGTH"]
+    SEGMENT_NUM = CONFIG["SEGMENT_NUM"]
+    MAX_FORCE_PER_SEGMENT = CONFIG["MAX_FORCE_PER_SEGMENT"]
+    cfg = CONFIG["CFG"]
     cable = Cable([100, 70], 400, SEGMENT_NUM, thickness=5)
     obstacle_g = RandomObstacleGroup(np.array([50, 300]), 200, 200, 4, 2, radius=100,seed=20)
     bounding = Boundings(cfg.width, cfg.height)
     sim = Simulator(cfg, [cable], [bounding,obstacle_g], threaded=False,unstable_sim=True)
 
-    GUIDER_PERIOD = 5
+    GUIDER_PERIOD = CONFIG["GUIDER_PERIOD"]
 
-    SHITOKOLO = 0
-    STEPS = 5000
+    OUTSIDE_CHPATH = 0
+    ITERATIONS = CONFIG["ITERATIONS"]
     lb = np.array([0, 0, 0])
     ub = np.array([800, 800, 2 * np.pi])
     sampler = BezierSampler(CABLE_LENGTH, SEGMENT_NUM, lb, ub, seed=16)
     goal_points = sampler.sample(x=280, y=720, angle=0)
-    control_idxs = [i for i in range(SEGMENT_NUM)]
+    control_idxs = CONFIG["CONTROL_IDXS"]
     # control_idxs = [0, SEGMENT_NUM - 1]
     # control_idxs = [0]
 
@@ -65,23 +66,23 @@ if __name__ == "__main__":
     control_fnc = {
         "guider": guider,
         "fail_condition": ender,
-        "reached_condition": make_reached_condition(20, SEGMENT_NUM, control_idxs),
+        "reached_condition": make_reached_condition(CONFIG["REACHED_THRESHOLD"], SEGMENT_NUM, control_idxs),
         "exporter": make_exporter(0)
     }
 
 
     planner = FetchAblePlanner(sim,
                                control_fnc,
-                               max_iter_cnt=500,
-                               only_simuls=True,
-                               sampling_period=30,
-                               guider_period=GUIDER_PERIOD,
-                                 track_analytics=True
+                               max_iter_cnt=CONFIG["MAX_STEPS"],
+                               only_simuls=CONFIG["ONLY_SIMULS"],
+                               sampling_period=CONFIG["SAMPLING_PREIOD"],
+                               guider_period=CONFIG["GUIDER_PERIOD"],
+                                 track_analytics=CONFIG["TRACK_ANALYTICS"]
                                )
     GOAL = Point.from_points(goal_points, control_idxs)
     start = planner.form_start_node()
 
-    storage = StorageWrapper(GOAL,20,control_idxs)
+    storage = StorageWrapper(GOAL,CONFIG["REACHED_THRESHOLD"],control_idxs)
     storage.save_to_storage(start)
 
 
@@ -99,7 +100,7 @@ if __name__ == "__main__":
     # dbg.draw_clb = debug_draw
     #end of debugging
     st = time.time()
-    for i in range(STEPS):
+    for i in range(ITERATIONS):
         t1 = time.time()
         if i % 100 == 0:
             print("iter: ", i)
@@ -125,13 +126,13 @@ if __name__ == "__main__":
             print("Goal reached in iter: ", i)
             break
         t4 = time.time()
-        SHITOKOLO += t4-t3 +t2-t1
+        OUTSIDE_CHPATH += t4 - t3 + t2 - t1
     endt = time.time()
     print("Time: ", endt-st)
     planner.analytics["TOTAL"] = endt-st
-    planner.analytics["SHITOKOLO"] = SHITOKOLO
-    print_analytics(planner.analytics, STEPS)
-    print("SHITOKOLO: ", SHITOKOLO)
+    planner.analytics["OUTSIDE_CHPATH"] = OUTSIDE_CHPATH
+    print_analytics(planner.analytics, ITERATIONS)
+    print("OUTSIDE_CHPATH: ", OUTSIDE_CHPATH)
     print("Best dist: ", storage.best_dist)
     path = storage.get_path()
     all_nodes = storage.get_all_points()
@@ -141,8 +142,10 @@ if __name__ == "__main__":
                         GUIDER_PERIOD,
                         {"nodes":
         all_main_points,
-                         "drawing_fnc": draw,
+                         "one_time_draw": draw,
                          "goal" : goal_points,
+                         "analytics": planner.analytics,
+
                          })
     try:
         rp.save("./data/cable_rrt")
