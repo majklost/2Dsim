@@ -114,7 +114,7 @@ def compare_sims(sim1:Simulator,sim2 :Simulator):
 
 
 
-dbg = DebugViewer(tester,realtime=False)
+# dbg = DebugViewer(tester,realtime=False)
 # dbg2 = DebugViewer(sim,realtime=False)
 exported = sim.export()
 tester.import_from(exported)

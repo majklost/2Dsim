@@ -87,6 +87,8 @@ class FetchAblePlanner(BasePlanner):
         for i in range(self.max_iter_cnt):
             t1 = time.time()
             if self.reached_condition(self.simulator, start, goal, guider_data, cur_cnt):
+                if self.fail_condition(self.simulator, start, goal, guider_data, cur_cnt):
+                    collided = True
                 self.analytics["REACHED_CNT"] += 1
                 break
             t2 = time.time()

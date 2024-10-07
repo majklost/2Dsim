@@ -4,6 +4,7 @@ import time
 import numpy as np
 
 from deform_plan.assets.PM.objects.boundings import Boundings
+from deform_plan.assets.PM.objects.one_end_cable import OneEndCable
 from deform_plan.saveables.replayable_path import ReplayablePath
 from deform_plan.assets.PM import *
 from deform_plan.utils.PM_debug_viewer import DebugViewer
@@ -12,7 +13,7 @@ from deform_plan.utils.analytics import print_analytics
 
 from deform_plan.samplers.bezier_sampler import BezierSampler
 from deform_plan.planners.fetchable_planner import FetchAblePlanner
-from examples.week1.w1_utils import *
+from examples.week2.w2_utils import *
 
 def draw(sim,surf,additional_data:dict):
     import pygame
@@ -42,22 +43,24 @@ if __name__ == "__main__":
     MAX_FORCE_PER_SEGMENT = .1
     cfg = PMConfig()
     cable = Cable([100, 70], 400, SEGMENT_NUM, thickness=5)
-    obstacle_g = RandomObstacleGroup(np.array([50, 300]), 200, 200, 4, 4, radius=100,seed=20)
+    obstacle_g = RandomObstacleGroup(np.array([50, 300]), 200, 200, 4, 2, radius=100,seed=20)
     bounding = Boundings(cfg.width, cfg.height)
     sim = Simulator(cfg, [cable], [bounding,obstacle_g], threaded=False,unstable_sim=True)
 
     GUIDER_PERIOD = 5
 
     SHITOKOLO = 0
-    STEPS = 10000
+    STEPS = 5000
     lb = np.array([0, 0, 0])
     ub = np.array([800, 800, 2 * np.pi])
     sampler = BezierSampler(CABLE_LENGTH, SEGMENT_NUM, lb, ub, seed=16)
-    goal_points = sampler.sample(x=180, y=430, angle=0)
+    goal_points = sampler.sample(x=280, y=720, angle=0)
     control_idxs = [i for i in range(SEGMENT_NUM)]
     # control_idxs = [0, SEGMENT_NUM - 1]
     # control_idxs = [0]
-    guider = make_guider(0, control_idxs, MAX_FORCE_PER_SEGMENT)
+
+    dist_matrix = calc_distance_matrix(sim, 0)
+    guider = make_guider(0, control_idxs, MAX_FORCE_PER_SEGMENT,dist_matrix)
     ender = make_fail_condition(0)
     control_fnc = {
         "guider": guider,
@@ -78,7 +81,7 @@ if __name__ == "__main__":
     GOAL = Point.from_points(goal_points, control_idxs)
     start = planner.form_start_node()
 
-    storage = StorageWrapper(GOAL,10,control_idxs)
+    storage = StorageWrapper(GOAL,20,control_idxs)
     storage.save_to_storage(start)
 
 
@@ -100,7 +103,14 @@ if __name__ == "__main__":
         t1 = time.time()
         if i % 100 == 0:
             print("iter: ", i)
-        q_rand = Point.from_points(sampler.sample(),control_idxs)
+
+        throw = np.random.random()
+
+        if throw < storage.goal_bias:
+            print("Throwing goal")
+            q_rand = GOAL
+        else:
+            q_rand = Point.from_points(sampler.sample(),control_idxs)
         if storage.try_goal:
             print("Trying goal")
             q_rand = GOAL

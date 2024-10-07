@@ -8,3 +8,4 @@ from .objects.rectangle import Rectangle
 from .objects.random_block import RandomBlock
 from .objects.cable import Cable, STANDARD_ROTARY_PARAMS,STANDARD_LINEAR_PARAMS, SpringParams
 from .objects.random_obstacle_group import RandomObstacleGroup
+from .objects.one_end_cable import OneEndCable
