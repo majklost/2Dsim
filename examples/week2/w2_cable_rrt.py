@@ -1,20 +1,16 @@
 
 import time
 
-import numpy as np
-
 from deform_plan.assets.PM.objects.boundings import Boundings
-from deform_plan.assets.PM.objects.one_end_cable import OneEndCable
 from deform_plan.saveables.replayable_path import ReplayablePath
 from deform_plan.assets.PM import *
-from deform_plan.utils.PM_debug_viewer import DebugViewer
-from deform_plan.utils.PM_space_visu import make_draw_line, make_draw_circle, show_sim
+from deform_plan.utils.PM_space_visu import make_draw_circle, show_sim
 from deform_plan.utils.analytics import print_analytics
 
 from deform_plan.samplers.bezier_sampler import BezierSampler
 from deform_plan.planners.fetchable_planner import FetchAblePlanner
 from examples.week2.w2_utils import *
-from examples.week2.config import CONFIG
+from deform_plan.rrt_utils.config import CONFIG
 
 def draw(sim,surf,additional_data:dict):
     import pygame
@@ -39,6 +35,9 @@ def draw(sim,surf,additional_data:dict):
 
 
 if __name__ == "__main__":
+    for k,v in CONFIG.items():
+        print(f"{k}: {v}")
+
     CABLE_LENGTH = CONFIG["CABLE_LENGTH"]
     SEGMENT_NUM = CONFIG["SEGMENT_NUM"]
     MAX_FORCE_PER_SEGMENT = CONFIG["MAX_FORCE_PER_SEGMENT"]
@@ -46,7 +45,7 @@ if __name__ == "__main__":
     cable = Cable([100, 70], 400, SEGMENT_NUM, thickness=5)
     obstacle_g = RandomObstacleGroup(np.array([50, 300]), 200, 200, 4, 2, radius=100,seed=20)
     bounding = Boundings(cfg.width, cfg.height)
-    sim = Simulator(cfg, [cable], [bounding,obstacle_g], threaded=False,unstable_sim=True)
+    sim = Simulator(cfg, [cable], [bounding,obstacle_g], threaded=CONFIG['THREADED_SIM'],unstable_sim=CONFIG['UNSTABLE_SIM'])
 
     GUIDER_PERIOD = CONFIG["GUIDER_PERIOD"]
 
@@ -75,14 +74,18 @@ if __name__ == "__main__":
                                control_fnc,
                                max_iter_cnt=CONFIG["MAX_STEPS"],
                                only_simuls=CONFIG["ONLY_SIMULS"],
-                               sampling_period=CONFIG["SAMPLING_PREIOD"],
+                               sampling_period=CONFIG["SAMPLING_PERIOD"],
                                guider_period=CONFIG["GUIDER_PERIOD"],
                                  track_analytics=CONFIG["TRACK_ANALYTICS"]
                                )
     GOAL = Point.from_points(goal_points, control_idxs)
     start = planner.form_start_node()
 
-    storage = StorageWrapper(GOAL,CONFIG["REACHED_THRESHOLD"],control_idxs)
+    if CONFIG["USE_TRRT"]:
+        print("Using TRRT")
+        storage = StorageWrapperTRRT(GOAL,CONFIG["REACHED_THRESHOLD"],control_idxs,dist_matrix)
+    else:
+        storage = StorageWrapper(GOAL,CONFIG["REACHED_THRESHOLD"],control_idxs)
     storage.save_to_storage(start)
 
 
@@ -100,14 +103,15 @@ if __name__ == "__main__":
     # dbg.draw_clb = debug_draw
     #end of debugging
     st = time.time()
+    real_iters = 0
     for i in range(ITERATIONS):
+        real_iters += 1
         t1 = time.time()
         if i % 100 == 0:
             print("iter: ", i)
 
-        throw = np.random.random()
 
-        if throw < storage.goal_bias:
+        if CONFIG['USE_GOAL_BIAS'] and np.random.random() < storage.goal_bias:
             print("Throwing goal")
             q_rand = GOAL
         else:
@@ -122,6 +126,7 @@ if __name__ == "__main__":
         t3 = time.time()
         for res in response.checkpoints:
             storage.save_to_storage(res)
+
         if not storage.want_next_iter:
             print("Goal reached in iter: ", i)
             break
@@ -131,12 +136,14 @@ if __name__ == "__main__":
     print("Time: ", endt-st)
     planner.analytics["TOTAL"] = endt-st
     planner.analytics["OUTSIDE_CHPATH"] = OUTSIDE_CHPATH
-    print_analytics(planner.analytics, ITERATIONS)
+    if hasattr(storage,"overall_rejections"):
+        planner.analytics["REJECTED_CNT"] = storage.overall_rejections
+    print_analytics(planner.analytics, real_iters)
     print("OUTSIDE_CHPATH: ", OUTSIDE_CHPATH)
     print("Best dist: ", storage.best_dist)
     path = storage.get_path()
     all_nodes = storage.get_all_points()
-    # print("all_nodes: ", all_nodes)
+    print("all_nodes: ", len(all_nodes))
     all_main_points = np.array([p.main_points for p in all_nodes])
     rp = ReplayablePath(sim,path,GOAL,guider,control_fnc["reached_condition"],
                         GUIDER_PERIOD,
@@ -145,6 +152,8 @@ if __name__ == "__main__":
                          "one_time_draw": draw,
                          "goal" : goal_points,
                          "analytics": planner.analytics,
+                         "steps": real_iters,
+                         "config": CONFIG
 
                          })
     try:

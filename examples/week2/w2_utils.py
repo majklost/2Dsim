@@ -12,16 +12,15 @@ IF success - try to implement creased index
 
 
 import numpy as np
-from scipy.spatial import distance_matrix
 
 from deform_plan.messages.sim_node import SimNode
 from deform_plan.simulators.PM.pm_simulator import Simulator
 from deform_plan.storages.GNAT import GNAT
-from examples.week2.config import CONFIG
+from deform_plan.rrt_utils.config import CONFIG
 
 
 MAIN_PTS_NUM = CONFIG["MAIN_PTS_NUM"]
-MIN_STRETCH_IDX = CONFIG["MIN_STRETCH_IDX"]
+MAX_CREASED_COST = CONFIG["MAX_CREASED_COST"]
 
 def distance(p1: 'Point', p2:'Point'):
     return distance_inner(p1.main_points, p2.main_points)
@@ -37,7 +36,7 @@ def calc_stretch_index(body_positions,distance_matrix):
         for j in range(i+1,len(idxs)):
             stretch_index += np.linalg.norm(body_positions[idxs[i]] - body_positions[idxs[j]]) / distance_matrix[i,j]
             num_tests += 1
-    return stretch_index/num_tests
+    return 1-stretch_index/num_tests
 
 
 def calc_distance_matrix(start_sim:Simulator,movable_idx):
@@ -59,7 +58,7 @@ def make_guider(movable_idx, controlled_idxs, max_force,dist_matrix):
         guided_obj = sim.movable_objects[movable_idx]
         all_pts = guided_obj.position
         stretch_idx = calc_stretch_index(all_pts,dist_matrix)
-        if stretch_idx < MIN_STRETCH_IDX:
+        if stretch_idx > MAX_CREASED_COST and CONFIG["USE_MAX_CREASED"]:
             guider_data["give_up"] = True
 
         control_pts = all_pts[controlled_idxs]
@@ -107,32 +106,30 @@ def make_exporter(movable_idx: int):
 
 
 class Point:
-    def __init__(self, node: SimNode|None,controlled_idxs):
+    def __init__(self, node: SimNode|None,controlled_idxs,arbitrary_points=None):
         self.node = node
-        if node is not None:
-            self.main_points = self._calc_main_pts()
-
-            self.controlled_points = self._calc_controlled_points(controlled_idxs)
+        self.all_pts = self.node.exporter_data["points"] if node is not None else arbitrary_points
+        self.main_points = self._calc_main_pts()
+        self.controlled_points = self._calc_controlled_points(controlled_idxs)
 
     def _calc_main_pts(self):
-        points = self.node.exporter_data["points"]
+        points = self.all_pts
         return points[get_idxs(len(points))]
     def _calc_controlled_points(self, controlled_idxs):
-        points = self.node.exporter_data["points"]
+        points = self.all_pts
         return points[controlled_idxs]
+
 
     @staticmethod
     def from_points(points,controlled_idxs):
-        p = Point(None,controlled_idxs)
-        p.main_points = points[get_idxs(len(points))]
-        p.controlled_points = points[controlled_idxs]
+        p = Point(None,controlled_idxs,arbitrary_points=points)
         return p
 
 
 class StorageWrapper:
     def __init__(self,goal, goal_threshold,controlled_idxs):
         self.goal = goal
-        self.goal_bias = 0.01
+        self.goal_bias = CONFIG["GOAL_BIAS"]
         self.threshold = np.inf
         self.gnat = GNAT(distancefnc=distance,arity=5)
         self.goal_threshold =goal_threshold
@@ -142,7 +139,7 @@ class StorageWrapper:
         self.best_dist = float("inf")
         self._end_node =None
 
-    def save_to_storage(self,node):
+    def save_to_storage(self,node:SimNode):
         point = Point(node,self.controlled_idxs)
         dist = distance(point,self.goal)
         if dist < self.threshold:
@@ -161,6 +158,7 @@ class StorageWrapper:
 
             self._end_node = node
         self.gnat.insert(point)
+        return True
 
     def get_nearest(self,point):
         return self.gnat.nearest_neighbour(point)
@@ -181,5 +179,54 @@ class StorageWrapper:
 
     def get_all_points(self):
         return self.gnat.get_all_points()
+
+class StorageWrapperTRRT(StorageWrapper):
+    def __init__(self,goal, goal_threshold,controlled_idxs,stretch_matrix):
+        super().__init__(goal,goal_threshold,controlled_idxs)
+        self.stretch_matrix = stretch_matrix
+        self.K = calc_stretch_index(goal.all_pts,stretch_matrix)
+        self.T = CONFIG["TRRT"]["T"]
+        self.nfail_max = CONFIG["TRRT"]["nfail_max"]
+        self.alpha = CONFIG["TRRT"]["alpha"]
+        self.nfail = 0
+        self.overall_rejections = 0
+
+
+    def save_to_storage(self,node:SimNode):
+        start = node.replayer.parent
+        point = Point(node,self.controlled_idxs)
+        if start is None:
+            return super().save_to_storage(node)
+        parent = Point(start,self.controlled_idxs)
+        dist = distance(parent,point)
+        stretch_index_point = calc_stretch_index(point.all_pts,self.stretch_matrix)
+        stretch_index_parent = calc_stretch_index(parent.all_pts,self.stretch_matrix)
+
+
+        if self.transition_test(stretch_index_parent,stretch_index_point,dist):
+            return super().save_to_storage(node)
+        # print("Rejection", self.overall_rejections)
+        return False
+
+    def transition_test(self,c_start,c_end,dist):
+        stretch_diff = c_end - c_start
+        if stretch_diff <= 0:
+            return True
+        prob = np.exp(-stretch_diff/(self.K*self.T*dist))
+        if np.random.random() < prob:
+            self.T/=self.alpha
+            self.nfail = 0
+            return True
+        if self.nfail >= self.nfail_max:
+            self.T *= self.alpha
+            self.nfail = 0
+        else:
+            self.nfail += 1
+        self.overall_rejections +=1
+        return False
+
+
+
+
 
 
