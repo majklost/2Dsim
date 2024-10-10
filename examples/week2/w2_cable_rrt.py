@@ -1,5 +1,8 @@
 
 import time
+from copy import deepcopy
+
+import numpy as np
 
 from deform_plan.assets.PM.objects.boundings import Boundings
 from deform_plan.saveables.replayable_path import ReplayablePath
@@ -11,6 +14,7 @@ from deform_plan.utils.analytics import print_analytics
 from deform_plan.samplers.bezier_sampler import BezierSampler
 from deform_plan.planners.fetchable_planner import FetchAblePlanner
 from examples.week2.w2_utils import *
+from examples.week2.path_sampling import PathSamplerRect
 from deform_plan.rrt_utils.config import CONFIG
 
 def draw(sim,surf,additional_data:dict):
@@ -30,20 +34,28 @@ def draw(sim,surf,additional_data:dict):
             pygame.draw.circle(surf,(255,0,0),node[i],4)
     for gpoint in additional_data["goal"]:
         pygame.draw.circle(surf,(0,0,255),gpoint,5)
+    if "heuristic_paths" in additional_data:
+        for path in additional_data["heuristic_paths"]:
+            for i in range(len(path)-1):
+                pygame.draw.line(surf,(255,0,0),path[i],path[i+1],5)
+            for i in range(len(path)):
+                pygame.draw.circle(surf,(255,0,0),path[i],10)
 
-
+def cable_to_point_dist(cable_points:np.array,point):
+    return np.linalg.norm(np.mean(cable_points,axis=0)-point)
 
 
 
 if __name__ == "__main__":
     for k,v in CONFIG.items():
         print(f"{k}: {v}")
+    POS = (100,70)
 
     CABLE_LENGTH = CONFIG["CABLE_LENGTH"]
     SEGMENT_NUM = CONFIG["SEGMENT_NUM"]
     MAX_FORCE_PER_SEGMENT = CONFIG["MAX_FORCE_PER_SEGMENT"]
     cfg = CONFIG["CFG"]
-    cable = Cable([100, 70], CABLE_LENGTH, SEGMENT_NUM, thickness=5)
+    cable = Cable(POS, CABLE_LENGTH, SEGMENT_NUM, thickness=5)
     obstacle_g = RandomObstacleGroup(np.array([50, 300]), 200, 200, 4, 2, radius=100,seed=20)
     bounding = Boundings(cfg.width, cfg.height)
     sim = Simulator(cfg, [cable], [bounding,obstacle_g], threaded=CONFIG['THREADED_SIM'],unstable_sim=CONFIG['UNSTABLE_SIM'])
@@ -54,12 +66,25 @@ if __name__ == "__main__":
     ITERATIONS = CONFIG["ITERATIONS"]
     lb = np.array([0, 0, 0])
     ub = np.array([800, 800, 2 * np.pi])
-    sampler = BezierSampler(CABLE_LENGTH, SEGMENT_NUM, lb, ub, seed=16)
-    goal_points = sampler.sample(x=280, y=720, angle=0)
+    sampler = BezierSampler(CABLE_LENGTH, SEGMENT_NUM, lb, ub, seed=10)
+    GOAL_POS = (280,570)
+
+    goal_points = sampler.sample(x=GOAL_POS[0], y=GOAL_POS[1], angle=0)
     control_idxs = CONFIG["CONTROL_IDXS"]
     # control_idxs = [0, SEGMENT_NUM - 1]
     # control_idxs = [0]
 
+    paths = []
+    if CONFIG["SUBSAMPLER_RUNS"] > 0:
+        rng = np.random.RandomState(CONFIG["SUBSAMPLER"]["SEED"])
+        for i in range(CONFIG["SUBSAMPLER_RUNS"]):
+            path_sampler = PathSamplerRect(deepcopy([bounding,obstacle_g]),CONFIG,{"start":POS,"goal":GOAL_POS},show_sim_bool=False,seed=rng.randint(0,1000))
+            path = path_sampler.run()
+            if not path:
+                continue
+            paths.append(path)
+
+        path_idxs = [0 for _ in range(len(paths))]
     dist_matrix = calc_distance_matrix(sim, 0)
     guider = make_guider(0, control_idxs, MAX_FORCE_PER_SEGMENT,dist_matrix)
     ender = make_fail_condition(0)
@@ -116,7 +141,30 @@ if __name__ == "__main__":
             print("Throwing goal")
             q_rand = GOAL
         else:
-            q_rand = Point.from_points(sampler.sample(),control_idxs)
+            if CONFIG['SUBSAMPLER_RUNS'] > 0:
+                angle = None
+                path_num = len(paths)+1
+                if CONFIG["SUBSAMPLE_PATH_ONLY"]:
+                    path_num -=1 # Remove one for random point
+                if path_num >0:
+                    path_idx = np.random.randint(0, path_num)
+                else:
+                    path_idx = 0
+                if path_idx >= len(paths):
+                    q_rand = Point.from_points(sampler.sample(), control_idxs)
+                else:
+                    chosen_path = paths[path_idx]
+                    point_on_path_idx = path_idxs[path_idx]
+                    if point_on_path_idx != len(chosen_path)-1:
+                        next_point = chosen_path[point_on_path_idx+1]
+                        direction = next_point - chosen_path[point_on_path_idx]
+                        angle = np.arctan2(direction[1],direction[0])
+
+                    wanted = chosen_path[point_on_path_idx]
+                    sample = sampler.sample(x=wanted[0], y=wanted[1], angle=angle)
+                    q_rand = Point.from_points(sample, control_idxs)
+            else:
+                q_rand = Point.from_points(sampler.sample(),control_idxs)
         if storage.try_goal:
             print("Trying goal")
             q_rand = GOAL
@@ -127,6 +175,18 @@ if __name__ == "__main__":
         t3 = time.time()
         for res_idx in range(len(response.checkpoints)):
             res = response.checkpoints[res_idx] # type: SimNode
+            if CONFIG['SUBSAMPLER_RUNS'] > 0:
+                res_points = res.exporter_data["points"]
+                for x in range(len(paths)):
+                    path = paths[x]
+                    cur_node = path[path_idxs[x]]
+                    dist = cable_to_point_dist(res_points,cur_node)
+                    # print("Dist: ", dist)
+                    if dist < 50:
+                        print("Path: ", x, " reached ", path_idxs[x], "/", len(path))
+                        path_idxs[x] += 1
+                        if path_idxs[x] >= len(path):
+                            path_idxs[x] = len(path)-1
             if res_idx == 0:
                 res.previous_node = res.replayer.parent
             else:
@@ -160,8 +220,8 @@ if __name__ == "__main__":
                          "goal" : goal_points,
                          "analytics": planner.analytics,
                          "steps": real_iters,
-                         "config": CONFIG
-
+                         "config": CONFIG,
+                         "heuristic_paths": paths
                          })
     try:
         rp.save("./data/cable_rrt")

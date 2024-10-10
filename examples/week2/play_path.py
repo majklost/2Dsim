@@ -7,7 +7,7 @@ def replay_week_cable():
     g = rv.goal
     for p in g.main_points:
         rv.draw_circle(p, 5, (0, 0, 255))
-    rv.show(True)
+    rv.show(False)
 
 def save_week_cable():
     rv = PMReplayableExporter("./data/cable_rrt")

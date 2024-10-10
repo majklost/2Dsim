@@ -95,9 +95,8 @@ def get_pos_path(path):
 
 #Sample paths with simpler object, then use them to guide the more complex object
 class PathSamplerRect:
-    def __init__(self,fixed,config,path_sampler_data,show_sim_bool=False):
+    def __init__(self,fixed,config,path_sampler_data,show_sim_bool=False,seed=None):
         """
-        :param movables: list of movable objects
         :param fixed: list of fixed objects
         :param config: dict with configuration
         :param path_sampler_data: dict with additional data for path sampling
@@ -106,18 +105,18 @@ class PathSamplerRect:
         self.subsampler_config = config["SUBSAMPLER"]
         start_raw = path_sampler_data["start"]
         self.show_sim_bool = show_sim_bool
-        movables = Rectangle([start_raw['x'], start_raw['y']], start_raw['w'], start_raw['h'], KINEMATIC)
-        movables.orientation = start_raw['rot']
-        self.sim = Simulator(config["CFG"], [movables], fixed, threaded=config['THREADED_SIM'],unstable_sim=config['UNSTABLE_SIM'])
+        movables = Rectangle(start_raw, self.subsampler_config['W'], self.subsampler_config['H'], KINEMATIC)
+        movables.orientation = 0
+        self.sim = Simulator(config["CFG"], [movables], fixed, threaded=config['THREADED_SIM'],unstable_sim=False)
         if self.show_sim_bool:
             show_sim(self.sim)
         w = config["CFG"].width
         h = config["CFG"].height
         lb = np.array([0, 0, 0])
         ub = np.array([w, h, 2 * np.pi])
-        self.sampler = NDIMSampler(lb, ub, self.subsampler_config["SEED"])
+        self.sampler = NDIMSampler(lb, ub, seed)
         goal_raw = path_sampler_data["goal"]
-        self.goal = _Point(None, np.array([goal_raw['x'], goal_raw['y']]), goal_raw['rot'])
+        self.goal = _Point(None, np.array(goal_raw), 0)
         self.storage = Storage(self.goal, self.subsampler_config["THRESHOLD"])
         planning_fncs = {
             "guider": make_guider(0, self.subsampler_config["VELOCITY"]),
@@ -129,7 +128,7 @@ class PathSamplerRect:
             self.sim,
             planning_fncs,
             max_iter_cnt=1000,
-            only_simuls=config["ONLY_SIMULS"],
+            only_simuls=False,
             sampling_period=100,
             guider_period=20,
             track_analytics=False
@@ -150,11 +149,14 @@ class PathSamplerRect:
         path = get_pos_path(self.post_process(self.storage.path))
         if self.show_sim_bool:
             all_pts = self.storage.gnat.get_all_points()
-            show_sim(self.sim, clb=draw_paths(get_pos_path(self.storage.path)))
-            show_sim(self.sim,clb=draw_paths(path))
+            show_sim(self.sim, clb=draw_tree(all_pts,self.goal.pos))
+            # show_sim(self.sim, clb=draw_paths(get_pos_path(self.storage.path)))
+            show_sim(self.sim,clb=draw_paths(path,self.goal.pos))
 
         return path
     def post_process(self,path,seed=None):
+        if not path:
+            return []
         rng = np.random.RandomState(seed)
         for i in range(self.subsampler_config["POST_PROC_ITER"]):
             p1 =rng.randint(0,len(path))
@@ -165,14 +167,16 @@ class PathSamplerRect:
             endI = max(p1,p2)
             start = path[startI]
             end = path[endI]
+            self.planner.sampling_period = 5
             response = self.planner.check_path(start,_Point(end,None,None))
             if response.reached_goal:
-                path = path[:startI+1]+[response.checkpoints[-1]]+path[endI+1:]
+                path = path[:startI+1]+response.checkpoints+path[endI+1:]
         return path
 
 
-def draw_tree(all_pts):
+def draw_tree(all_pts,goal):
     def clb(surf):
+        make_draw_circle(goal, 20, (255, 0, 0))(surf)
         for i, n in enumerate(all_pts):
             # print(n)
             make_draw_circle(n.pos, 5, color=(0, 255, 0))(surf)
@@ -181,8 +185,9 @@ def draw_tree(all_pts):
                 make_draw_line(n.pos, parent.exporter_data["pos"], 2)(surf)
     return clb
 
-def draw_paths(path):
+def draw_paths(path,goal):
     def draw(surf):
+        make_draw_circle(goal, 10, (255, 0, 0))(surf)
         for i,p in enumerate(path):
             if i == 0:
                 make_draw_circle(p,10)(surf)
@@ -202,11 +207,14 @@ if __name__ == "__main__":
             "ITERATIONS": 2000,
             "THRESHOLD": 30,
             "VELOCITY": 1000,
-            "POST_PROC_ITER": 200
+            "POST_PROC_ITER": 200,
+            'W': 100,
+            'H': 20,
         }
     }
+    subsampler_config = CONFIG["SUBSAMPLER"]
     fixed = [Boundings(CONFIG["CFG"].width, CONFIG["CFG"].height), Rectangle([400, 400], 200, 200, STATIC), RandomObstacleGroup(np.array([50, 300]), 200, 200, 4, 2, radius=100, seed=20)]
-    start = {"x": 100, "y": 100, "w": 100, "h": 20, "rot": 0}
-    goal = {"x": 700, "y": 700, "rot": np.pi / 2}
+    start = (100,100)
+    goal = (700,700)
     path_sampler = PathSamplerRect(fixed,CONFIG,{"start":start,"goal":goal},show_sim_bool=True)
     path = path_sampler.run()
