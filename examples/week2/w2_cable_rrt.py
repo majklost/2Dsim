@@ -4,6 +4,7 @@ import time
 from deform_plan.assets.PM.objects.boundings import Boundings
 from deform_plan.saveables.replayable_path import ReplayablePath
 from deform_plan.assets.PM import *
+from deform_plan.utils.PM_debug_viewer import DebugViewer
 from deform_plan.utils.PM_space_visu import make_draw_circle, show_sim
 from deform_plan.utils.analytics import print_analytics
 
@@ -42,7 +43,7 @@ if __name__ == "__main__":
     SEGMENT_NUM = CONFIG["SEGMENT_NUM"]
     MAX_FORCE_PER_SEGMENT = CONFIG["MAX_FORCE_PER_SEGMENT"]
     cfg = CONFIG["CFG"]
-    cable = Cable([100, 70], 400, SEGMENT_NUM, thickness=5)
+    cable = Cable([100, 70], CABLE_LENGTH, SEGMENT_NUM, thickness=5)
     obstacle_g = RandomObstacleGroup(np.array([50, 300]), 200, 200, 4, 2, radius=100,seed=20)
     bounding = Boundings(cfg.width, cfg.height)
     sim = Simulator(cfg, [cable], [bounding,obstacle_g], threaded=CONFIG['THREADED_SIM'],unstable_sim=CONFIG['UNSTABLE_SIM'])
@@ -124,9 +125,14 @@ if __name__ == "__main__":
         t2 = time.time()
         response = planner.check_path(q_near.node, q_rand)
         t3 = time.time()
-        for res in response.checkpoints:
-            storage.save_to_storage(res)
-
+        for res_idx in range(len(response.checkpoints)):
+            res = response.checkpoints[res_idx] # type: SimNode
+            if res_idx == 0:
+                res.previous_node = res.replayer.parent
+            else:
+                res.previous_node = response.checkpoints[res_idx-1]
+            if not storage.save_to_storage(res):
+                break
         if not storage.want_next_iter:
             print("Goal reached in iter: ", i)
             break
@@ -134,12 +140,13 @@ if __name__ == "__main__":
         OUTSIDE_CHPATH += t4 - t3 + t2 - t1
     endt = time.time()
     print("Time: ", endt-st)
-    planner.analytics["TOTAL"] = endt-st
-    planner.analytics["OUTSIDE_CHPATH"] = OUTSIDE_CHPATH
-    if hasattr(storage,"overall_rejections"):
-        planner.analytics["REJECTED_CNT"] = storage.overall_rejections
-    print_analytics(planner.analytics, real_iters)
-    print("OUTSIDE_CHPATH: ", OUTSIDE_CHPATH)
+    if CONFIG["TRACK_ANALYTICS"]:
+        planner.analytics["TOTAL"] = endt-st
+        planner.analytics["OUTSIDE_CHPATH"] = OUTSIDE_CHPATH
+        if hasattr(storage,"overall_rejections"):
+            planner.analytics["REJECTED_CNT"] = storage.overall_rejections
+        print_analytics(planner.analytics, real_iters)
+        print("OUTSIDE_CHPATH: ", OUTSIDE_CHPATH)
     print("Best dist: ", storage.best_dist)
     path = storage.get_path()
     all_nodes = storage.get_all_points()

@@ -190,13 +190,16 @@ class StorageWrapperTRRT(StorageWrapper):
         self.alpha = CONFIG["TRRT"]["alpha"]
         self.nfail = 0
         self.overall_rejections = 0
+        self.last_points = None
 
 
     def save_to_storage(self,node:SimNode):
-        start = node.replayer.parent
+        start = node.previous_node
         point = Point(node,self.controlled_idxs)
         if start is None:
-            return super().save_to_storage(node)
+            #start is total start
+            super().save_to_storage(node)
+            return True
         parent = Point(start,self.controlled_idxs)
         dist = distance(parent,point)
         stretch_index_point = calc_stretch_index(point.all_pts,self.stretch_matrix)
@@ -204,12 +207,14 @@ class StorageWrapperTRRT(StorageWrapper):
 
 
         if self.transition_test(stretch_index_parent,stretch_index_point,dist):
-            return super().save_to_storage(node)
+            super().save_to_storage(node)
+            return True
         # print("Rejection", self.overall_rejections)
         return False
 
     def transition_test(self,c_start,c_end,dist):
         stretch_diff = c_end - c_start
+        # print("Stretch diff: ", stretch_diff)
         if stretch_diff <= 0:
             return True
         prob = np.exp(-stretch_diff/(self.K*self.T*dist))
