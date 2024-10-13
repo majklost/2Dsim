@@ -55,7 +55,7 @@ if __name__ == "__main__":
     SEGMENT_NUM = CONFIG["SEGMENT_NUM"]
     MAX_FORCE_PER_SEGMENT = CONFIG["MAX_FORCE_PER_SEGMENT"]
     cfg = CONFIG["CFG"]
-    cable = Cable(POS, CABLE_LENGTH, SEGMENT_NUM, thickness=5)
+    cable = OneEndCable(POS, CABLE_LENGTH, SEGMENT_NUM, thickness=5)
     obstacle_g = RandomObstacleGroup(np.array([50, 300]), 200, 200, 4, 2, radius=100,seed=20)
     bounding = Boundings(cfg.width, cfg.height)
     sim = Simulator(cfg, [cable], [bounding,obstacle_g], threaded=CONFIG['THREADED_SIM'],unstable_sim=CONFIG['UNSTABLE_SIM'])
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     if CONFIG["SUBSAMPLER_RUNS"] > 0:
         rng = np.random.RandomState(CONFIG["SUBSAMPLER"]["SEED"])
         for i in range(CONFIG["SUBSAMPLER_RUNS"]):
-            path_sampler = PathSamplerRect(deepcopy([bounding,obstacle_g]),CONFIG,{"start":POS,"goal":GOAL_POS},show_sim_bool=False,seed=rng.randint(0,1000))
+            path_sampler = PathSamplerRect(deepcopy([bounding,obstacle_g]),CONFIG,{"start":POS,"goal":GOAL_POS},show_sim_bool=True,seed=rng.randint(0,1000))
             path = path_sampler.run()
             if not path:
                 continue
