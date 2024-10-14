@@ -148,7 +148,7 @@ class PathSamplerRect:
                 print("heurisitc iter: ", i)
         path = get_pos_path(self.post_process(self.storage.path))
         if self.show_sim_bool:
-            all_pts = self.storage.gnat.get_all_points()
+            all_pts = self.storage.gnat.get_all_nodes()
             show_sim(self.sim, clb=draw_tree(all_pts,self.goal.pos))
             # show_sim(self.sim, clb=draw_paths(get_pos_path(self.storage.path)))
             show_sim(self.sim,clb=draw_paths(path,self.goal.pos))
