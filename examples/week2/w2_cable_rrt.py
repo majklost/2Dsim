@@ -125,7 +125,7 @@ if __name__ == "__main__":
             else:
                 make_draw_circle(g, 5, (0, 0, 255))(surf)
     show_sim(sim, clb=debug_draw)
-    # dbg = DebugViewer(sim, realtime=True)
+    # dbg = DebugViewer(_sim, realtime=True)
     # dbg.draw_clb = debug_draw
     #end of debugging
     st = time.time()
