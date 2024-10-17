@@ -62,17 +62,17 @@ for i in range(10000):
 # cable[-1].velocity =0,0
 
 
-#now transfer informaction from sim to tester
+#now transfer informaction from _sim to tester
 cable_tester = tester.movable_objects[0]
-# for i in range(len(sim._space.bodies)):
-#     tester._space.bodies[i].position = sim._space.bodies[i].position
-#     tester._space.bodies[i].velocity = sim._space.bodies[i].velocity
-#     tester._space.bodies[i].angle = sim._space.bodies[i].angle
-#     tester._space.bodies[i].angular_velocity = sim._space.bodies[i].angular_velocity
-#     tester._space.bodies[i].force = sim._space.bodies[i].force
-    # print(sim._space.bodies[i],id(sim._space.bodies[i]))
+# for i in range(len(_sim._space.bodies)):
+#     tester._space.bodies[i].position = _sim._space.bodies[i].position
+#     tester._space.bodies[i].velocity = _sim._space.bodies[i].velocity
+#     tester._space.bodies[i].angle = _sim._space.bodies[i].angle
+#     tester._space.bodies[i].angular_velocity = _sim._space.bodies[i].angular_velocity
+#     tester._space.bodies[i].force = _sim._space.bodies[i].force
+    # print(_sim._space.bodies[i],id(_sim._space.bodies[i]))
 
-# rect = sim.fixed_objects[0]
+# rect = _sim.fixed_objects[0]
 # rect_tester = tester.fixed_objects[0]
 # rect_tester._body.position = rect._body.position
 # rect_tester._body.velocity = rect._body.velocity
@@ -87,7 +87,7 @@ def compare_sims(sim1:Simulator,sim2 :Simulator):
         assert np.allclose(sim1._space.bodies[i].velocity, sim2._space.bodies[i].velocity)
         assert np.allclose(sim1._space.bodies[i].angular_velocity, sim2._space.bodies[i].angular_velocity)
         assert np.allclose(sim1._space.bodies[i].angle, sim2._space.bodies[i].angle)
-    # dbg = DebugViewer(sim,realtime=False)
+    # dbg = DebugViewer(_sim,realtime=False)
 
 
     for x in range(10000):
@@ -115,7 +115,7 @@ def compare_sims(sim1:Simulator,sim2 :Simulator):
 
 
 # dbg = DebugViewer(tester,realtime=False)
-# dbg2 = DebugViewer(sim,realtime=False)
+# dbg2 = DebugViewer(_sim,realtime=False)
 exported = sim.export()
 tester.import_from(exported)
 compare_sims(sim,tester)

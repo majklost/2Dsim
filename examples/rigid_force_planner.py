@@ -15,7 +15,7 @@ obstacle.velocity = np.array([0,-5])
 sim = Simulator(cfg, [rect], [obstacle])
 
 start = NodeReached(0,sim_export=sim.export())
-planner = FetchAblePlanner(sim, 0, max_iter_cnt=1000, only_simuls=True)
+planner = FetchAblePlanner(sim, 0, max_step_cnt=1000, only_simuls=True)
 
 dbg = DebugViewer(sim,realtime=True)
 dbg.draw_circle([600,50],10,(255,0,0))

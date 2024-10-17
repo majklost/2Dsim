@@ -5,41 +5,19 @@ import pygame
 
 from ..saveables.replayable_path import ReplayablePath
 from .base_viewer import BaseViewer
+from .PM_replayable_core import PMReplayableCore
 
-class PMReplayableViewer(BaseViewer):
+class PMReplayableViewer(BaseViewer,PMReplayableCore):
     def __init__(self, replay_file,allow_outer_render=True):
-        replay_data = dill.load(open(replay_file, 'rb')) #type: ReplayablePath
-        self.guider = replay_data.guider
-        self.guider_period = replay_data.guider_period
-        self.reached_condition = replay_data.reached_condition
-        self.goal = replay_data.goal
-        self.path = replay_data.path
-        self.additional_data = replay_data.additional_data
-        self.sim = replay_data.simulator
-        self.drawings = []
-        pygame.init()
-        w,h,self.fps = self.sim.get_debug_data()
-        self.display = pygame.display.set_mode((w, h))
-        self.cur_scene = pygame.surface.Surface((w,h))
-        if allow_outer_render:
-            self.drawing_fnc = self.additional_data.get("drawing_fnc", None)
-            if self.drawing_fnc is None:
-                print("No drawing function provided")
-        else:
-            print("Outer render is not allowed")
-            self.drawing_fnc = None
+        PMReplayableCore.__init__(self, replay_file)
 
-
-
-    def draw_line(self, start, end, color=(0, 0, 0)):
-        self.drawings.append( lambda :pygame.draw.line(self.cur_scene, color, start, end))
-    def draw_circle(self, center, radius, color=(0, 0, 0)):
-        self.drawings.append( lambda :pygame.draw.circle(self.cur_scene, color, center, radius))
-
-
+        self.display = pygame.display.set_mode((self.w, self.h))
 
     def show(self,realtime=True,constraints=False):
         self.sim.import_from(self.path[0].sim_export)
+        if self.one_time_draw is not None:
+            self.one_time_draw(self.sim, self.one_time_canvas, self.additional_data)
+
         clock = pygame.time.Clock()
         draw_ops = DrawOptions(self.cur_scene)
         if not constraints:
@@ -47,29 +25,17 @@ class PMReplayableViewer(BaseViewer):
 
         for n in self.path[1:]:
             parent = n.replayer.parent
-            parent_guider_data = parent.guider_data
             print("Iterating now: ", n.replayer.segment_iter_cnt)
-
-
             for i in range(n.replayer.segment_iter_cnt):
-                if self.reached_condition(self.sim, parent, n.replayer.real_goal, parent_guider_data, i):
-                    print("Reached condition")
+                if self._onestep(parent, n, i,draw_ops):
                     break
-                if i % self.guider_period == 0:
-                    self.guider(self.sim, parent, n.replayer.real_goal, parent_guider_data, i)
-                self.sim.step()
-                self.cur_scene.fill((255, 255, 255))
-                if self.drawing_fnc is not None:
-                    self.drawing_fnc(self.sim,self.cur_scene, self.additional_data)
-                self.sim.draw_on(draw_ops)
-                for d in self.drawings:
-                    d()
                 self.display.blit(self.cur_scene, (0, 0))
                 if realtime:
                     clock.tick(self.fps)
                 pygame.display.update()
                 if self.want_end():
                     return
+
 
 
     @staticmethod

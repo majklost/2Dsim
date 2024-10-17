@@ -34,7 +34,7 @@ class KDTree(BaseStorage):
         return self.tree.nearestNeighbour(self.root,point,distancefnc=self.distancefnc)
 
 
-    def get_all_points(self):
+    def get_all_nodes(self):
         return self.tree.get_all_points(self.root)
 
 class _KDTree:

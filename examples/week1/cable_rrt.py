@@ -29,7 +29,7 @@ def draw(sim,surf,additional_data:dict):
             pygame.draw.line(surf,additional_data["colors"][x],node[i],node[i+1],2)
         for i in range(len(node)):
             pygame.draw.circle(surf,(255,0,0),node[i],4)
-    for gpoint in additional_data["goal"]:
+    for gpoint in additional_data["goal_points"]:
         pygame.draw.circle(surf,(0,0,255),gpoint,5)
 
 
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     MAX_FORCE_PER_SEGMENT = .1
     cfg = PMConfig()
     cable = Cable([100, 70], 400, SEGMENT_NUM, thickness=5)
-    obstacle_g = RandomObstacleGroup(np.array([50, 300]), 200, 200, 4, 4, radius=100,seed=20)
+    obstacle_g = RandomObstacleGroup(np.array([50, 300]), 200, 200, 4, 4, radius=100)
     bounding = Boundings(cfg.width, cfg.height)
     sim = Simulator(cfg, [cable], [bounding,obstacle_g], threaded=False,unstable_sim=True)
 
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     STEPS = 10000
     lb = np.array([0, 0, 0])
     ub = np.array([800, 800, 2 * np.pi])
-    sampler = BezierSampler(CABLE_LENGTH, SEGMENT_NUM, lb, ub, seed=16)
+    sampler = BezierSampler(CABLE_LENGTH, SEGMENT_NUM, lb, ub)
     goal_points = sampler.sample(x=180, y=430, angle=0)
     control_idxs = [i for i in range(SEGMENT_NUM)]
     # control_idxs = [0, SEGMENT_NUM - 1]
@@ -67,14 +67,8 @@ if __name__ == "__main__":
     }
 
 
-    planner = FetchAblePlanner(sim,
-                               control_fnc,
-                               max_iter_cnt=500,
-                               only_simuls=True,
-                               sampling_period=30,
-                               guider_period=GUIDER_PERIOD,
-                                 track_analytics=True
-                               )
+    planner = FetchAblePlanner(sim, control_fnc, max_step_cnt=500, only_simuls=True, sampling_period=30,
+                               guider_period=GUIDER_PERIOD, track_analytics=True)
     GOAL = Point.from_points(goal_points, control_idxs)
     start = planner.form_start_node()
 
@@ -88,11 +82,11 @@ if __name__ == "__main__":
         for i,g in enumerate(goal_points):
             if i in control_idxs:
                 make_draw_circle(g, 5, (255, 0, 0))(surf)
-                # print(f"Control {i} point in goal: ", g)
+                # print(f"Control {i} point in goal_points: ", g)
             else:
                 make_draw_circle(g, 5, (0, 0, 255))(surf)
     show_sim(sim, clb=debug_draw)
-    # dbg = DebugViewer(sim, realtime=True)
+    # dbg = DebugViewer(_sim, realtime=True)
     # dbg.draw_clb = debug_draw
     #end of debugging
     st = time.time()
@@ -102,7 +96,7 @@ if __name__ == "__main__":
             print("iter: ", i)
         q_rand = Point.from_points(sampler.sample(),control_idxs)
         if storage.try_goal:
-            print("Trying goal")
+            print("Trying goal_points")
             q_rand = GOAL
             storage.try_goal = False
         q_near = storage.get_nearest(q_rand)
@@ -132,7 +126,7 @@ if __name__ == "__main__":
                         {"nodes":
         all_main_points,
                          "drawing_fnc": draw,
-                         "goal" : goal_points,
+                         "goal_points" : goal_points,
                          })
     try:
         rp.save("./data/cable_rrt")

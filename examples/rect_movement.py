@@ -18,7 +18,7 @@ dbg = DebugViewer(sim,realtime=True)
 dbg.controller = rect_controller
 
 
-# sim.export()
+# _sim.export()
 for i in range(10000):
     if sim.step():
         break

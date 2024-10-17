@@ -20,8 +20,8 @@ class PMMultiBodyObject(BaseMultiBodyObject):
         self.track_colisions = track_colisions
 
 
-    def __deepcopy__(self, memodict={}):
-        raise NotImplementedError("Deepcopy not implemented")
+    # def __deepcopy__(self, memodict={}):
+    #     raise NotImplementedError("Deepcopy not implemented")
 
     def __getitem__(self, item) -> PMSingleBodyObject:
         return self.bodies[item]

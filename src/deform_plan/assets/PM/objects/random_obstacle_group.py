@@ -3,6 +3,7 @@ import pymunk
 
 from .pm_multibody import PMMultiBodyObject
 from .random_block import RandomBlock
+from ....helpers.seed_manager import manager
 class RandomObstacleGroup(PMMultiBodyObject):
     def __init__(self,pos:np.array,
                  VSep:int,
@@ -10,8 +11,7 @@ class RandomObstacleGroup(PMMultiBodyObject):
                  VNum:int,
                  HNum:int,
                  btype=pymunk.Body.STATIC,
-                 radius=150,
-                 seed=None):
+                 radius=150):
         super().__init__()
         self.VSep = VSep
         self.HSep = HSep
@@ -20,15 +20,13 @@ class RandomObstacleGroup(PMMultiBodyObject):
         self._btype = btype
         self._position = pos
         self.radius = radius
-        self.seed = seed
+        self.rng = np.random.default_rng(manager().get_seed(self.__class__.__name__,False))
         self._create_obstacle_group()
 
     def _create_obstacle_group(self):
-        if self.seed is not None:
-            np.random.seed(self.seed)
         for i in range(self.VNum):
             for j in range(self.HNum):
-                r = RandomBlock(self.position + np.array([i * self.VSep, j * self.HSep]), self.radius, self._btype, seed=np.random.randint(0, 1000))
+                r = RandomBlock(self.position + np.array([i * self.VSep, j * self.HSep]), self.radius, self._btype, seed=self.rng.integers(0, 1000))
                 self.append(r)
 
     @property

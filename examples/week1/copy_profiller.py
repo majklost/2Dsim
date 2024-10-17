@@ -35,4 +35,4 @@ def profile_space(s: pymunk.Space):
         sc = s.copy()
 
 
-cProfile.run("profile_space(sim._space)",sort="cumtime")
+cProfile.run("profile_space(_sim._space)",sort="cumtime")

@@ -1,13 +1,17 @@
 """given n upper and lower bounds, sample uniformly in the n-dimensional box"""
 import numpy as np
 
-class NDIMSampler:
-    def __init__(self, lower_bounds:np.array, upper_bounds:np.array, seed=None):
+from deform_plan.samplers.base_sampler import BaseSampler
+from ..helpers.seed_manager import manager
+
+
+class NDIMSampler(BaseSampler):
+    def __init__(self, lower_bounds:np.array, upper_bounds:np.array):
+        super().__init__()
         self.lower_bounds = lower_bounds
         self.upper_bounds = upper_bounds
         self.ndim = len(lower_bounds)
         self.ranges = np.array(upper_bounds) - np.array(lower_bounds)
-        if seed is not None:
-            np.random.seed(seed)
+        self.rng = np.random.default_rng(manager().get_seed(self.__class__.__name__))
     def sample(self):
-        return np.random.rand(self.ndim) * self.ranges + self.lower_bounds
+        return self.rng.random(self.ndim) * self.ranges + self.lower_bounds

@@ -45,7 +45,8 @@ planning_fncs = {
     "exporter": vutils.make_exporter(0)
 }
 
-planner = FetchAblePlanner(sim,planning_fncs,max_iter_cnt=300,only_simuls=False,sampling_period=1000, guider_period=GUIDER_PERIOD,track_analytics=True)
+planner = FetchAblePlanner(sim, planning_fncs, max_step_cnt=300, only_simuls=False, sampling_period=1000,
+                           guider_period=GUIDER_PERIOD, track_analytics=True)
 
 GOAL = vutils.Point(goal_points,None)
 def draw(surf):
@@ -55,7 +56,7 @@ def draw(surf):
     for i in control_idxs:
         make_draw_circle(points[i],4,(255,0,0))(surf)
         cable.bodies[i].color = (255,0,0,255)
-# db = DebugViewer(sim,realtime=False)
+# db = DebugViewer(_sim,realtime=False)
 # db.draw_clb = draw
 show_sim(sim,clb=draw)
 start = planner.form_start_node()
@@ -71,7 +72,7 @@ for i in range(STEPS):
     points = sampler.sample()
     # t2 = time.time()
     if storage.try_goal:
-        print("Trying goal")
+        print("Trying goal_points")
         points = goal_points
         storage.try_goal = False
     q_rand = vutils.Point(points,None)

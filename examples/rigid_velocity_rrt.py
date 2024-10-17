@@ -29,7 +29,7 @@ STEP_CNT = 1000
 ANALYTICS = True
 
 sim = Simulator(cfg, [rect], [obstacle,obstacle2,obstacle3,cross])
-# sim = Simulator(cfg, [rect], [obstacle,obstacle2,cross])
+# _sim = Simulator(cfg, [rect], [obstacle,obstacle2,cross])
 
 guider = vutils.make_guider(0,2000,100)
 
@@ -40,11 +40,8 @@ planning_fncs = {
     "exporter": vutils.make_exporter(0)
 }
 
-planner = FetchAblePlanner(sim,planning_fncs,
-                           only_simuls=False,
-                           sampling_period=100,
-                           max_iter_cnt=5000,
-                           guider_period=GUIDER_PERIOD,track_analytics=ANALYTICS)
+planner = FetchAblePlanner(sim, planning_fncs, max_step_cnt=5000, only_simuls=False, sampling_period=100,
+                           guider_period=GUIDER_PERIOD, track_analytics=ANALYTICS)
 
 pos = [700,700]
 # pos = [400,450]
@@ -54,7 +51,7 @@ def draw(surt):
 show_sim(sim,clb=draw)
 
 
-# dbg = DebugViewer(sim,realtime=False)
+# dbg = DebugViewer(_sim,realtime=False)
 # dbg.draw_circle(pos,5,(255,0,0))
 
 
@@ -98,7 +95,7 @@ for i in range(STEP_CNT):
         storage.save_to_storage(r)
     if not storage.want_next_iter:
         TOTAL_STEP = i
-        print("Reached goal in iter: ",TOTAL_STEP)
+        print("Reached goal_points in iter: ",TOTAL_STEP)
         break
     t4 = time.time()
     SHITOKOLO += t4-t3 + t2 -t1
@@ -142,5 +139,5 @@ print_analytics(planner.analytics,TOTAL_STEP)
 
 
 # st_t = time.time()
-# response = planner.check_path(start,goal)
+# response = planner.check_path(start,goal_points)
 # print("time taken: ",time.time()-st_t)

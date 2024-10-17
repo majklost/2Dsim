@@ -4,6 +4,7 @@ import numpy as np
 from ..utils.math_utils import rot_matrix
 from .base_sampler import BaseSampler
 from .ndim_sampler import NDIMSampler
+from ..helpers.seed_manager import manager
 
 def create_bezier(A,B,C,D):
     """
@@ -38,27 +39,29 @@ class BezierSampler(BaseSampler):
                  cable_segments_num:int,
                  lower_bounds:np.array,
                  upper_bounds:np.array,
-                 seed=None):
+                 fixed_seed = 10):
         super().__init__()
-        if seed is not None:
-            np.random.seed(seed)
+        self.given_seed = manager().get_seed(self.__class__.__name__)
+        self.rng =np.random.default_rng(self.given_seed)
+
         self.cable_length = cable_length
         self.cable_segments_num = cable_segments_num
         self.segment_length = cable_length / cable_segments_num
         self.last_sampled =[]
         self.last_angles = []
         self.ndim_sampler = NDIMSampler(lower_bounds, upper_bounds)
+        self.fixed_seed = fixed_seed # for sampling goal points
 
     def sample(self,x=None,y=None,angle=None):
+        if x is not None or y is not None or angle is not None:
+            return self._sample_goal(x,y,angle)
 
         xo,yo,angleo = self.ndim_sampler.sample()
-        if x is None:
-            x = xo
-        if y is None:
-            y = yo
-        if angle is None:
-            angle = angleo
+        return self._sample_inner(xo,yo,angleo)
 
+
+
+    def _sample_inner(self,x,y,angle):
         curve_points = self._get_curve_points(x,y,angle)
         directions = self._calc_directions(curve_points)
 
@@ -69,9 +72,25 @@ class BezierSampler(BaseSampler):
         self.last_sampled = self._create_midpoints(self._dirs_to_points(curve_points[0], new_dirs))
         return self.last_sampled
 
+    def _sample_goal(self,x,y,angle):
+        print("Sampling goal with fixed seed")
+        xf,yf,anglef = self.ndim_sampler.sample()
+        if x is not None:
+            xf = x
+        if y is not None:
+            yf = y
+        if angle is not None:
+            anglef = angle
+        old_rng = self.rng
+        self.rng = np.random.default_rng(self.fixed_seed)
+        points = self._sample_inner(xf,yf,anglef)
+        self.rng = old_rng
+        return points
+
+
     def _get_curve_points(self,x,y,angle):
-        x_controls = np.random.uniform(0, 20, 2)
-        y_controls = np.random.uniform(-20, 20, 2)
+        x_controls = self.rng.uniform(0, 20, 2)
+        y_controls = self.rng.uniform(-20, 20, 2)
         A = np.array([0, 0])
         B = np.array([x_controls[0], y_controls[0]])
         C = np.array([x_controls[1], y_controls[1]])

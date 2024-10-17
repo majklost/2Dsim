@@ -17,3 +17,6 @@ class BruteForce(BaseStorage):
                 best_dist = cur_dist
                 best_node = p
         return best_node
+
+    def get_all_nodes(self):
+        return self.points

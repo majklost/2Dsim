@@ -23,7 +23,7 @@ class FetchAblePlanner(BasePlanner):
     def __init__(self,simulator:Simulator,
 
                  planning_functions:dict,
-                 max_iter_cnt: int = 1000,
+                 max_step_cnt: int = 1000,
                  only_simuls: bool = False,
                  sampling_period =2000,
                  guider_period = 1,
@@ -38,7 +38,7 @@ class FetchAblePlanner(BasePlanner):
         self.reached_condition = planning_functions["reached_condition"]
         self.exporter = planning_functions["exporter"]
         self.only_simuls = only_simuls
-        self.max_iter_cnt = max_iter_cnt
+        self.max_iter_cnt = max_step_cnt
         self.after_load_clb = None
         self.sampling_period = sampling_period
         self.guider_period = guider_period
@@ -159,8 +159,13 @@ class FetchAblePlanner(BasePlanner):
             if not collided:
                 exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
                 response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
+                response.reached_goal = True
             return response
-
+    @staticmethod
+    def _mark_prev_node(response:PlannerResponse):
+        response.checkpoints[0].previous_node = response.checkpoints[0].replayer.parent
+        for i in range(1,len(response.checkpoints)):
+            response.checkpoints[i].previous_node = response.checkpoints[i-1]
 
     def check_path(self, start:SimNode, goal:Any) -> PlannerResponse:
         if self.track_analytics:
@@ -177,7 +182,7 @@ class FetchAblePlanner(BasePlanner):
         :param exported_data: data that exported gave
         :param guider_data: data that guider gave
         :param cur_iter_cnt: iteration from last checkpoint that contains simulation
-        :param goal: goal of the segment
+        :param goal: goal_points of the segment
         :param parent:  parent of the node
         :param all_iter_cnt: iteration from the start
         :return: SimNode

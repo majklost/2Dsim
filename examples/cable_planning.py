@@ -11,24 +11,29 @@ from deform_plan.utils.PM_space_visu import show_sim,make_draw_line,make_draw_ci
 from deform_plan.samplers.bezier_sampler import BezierSampler
 from deform_plan.planners.fetchable_planner import FetchAblePlanner
 import deform_plan.rrt_utils.cable_rrt as vutils
+from deform_plan.helpers.seed_manager import init_manager
 
 from helpers.cable_map import get_standard_simulator
+
+init_manager(10,15,{'RandomObstacleGroup':25})
 
 
 CABLE_LENGTH = 400
 SEGMENT_NUM = 70
 cable = Cable([20, 20], CABLE_LENGTH, SEGMENT_NUM, thickness=5)
-obstacle_g = RandomObstacleGroup(np.array([100, 200]), 200, 200, 4, 3, seed=25)
+obstacle_g = RandomObstacleGroup(np.array([100, 200]), 200, 200, 4, 3)
 MAX_FORCE =400
 
 
-# sim = get_standard_simulator(cable, obstacle_g)
+# _sim = get_standard_simulator(cable, obstacle_g)
 sim = get_standard_simulator(cable)
+
+
 
 
 lb = np.array([300,300,0])
 ub = np.array([500,500,2*np.pi])
-sampler = BezierSampler(CABLE_LENGTH,SEGMENT_NUM,lb,ub,seed=16)
+sampler = BezierSampler(CABLE_LENGTH,SEGMENT_NUM,lb,ub)
 points = sampler.sample(x=350,y=550,angle=0)
 # control_idxs = [i for i in range(SEGMENT_NUM)]
 control_idxs = [0,10,50,SEGMENT_NUM-1]
@@ -40,7 +45,7 @@ planning_fncs ={
     "reached_condition": vutils.make_reached_condition(0),
     "exporter": vutils.make_exporter(0)
 }
-planner = FetchAblePlanner(sim,planning_fncs,max_iter_cnt=50000)
+planner = FetchAblePlanner(sim, planning_fncs, max_step_cnt=50000)
 print(points)
 
 def draw(surf):

@@ -16,7 +16,8 @@ class TestPlanner:
         obstacle = Rectangle([400,200],100,100,KINEMATIC)
         obstacle.velocity = np.array([0,-5])
         self.sim = Simulator(cfg, [rect], [obstacle])
-        self.planner = FetchAblePlanner(self.sim, make_guider(0,100), make_end_condition(0), make_exporter(0), only_simuls=False, sampling_period=10)
+        self.planner = FetchAblePlanner(self.sim, make_guider(0, 100), make_end_condition(0), make_exporter(0),
+                                        sampling_period=10)
 
 
     def test_reload(self):

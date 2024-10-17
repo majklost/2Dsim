@@ -10,6 +10,7 @@ class SimNode:
         self.exporter_data = exporter_data
         self.guider_data = guider_data
         self.replayed_cnt = 0
+        self.previous_node = None #used only in TRRT
 
     def __str__(self):
         # return f"SimNode: {self.all_iter_cnt}, {self.exporter_data},\n PARENT: {self.replayer.parent}"
@@ -22,7 +23,7 @@ class Replayer:
     def __init__(self, segment_iter_cnt:int,real_goal,parent):
         """
         :param segment_iter_cnt:
-        :param real_goal: goal node :np.array
+        :param real_goal: goal_points node :np.array
         :param parent: parent node of this node
         """
         self.segment_iter_cnt = segment_iter_cnt
@@ -46,7 +47,7 @@ class Replayer:
 #         def __init__(self, real_goal:np.array,parent):
 #             """
 #             :param iter_cnt:
-#             :param real_goal: goal node :np.array
+#             :param real_goal: goal_points node :np.array
 #             :param parent: parent node of this node
 #             """
 #             self.real_goal :NodeGoal = real_goal

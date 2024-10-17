@@ -141,6 +141,6 @@ class StorageWrapper:
         return list(reversed(path))
 
     def get_all_points(self):
-        return self.gnat.get_all_points()
+        return self.gnat.get_all_nodes()
 
 

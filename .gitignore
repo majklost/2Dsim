@@ -11,3 +11,6 @@ __pycache__/
 old_examples/
 *.pyc
 *.pyo
+*.zip
+*.mp4
+analytics.txt

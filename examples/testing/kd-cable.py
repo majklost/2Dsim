@@ -9,7 +9,7 @@ from deform_plan.samplers.bezier_sampler import BezierSampler
 SEGMENT_NUM = 40
 
 def t3000_nearest_neighbour_weird():
-    bsampler = BezierSampler(400,SEGMENT_NUM,np.array([300,300,0]),np.array([500,500,2*np.pi]),seed=26)
+    bsampler = BezierSampler(400,SEGMENT_NUM,np.array([300,300,0]),np.array([500,500,2*np.pi]))
     # kd = KDTree(2)
     bf = BruteForce()
 

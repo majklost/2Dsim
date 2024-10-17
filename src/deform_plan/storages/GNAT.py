@@ -117,10 +117,10 @@ class GNATNode:
                     if cur_dist-r > self.R[i,j,1] or cur_dist+r < self.R[i,j,0]:
                         pruned[j] = True
         return cur_best, r
-    def get_all_points(self):
+    def get_all_nodes(self):
         pts = [self.point]
         for child in self.children:
-            pts += child.get_all_points()
+            pts += child.get_all_nodes()
         return pts
 
 
@@ -168,12 +168,12 @@ class GNAT(BaseStorage):
             return None
         return self.root.nearest_neighbour(point, np.inf)[0].point
 
-    def get_all_points(self):
+    def get_all_nodes(self):
         if self.root is None:
             raise ValueError("Root is None")
         pts = []
         for ch in self.root.children:
-            pts += ch.get_all_points()
+            pts += ch.get_all_nodes()
         return pts
 
 if __name__ == "__main__":

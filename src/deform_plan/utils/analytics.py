@@ -1,24 +1,20 @@
 def print_analytics(analytics,steps):
-    with open("analytics.txt","w") as f:
-        f.write("Analytics: \n")
-        total =0
-        for k,v in analytics["TIMES"].items():
-            f.write(f"{k}: {v}\n")
-            total += v
-        f.write("Total in check_path: "+str(total)+"\n")
-        f.write("Outside Check_path:" + str(analytics["OUTSIDE_CHPATH"]) +"\n")
-        f.write("Average_step_cnt: "+str(analytics["SUM_STEP_CNT"]/steps)+"\n")
-        f.write("Filled_cnt: "+str(analytics["FILLED_CNT"])+"\n")
-        f.write("Collided_cnt: "+str(analytics["COLLIDED_CNT"])+"\n")
-        f.write("Reached_cnt: "+str(analytics["REACHED_CNT"])+"\n")
-        f.write("Total time taken: "+str(analytics["TOTAL"])+"\n")
-    print("Analytics: ")
+    with open("analytics.txt","w+") as f:
+        f.write(get_str_analytics(analytics,steps))
+    print(get_str_analytics(analytics,steps))
+
+def get_str_analytics(analytics,steps):
+    res = "Analytics: \n"
     total =0
     for k,v in analytics["TIMES"].items():
-        print(f"{k}: {v}")
+        res += f"{k}: {v}\n"
         total += v
-    print("Total: ",total)
-    print("Average_step_cnt: ",analytics["SUM_STEP_CNT"]/steps)
-    print("Filled_cnt: ",analytics["FILLED_CNT"])
-    print("Collided_cnt: ",analytics["COLLIDED_CNT"])
-    print("Reached_cnt: ",analytics["REACHED_CNT"])
+    res += "Total in check_path: "+str(total)+"\n"
+    res += "Outside Check_path:" + str(analytics["OUTSIDE_CHPATH"]) +"\n"
+    res += "Average_step_cnt: "+str(analytics["SUM_STEP_CNT"]/steps)+"\n"
+    res += "Filled_cnt: "+str(analytics["FILLED_CNT"])+"\n"
+    res += "Collided_cnt: "+str(analytics["COLLIDED_CNT"])+"\n"
+    res += "Reached_cnt: "+str(analytics["REACHED_CNT"])+"\n"
+    res += "Total time taken: "+str(analytics["TOTAL"])+"\n"
+    res += "Rejected cnt: "+str(analytics.get("REJECTED_CNT",0))+"\n"
+    return res

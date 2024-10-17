@@ -39,7 +39,7 @@ def make_planners(num_planners):
 
 
         }
-        planner = FetchAblePlanner(sim, planning_fncs, only_simuls=False, sampling_period=2000, max_iter_cnt=5000,
+        planner = FetchAblePlanner(sim, planning_fncs, max_step_cnt=5000, only_simuls=False, sampling_period=2000,
                                    guider_period=GUIDER_PERIOD)
         planners.append(planner)
     return planners
@@ -95,7 +95,7 @@ for i in range(100):
         for r in response.checkpoints:
             storage.save_to_storage(r)
         if not storage.want_next_iter:
-            print("Reached goal in iter: ", i)
+            print("Reached goal_points in iter: ", i)
             break
 tt = time.time()-t
 print("Done, time taken: ",tt)

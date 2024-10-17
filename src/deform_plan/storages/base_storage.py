@@ -11,3 +11,7 @@ class BaseStorage(ABC):
     @abstractmethod
     def nearest_neighbour(self, point):
         raise NotImplementedError
+
+    @abstractmethod
+    def get_all_nodes(self):
+        raise NotImplementedError
