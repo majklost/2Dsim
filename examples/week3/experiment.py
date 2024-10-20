@@ -21,8 +21,8 @@ if __name__ == "__main__":
     cfg = ConfigManager().clone()
     cfg.update({
         "seed_env": 14,
-        # "seed_plan": 14,
-        "seed_plan": None,
+        "seed_plan": 13,
+        # "seed_plan": None,
         "cable_thickness": 5,
         "CABLE_LENGTH": 200,
         "SEGMENT_NUM": 30,

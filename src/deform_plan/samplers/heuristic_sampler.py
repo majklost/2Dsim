@@ -6,7 +6,7 @@ from deform_plan.helpers.seed_manager import manager
 
 
 class HeuristicSampler(BaseSampler):
-    def __init__(self, child_sampler:BaseSampler,child_wrapper:BaseWrapper,paths, reached_fnc ,path_prob=0.2,std_dev=10):
+    def __init__(self, child_sampler:BaseSampler,child_wrapper:BaseWrapper,paths ,path_prob=0.2,std_dev=10):
         """
         Heuristic sampler that samples from the paths
         :param child_sampler: child sampler - that samples
@@ -24,7 +24,9 @@ class HeuristicSampler(BaseSampler):
         self.rng = np.random.default_rng(manager().get_seed(self.__class__.__name__))
         self._cur_path_point = np.zeros(len(paths),dtype=int)
         self.std = std_dev
-        self.reached_fnc = reached_fnc
+
+        self._last_path_idx = None
+        self._path_done = False
 
 
     def create_wrapper(self):
@@ -33,21 +35,38 @@ class HeuristicSampler(BaseSampler):
         return self._wrapper
 
     def sample(self):
-        if self.rng.random() < self._path_prob and len(paths) >0:
+        if self.rng.random() < self._path_prob and len(self._paths) >0 and not self._path_done:
             path_idx = self.rng.integers(0,len(self._paths))
             path = self._paths[path_idx]
             point = path[self._cur_path_point[path_idx]]
             x,y = self.rng.normal(point,[self.std,self.std],2)
-            return self._child_sampler.sample(x,y)
+            self._last_path_idx = path_idx
+            angle = None
+            # if self._cur_path_point[path_idx] != 0:
+            #     vec = path[self._cur_path_point[path_idx]-1] - np.array((x,y))
+            #     # print("vec: ", vec)
+            #     angle = np.atan2(vec[0], vec[1])
 
+            return self._child_sampler.sample(x,y,angle)
+        self._last_path_idx = None
         return self._child_sampler.sample()
 
     def update_cur_path(self,node):
-        for i,path in enumerate(self._paths):
-            cur_point = path[self._cur_path_point[i]]
-            if self._cur_path_point[i] < len(path) and self.reached_fnc(node,cur_point):
-                self._cur_path_point[i] += 1
+        if node.reached and self._last_path_idx is not None:
+            print("REACHED: ", self._cur_path_point[self._last_path_idx])
+            self._cur_path_point[self._last_path_idx]  +=1
+            if self._cur_path_point[self._last_path_idx] >= len(self._paths[self._last_path_idx]):
+                print("Full path explored")
+                self._path_done = True
+        # print("pathnum: ", len(self._paths))
+    def last_chpoint(self):
+        if self._last_path_idx is None:
+            return (0,0)
+        idx = self._cur_path_point[self._last_path_idx]
+        return self._paths[self._last_path_idx][idx]
 
+    def get_paths(self):
+        return self._paths
 
     def analytics(self):
         return None
@@ -65,16 +84,20 @@ class HeuristicWrapper(BaseWrapper):
         super().__init__()
         self._sampler_clb = sampler_clb
         self._wrapper = wrapper
+        self.want_next_iter = True
 
     def save_to_storage(self,node):
         self._sampler_clb(node)
-        self._wrapper.save_to_storage(node)
+        res = self._wrapper.save_to_storage(node)
+        self.want_next_iter = self._wrapper.want_next_iter
+        return res
+
 
     def get_nearest(self,point):
-        self._wrapper.get_nearest(point)
+        return self._wrapper.get_nearest(point)
 
     def get_path(self):
-        self._wrapper.get_path()
+        return self._wrapper.get_path()
 
     def get_all_nodes(self):
-        self._wrapper.get_all_nodes()
+        return self._wrapper.get_all_nodes()

@@ -1,27 +1,26 @@
 import copy
 import warnings
-from typing import Dict, Any
-
+from typing import Dict, Any,TypedDict
 
 
 CONFIG = {
     'CABLE_LENGTH': 400,
-    'SEGMENT_NUM': 70,
+    'SEGMENT_NUM': 60,
     'MAX_FORCE_PER_SEGMENT': .1, # Max force per segment
-    'GUIDER_PERIOD': 5, # How often in steps can guider change direction of cable
+    'GUIDER_PERIOD': 10, # How often in steps can guider change direction of cable
     'ITERATIONS': 5000, # Number of iterations for RRT
     'CFG': {
         'width': 800,
-        'height': 800,
+        'height': 1000,
         'FPS': 60,
         'gravity' :0,
         'damping': .1,
         'collision_slope': 0.01,
     },
-    'REACHED_THRESHOLD': 20, # How close to goal_points should cable be
-    'CONTROL_IDXS': [i for i in range(70)], # Indexes of controlled points
-    'SAMPLING_PERIOD': 30, #period of steps in pymunk between samples
-    'MAX_STEPS': 500, # Max steps of pymunk simulation
+    'REACHED_THRESHOLD': 30, # How close to goal_points should cable be
+    'CONTROL_IDXS': [i for i in range(60)], # Indexes of controlled points
+    'SAMPLING_PERIOD': 20, #period of steps in pymunk between samples
+    'MAX_STEPS': 1000, # Max steps of pymunk simulation
     'ONLY_SIMULS': True, # If True, no fetching is done
     'TRACK_ANALYTICS': True, # If True, analytics are tracked
     'MAIN_PTS_NUM': 4, # Number of main points that describes cable
@@ -41,17 +40,17 @@ CREASED = {
 
 SUBSAMPLER = {'SUBSAMPLER':
     { # Configuration for sampling guiding paths
-        'ITERATIONS': 2000,
+        'ITERATIONS': 4000, #iterations of subsampler
         'THRESHOLD': 30, # How close to goal_points should cable be
-        'VELOCITY': 1000, # Velocity of
+        'VELOCITY': 800, # Velocity of
         'POST_PROC_ITER': 200, # Number of iterations for postprocessing
         'W': 100,
-        'H': 20,
+        'H': 30,
     },
-    'PATH_PROB': 0.2,
-    'STD_DEV': 10,
-    'SUBSAMPLE_PATH_ONLY': False, # If True, cable is sampled only on heuristic paths
-    'SUBSAMPLER_RUNS': 5, # Number of runs of subsampler
+    # 'REACHED_2D_POINT': 100, # How far to consider point on path done
+    'PATH_PROB': .3, #probability that will create sample on the path
+    'STD_DEV': 50,
+    'SUBSAMPLER_RUNS': 1, # Number of runs of subsampler
     "USE_SUBSAMPLER": True
 }
 

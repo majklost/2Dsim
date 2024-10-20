@@ -1,11 +1,22 @@
 #standard _storage wrapper for cable
-
+from typing import TypedDict,Callable, TypeVar, Any
 from deform_plan.messages.sim_node import SimNode
 from deform_plan.storage_wrappers.base_wrapper import BaseWrapper
+from deform_plan.storages.base_storage import BaseStorage
+
+T= TypeVar('T')
+KW = TypeVar('KW')
+
+class TypeUtils(TypedDict):
+    dist: Callable[[T,Any],int]
+    cls_maker: Callable[[Any,KW], T]
+    storage: BaseStorage
+    cls_kwargs: KW
+
 
 
 class StorageWrapper(BaseWrapper):
-    def __init__(self,utils,goal,goal_threshold,controlled_idxs, verbose=False):
+    def __init__(self,utils:TypeUtils,goal,goal_threshold,controlled_idxs, verbose=False):
         """
         Standard _storage wrapper for cable
         :param utils: dict with keys "dist" - distance function, "cls_maker" - class that wraps the points, "storage" - _storage object
@@ -24,6 +35,7 @@ class StorageWrapper(BaseWrapper):
         self._end_node = None
         self.want_next_iter = True
         self.verbose = verbose
+
 
     def save_to_storage(self,node:SimNode):
         point = self._make_point(node)

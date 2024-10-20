@@ -23,14 +23,14 @@ class GoalBiasSampler(BaseSampler):
         self.bias_cnt = 0
         self.unbias_cnt = 0
 
-    def sample(self):
+    def sample(self,x=None,y=None,angle=None):
         if self.rng.random() < self.goal_bias:
             self.bias_cnt += 1
             if self.verbose:
                 print("Goal biasing")
             return self.goal_points
         self.unbias_cnt += 1
-        return self.sampler.sample()
+        return self.sampler.sample(x,y,angle)
 
     def analytics(self):
         return {

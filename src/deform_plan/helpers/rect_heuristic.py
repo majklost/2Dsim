@@ -98,8 +98,8 @@ def get_pos_path(path):
 
 class RectHeuristic:
     def __init__(self, fixed, path_sampler_data, sim_config,show_sim_bool=False, verbose=False):
-        self.goal = self._prepare_goal()
         self._path_sampler_data = path_sampler_data
+        self.goal = self._prepare_goal()
         self._sim_config = sim_config
         self._show_sim_bool =show_sim_bool
         self._sim = self._prepare_sim(fixed)
@@ -108,19 +108,20 @@ class RectHeuristic:
         self._planner = self._prepare_planner(self._sim)
         self.verbose =verbose
         self.rng = np.random.default_rng(manager().get_seed(self.__class__.__name__))
-        if self._show_sim_bool:
-            show_sim(self._sim)
+
+        # if self._show_sim_bool:
+        #     show_sim(self._sim)
 
 
     def _prepare_sim(self,fixed):
         start_raw = self._path_sampler_data["start"]
-        movables = Rectangle(start_raw, self._path_sampler_data['rectW'], self._path_sampler_data['rectH'], KINEMATIC)
+        movables = Rectangle(start_raw, self._path_sampler_data['W'], self._path_sampler_data['H'], KINEMATIC)
         movables.orientation = 0
         return Simulator(self._sim_config, [movables], deepcopy(fixed), threaded=False, unstable_sim=False)
 
     def _prepare_sampler(self):
-        w = self._sim_config.width
-        h = self._sim_config.height
+        w = self._sim_config["width"]
+        h = self._sim_config["height"]
         lb = np.array([0, 0, 0])
         ub = np.array([w, h, 2 * np.pi])
         return NDIMSampler(lb,ub)
@@ -129,7 +130,7 @@ class RectHeuristic:
         return _Point(None,np.array(goal_raw),0)
 
     def _prepare_storage(self,goal):
-        return _Storage(goal, self._path_sampler_data["threshold"])
+        return _Storage(goal, self._path_sampler_data["THRESHOLD"])
 
     def _prepare_planner(self,sim):
         planning_fncs = {
@@ -145,6 +146,7 @@ class RectHeuristic:
         self._storage.save_to_storage(self._planner.form_start_node())
         for i in range(self._path_sampler_data["ITERATIONS"]):
             if not self._storage.want_next_iter:
+                print("goal reached")
                 break
             x, y, rot = self._sampler.sample()
             g = _Point(None, np.array([x, y]), rot)
@@ -154,7 +156,7 @@ class RectHeuristic:
                 self._storage.save_to_storage(r)
             if self.verbose and i % 200 == 0:
                 print("heuristic iter: ", i)
-        path = get_pos_path(self.post_process(self._storage.path))
+        path = get_pos_path(self.post_process(self._storage.path))[2:]
         if self._show_sim_bool:
             self._show_sim_paths(path)
 
@@ -177,10 +179,11 @@ class RectHeuristic:
             endI = max(p1,p2)
             start = path[startI]
             end = path[endI]
-            self._planner.sampling_period = 5
+            self._planner.sampling_period = 3
             response = self._planner.check_path(start,_Point(end,None,None))
             if response.reached_goal:
-                path = path[:startI+1]+response.checkpoints+path[endI+1:]
+                rest = endI+1 if endI != len(path)-1 else endI
+                path = path[:startI+1]+response.checkpoints+path[rest:]
 
         return path
 

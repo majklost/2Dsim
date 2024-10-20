@@ -39,7 +39,7 @@ class BezierSampler(BaseSampler):
                  cable_segments_num:int,
                  lower_bounds:np.array,
                  upper_bounds:np.array,
-                 fixed_seed = 10):
+                 fixed_seed = 25):
         super().__init__()
         self.given_seed = manager().get_seed(self.__class__.__name__)
         self.rng =np.random.default_rng(self.given_seed)
@@ -52,9 +52,9 @@ class BezierSampler(BaseSampler):
         self.ndim_sampler = NDIMSampler(lower_bounds, upper_bounds)
         self.fixed_seed = fixed_seed # for sampling goal points
 
-    def sample(self,x=None,y=None,angle=None):
+    def sample(self,x=None,y=None,angle=None,fixed_shape=False):
         if x is not None or y is not None or angle is not None:
-            return self._sample_goal(x,y,angle)
+            return self._sample_goal(x,y,angle,fixed_shape)
 
         xo,yo,angleo = self.ndim_sampler.sample()
         return self._sample_inner(xo,yo,angleo)
@@ -70,10 +70,12 @@ class BezierSampler(BaseSampler):
         new_dirs = [d * c for d, c in zip(directions, coefs)]
         self.last_angles =self._dirs_to_angles(new_dirs)
         self.last_sampled = self._create_midpoints(self._dirs_to_points(curve_points[0], new_dirs))
+        mean  = np.mean(self.last_sampled, axis=0)-np.array((x,y))
+        self.last_sampled -= mean
         return self.last_sampled
 
-    def _sample_goal(self,x,y,angle):
-        print("Sampling goal with fixed seed")
+    def _sample_goal(self,x,y,angle,fixed_shape=False):
+        # print("Sampling goal with fixed seed")
         xf,yf,anglef = self.ndim_sampler.sample()
         if x is not None:
             xf = x
@@ -81,10 +83,14 @@ class BezierSampler(BaseSampler):
             yf = y
         if angle is not None:
             anglef = angle
-        old_rng = self.rng
-        self.rng = np.random.default_rng(self.fixed_seed)
-        points = self._sample_inner(xf,yf,anglef)
-        self.rng = old_rng
+        if fixed_shape:
+            print("Fixed SHAPE")
+            old_rng = self.rng
+            self.rng = np.random.default_rng(self.fixed_seed)
+            points = self._sample_inner(xf,yf,anglef)
+            self.rng = old_rng
+        else:
+            points = self._sample_inner(xf,yf,anglef)
         return points
 
 

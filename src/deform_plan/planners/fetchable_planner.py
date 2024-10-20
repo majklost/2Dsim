@@ -1,7 +1,7 @@
 """Planner for planning one rigid object"""
 import time
 from copy import deepcopy
-from typing import Callable,Any
+from typing import Callable,Any, TypedDict
 
 #TODO: rewrite to better use - now just PoC
 
@@ -15,6 +15,26 @@ from ..messages.planner_messages import PlannerResponse
 #                  fail_condition: Callable[[Simulator,SimNode,Any,int],bool],
 #                  reached_condition: Callable[[Simulator,SimNode,Any,int],bool],
 #                  exporter: Callable[[Simulator,SimNode|None,Any,int],dict],
+class PlanningFncs(TypedDict):
+    """
+    A collection of planning-related functions.
+
+    Attributes:
+    - guider: A callable function with the signature:
+        guider(simulator: Simulator, start: SimNode, goal: Any, guider_data: dict, cur_cnt: int) -> bool
+    - fail_condition: A callable function with the signature:
+        fail_condition(simulator: Simulator, start: SimNode, goal: Any, guider_data: dict, cur_cnt: int) -> bool
+    - reached_condition: A callable function with the signature:
+        reached_condition(simulator: Simulator, start: SimNode, goal: Any, guider_data: dict, cur_cnt: int) -> bool
+    - exporter: A callable function with the signature:
+        exporter(simulator: Simulator, start: SimNode | None, goal: Any, cur_cnt: int) -> dict
+    """
+    guider: Callable[[Simulator,SimNode,Any,dict,int],bool]
+    fail_condition: Callable[[Simulator,SimNode,Any,dict,int],bool]
+    reached_condition: Callable[[Simulator, SimNode, Any,dict, int], bool]
+    exporter: Callable[[Simulator, SimNode | None, Any, int], dict]
+
+
 
 class FetchAblePlanner(BasePlanner):
     """
@@ -22,7 +42,7 @@ class FetchAblePlanner(BasePlanner):
     """
     def __init__(self,simulator:Simulator,
 
-                 planning_functions:dict,
+                 planning_functions:PlanningFncs,
                  max_step_cnt: int = 1000,
                  only_simuls: bool = False,
                  sampling_period =2000,
@@ -84,12 +104,14 @@ class FetchAblePlanner(BasePlanner):
         self.analytics["TIMES"]["GUIDER_COPY"] += t2-t1
         collided = False
         cur_cnt = 0
+        reached = False
         for i in range(self.max_iter_cnt):
             t1 = time.time()
             if self.reached_condition(self.simulator, start, goal, guider_data, cur_cnt):
                 if self.fail_condition(self.simulator, start, goal, guider_data, cur_cnt):
                     collided = True
                 self.analytics["REACHED_CNT"] += 1
+                reached = True
                 break
             t2 = time.time()
             if i % self.guider_period == 0:
@@ -106,6 +128,7 @@ class FetchAblePlanner(BasePlanner):
                 exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
                 response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start,
                                                                    start.all_iter_cnt + cur_cnt))
+
             t6 =time.time()
             self.analytics["TIMES"]["REACHED"] += t2-t1
             self.analytics["TIMES"]["GUIDER"] += t3 - t2
@@ -119,6 +142,8 @@ class FetchAblePlanner(BasePlanner):
             exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
             response.checkpoints.append(
                 self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt + cur_cnt))
+            response.reached_goal = reached
+            response.checkpoints[-1].reached = reached
         t8 =time.time()
         self.analytics["TIMES"]["EXPORT"] += t8-t7
         if cur_cnt == self.max_iter_cnt:
@@ -142,9 +167,14 @@ class FetchAblePlanner(BasePlanner):
 
             guider_data = deepcopy(start.guider_data)
             collided = False
+            reached = False
             cur_cnt = 0
             for i in range(self.max_iter_cnt):
                 if self.reached_condition(self.simulator, start, goal, guider_data,cur_cnt):
+                    if self.fail_condition(self.simulator, start, goal, guider_data, cur_cnt):
+                        collided = True
+                    self.analytics["REACHED_CNT"] += 1
+                    reached = True
                     break
                 if i% self.guider_period ==0:
                     self.guider(self.simulator, start, goal, guider_data,cur_cnt)
@@ -159,7 +189,8 @@ class FetchAblePlanner(BasePlanner):
             if not collided:
                 exported_data = self.exporter(self.simulator, start, goal, cur_cnt)
                 response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
-                response.reached_goal = True
+                response.reached_goal = reached
+                response.checkpoints[-1].reached = reached
             return response
     @staticmethod
     def _mark_prev_node(response:PlannerResponse):

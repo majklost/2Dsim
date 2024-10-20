@@ -11,6 +11,7 @@ class SimNode:
         self.guider_data = guider_data
         self.replayed_cnt = 0
         self.previous_node = None #used only in TRRT
+        self.reached = False
 
     def __str__(self):
         # return f"SimNode: {self.all_iter_cnt}, {self.exporter_data},\n PARENT: {self.replayer.parent}"
