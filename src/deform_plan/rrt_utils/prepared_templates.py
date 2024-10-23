@@ -3,7 +3,7 @@ from copy import deepcopy
 from typing import TypedDict
 
 from deform_plan.messages.sim_node import SimNode
-from deform_plan.rrt_utils.planning_factory import get_main_idxs
+from deform_plan.rrt_utils.planning_factory import get_main_idxs, Point
 from deform_plan.helpers.config_manager import ConfigManager
 from deform_plan.samplers.bezier_sampler import BezierSampler
 from deform_plan.samplers.goal_bias_sampler import GoalBiasSampler
@@ -26,18 +26,11 @@ def distance_inner(p1: np.array, p2:np.array):
     d1 = np.linalg.norm(p1 - p2, axis=1).sum()/len(p1)
     # d2 = np.linalg.norm(np.flip(p1,0)-p2,axis=1).sum()/len(p1)
     return d1
-# def distance_to_point(p1: 'SimNode', point: np.array):
-#     all_pts = p1.exporter_data["points"]
-#     # print(np.mean(all_pts, axis=0).shape)
-#
-#     dist = np.linalg.norm(np.mean(all_pts,axis=0) - point)
-#     print("dist: ",dist)
-#     return dist
 
 def make_cost_fnc(main_points_init,main_points_idxs):
     creased_standard = make_creased_cost(main_points_init,main_points_idxs)
-    def cost_fnc(node:SimNode):
-        all_pts = node.exporter_data["points"]
+    def cost_fnc(point: Point):
+        all_pts = point.all_points
         return creased_standard(all_pts)
     return cost_fnc
 
@@ -123,7 +116,7 @@ def prepare_guiding_paths(cfg,
                           child_wrapper,
                           show_sim_bool=True):
     """
-    Return both sampler and wrapper
+    Return both _sampler and wrapper
     :param cfg: config of simulation with expected parameters for SUBSAMPLER
     :param fixed_objects: fixed objects of simulation
     :param start: 2D point
@@ -131,7 +124,7 @@ def prepare_guiding_paths(cfg,
     :param child_sampler: subsampler that samples when random chosen
     :param child_wrapper: wrapper
     :param show_sim_bool:  show which paths were found
-    :return: sampler, wrapper
+    :return: _sampler, wrapper
     """
     sampler_data = setup_heuristic_config(cfg,start,goal)
     paths =[]
@@ -158,7 +151,7 @@ def setup_heuristic_config(cfg, start,goal):
     """
     sampler_data = deepcopy(cfg.SUBSAMPLER)
     sampler_data["start"] = start
-    sampler_data["goal_points"] = goal
+    sampler_data["_goal_points"] = goal
     return sampler_data
 
 
