@@ -50,8 +50,8 @@ def make_reached_condition(movable_idx: int):
         # dist_sum = 0
         for i in range(len(guided_obj.bodies)):
             guided_obj.bodies[i].apply_force_middle(forces[i])
-            # dist_sum = max(dist_sum,np.linalg.norm(guided_obj.bodies[i].position-goal_points.points[i]))
-        # dist_sum = np.linalg.norm(guided_obj.position-goal_points.points, axis=1).max()
+            # dist_sum = max(dist_sum,np.linalg.norm(guided_obj.bodies[i].position-_goal_points.points[i]))
+        # dist_sum = np.linalg.norm(guided_obj.position-_goal_points.points, axis=1).max()
 
         return False
         #

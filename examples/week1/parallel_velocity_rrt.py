@@ -95,7 +95,7 @@ for i in range(100):
         for r in response.checkpoints:
             storage.save_to_storage(r)
         if not storage.want_next_iter:
-            print("Reached goal_points in iter: ", i)
+            print("Reached _goal_points in iter: ", i)
             break
 tt = time.time()-t
 print("Done, time taken: ",tt)

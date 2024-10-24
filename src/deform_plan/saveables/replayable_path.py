@@ -18,7 +18,7 @@ class ReplayablePath:
         Create a replayable path
         :param simulator: simulator that simulated the path
         :param path: list of nodes
-        :param goal: goal_points node
+        :param goal: _goal_points node
         :param guider:
         :param additional_data:
         """

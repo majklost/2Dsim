@@ -51,6 +51,9 @@ class BezierSampler(BaseSampler):
         self.last_angles = []
         self.ndim_sampler = NDIMSampler(lower_bounds, upper_bounds)
         self.fixed_seed = fixed_seed # for sampling goal points
+        #analytics
+        self._specific_queries = 0
+        self._random_queries = 0
 
     def sample(self,x=None,y=None,angle=None,fixed_shape=False):
         if x is not None or y is not None or angle is not None:
@@ -62,6 +65,7 @@ class BezierSampler(BaseSampler):
 
 
     def _sample_inner(self,x,y,angle):
+        self._random_queries += 1
         curve_points = self._get_curve_points(x,y,angle)
         directions = self._calc_directions(curve_points)
 
@@ -75,6 +79,7 @@ class BezierSampler(BaseSampler):
         return self.last_sampled
 
     def _sample_goal(self,x,y,angle,fixed_shape=False):
+        self._specific_queries += 1
         # print("Sampling goal with fixed seed")
         xf,yf,anglef = self.ndim_sampler.sample()
         if x is not None:
@@ -135,3 +140,9 @@ class BezierSampler(BaseSampler):
         :return:
         """
         return [np.arctan2(d[1], d[0]) for d in directions]
+
+    def analytics(self):
+        return {
+            "specific_queries": self._specific_queries,
+            "random_queries": self._random_queries
+        }

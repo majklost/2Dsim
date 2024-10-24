@@ -150,7 +150,7 @@ class FetchAblePlanner(BasePlanner):
             self.analytics["FILLED_CNT"] += 1
         if collided:
             self.analytics["COLLIDED_CNT"] += 1
-
+        response.link_checkpoints()
         return response
 
 
@@ -191,12 +191,8 @@ class FetchAblePlanner(BasePlanner):
                 response.checkpoints.append(self.create_checkpoint(exported_data, guider_data, cur_cnt, goal, start, start.all_iter_cnt+cur_cnt))
                 response.reached_goal = reached
                 response.checkpoints[-1].reached = reached
+            response.link_checkpoints()
             return response
-    @staticmethod
-    def _mark_prev_node(response:PlannerResponse):
-        response.checkpoints[0].previous_node = response.checkpoints[0].replayer.parent
-        for i in range(1,len(response.checkpoints)):
-            response.checkpoints[i].previous_node = response.checkpoints[i-1]
 
     def check_path(self, start:SimNode, goal:Any) -> PlannerResponse:
         if self.track_analytics:
@@ -213,7 +209,7 @@ class FetchAblePlanner(BasePlanner):
         :param exported_data: data that exported gave
         :param guider_data: data that guider gave
         :param cur_iter_cnt: iteration from last checkpoint that contains simulation
-        :param goal: goal_points of the segment
+        :param goal: _goal_points of the segment
         :param parent:  parent of the node
         :param all_iter_cnt: iteration from the start
         :return: SimNode

@@ -22,6 +22,9 @@ class PMMultiBodyObject(BaseMultiBodyObject):
 
     # def __deepcopy__(self, memodict={}):
     #     raise NotImplementedError("Deepcopy not implemented")
+    def set_collision_type(self, collision_type):
+        for b in self.bodies:
+            b.set_collision_type(collision_type)
 
     def __getitem__(self, item) -> PMSingleBodyObject:
         return self.bodies[item]

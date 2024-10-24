@@ -1,20 +1,18 @@
 #let grow tree in obstacles, watch what nodes will be poicked
 import numpy as np
 
-from deform_plan.helpers.config_manager import ConfigManager,TRRT,SUBSAMPLER,GOAL_BIAS
+from deform_plan.helpers.config_manager import ConfigManager
 from deform_plan.helpers.seed_manager import init_manager
 from deform_plan.assets.PM import *
-from deform_plan.saveables.replayable_path import ReplayablePath
 from deform_plan.simulators.PM.pm_simulator import Simulator
 from deform_plan.utils.PM_space_visu import show_sim, make_draw_line, make_draw_circle
 from deform_plan.samplers.bezier_sampler import BezierSampler
-from deform_plan.samplers.goal_bias_sampler import GoalBiasSampler
 from deform_plan.storage_wrappers.cable_wrapper import StorageWrapper
 from deform_plan.planners.fetchable_planner import FetchAblePlanner
 from deform_plan.rrt_utils.planning_factory import Point
 import deform_plan.rrt_utils.planning_factory as fct
 from deform_plan.storages.GNAT import GNAT
-from w3_utils import distance,distance_inner
+from deform_plan.rrt_utils.w3_utils import distance,distance_inner
 
 
 if __name__ == "__main__":

@@ -72,7 +72,7 @@ for i in range(STEPS):
     points = sampler.sample()
     # t2 = time.time()
     if storage.try_goal:
-        print("Trying goal_points")
+        print("Trying _goal_points")
         points = goal_points
         storage.try_goal = False
     q_rand = vutils.Point(points,None)

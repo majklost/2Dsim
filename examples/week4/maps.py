@@ -10,6 +10,7 @@ from deform_plan.utils.PM_debug_viewer import DebugViewer
 from deform_plan.samplers.bezier_sampler import BezierSampler
 
 
+
 #suggested config for these maps
 CABLE_LENGTH = 300
 WIDTH = 1900
@@ -19,9 +20,12 @@ UPDATED_CFG = {
         'width': WIDTH,
         'height': HEIGHT,
         'FPS' : 60,
+        'gravity': 0,
+        'damping': .15,
+        'collision_slope': 0.01,
     },
     'CABLE_LENGTH': CABLE_LENGTH,
-    'SEGMENT_NUM': 50,
+
 }
 
 #plan - 320 px start, 320 px end; middle is obstacle course
@@ -40,7 +44,8 @@ class EmptyWorld:
     def __init__(self,cfg:ConfigManager):
         self.cfg = cfg
         self.cfg.update(UPDATED_CFG)
-        init_manager(cfg.seed_env,cfg.seed_plan)
+        seed_env = cfg.get().get("seed_env",None)
+        init_manager(seed_env,cfg.seed_plan)
         self.fixed = []
         self.movable = []
         self._add_basic()
@@ -60,21 +65,22 @@ class EmptyWorld:
 
     def _on_exit(self, arbiter, space, data):
         self._in_cnt -= 1
-        print("Exited Goal, now in goal: ", self._in_cnt)
         return False
     def finished(self):
-        return self._in_cnt == cfg.SEGMENT_NUM
+        return self._in_cnt == self.cfg.SEGMENT_NUM
 
 
     def _add_basic(self):
         boundings = Boundings(self.cfg.CFG["width"], self.cfg.CFG["height"])
         end_platform = Rectangle(np.array([WIDTH-EMPTY//2-10,HEIGHT//2]), EMPTY, HEIGHT, KINEMATIC,True)
         end_platform.color = (237, 186, 31)
+        end_platform.set_collision_type(5)
 
         self.fixed.append(boundings)
         self.fixed.append(end_platform)
     def _add_cable(self):
         self.cable = Cable(START, self.cfg.CABLE_LENGTH, self.cfg.SEGMENT_NUM, thickness=5, angle=np.pi)
+        self.cable.set_collision_type(1)
         self._start_points = self.cable.position.copy()
         self.movable.append(self.cable)
     @staticmethod
@@ -89,7 +95,7 @@ class EmptyWorld:
         return self._goal_points
     def get_sim(self):
         sim = Simulator(self.cfg.CFG, self.movable, self.fixed, threaded=self.cfg.THREADED_SIM,unstable_sim=self.cfg.UNSTABLE_SIM)
-
+        sim.add_custom_handler(self._begin_col,self._on_exit,1,5)
         return sim
 
 
@@ -214,6 +220,15 @@ class NonConvexWorld(EmptyWorld):
         self.fixed.append(rect1)
         self.fixed.append(rect2)
 
+
+str2map ={
+    "empty": EmptyWorld,
+    "non_convex": NonConvexWorld,
+    "standard_stones": StandardStones,
+    "thick_stones": ThickStones,
+    "piped": PipedWorld
+}
+
 def get_map(name:str,cfg:ConfigManager):
     """
     Get map by name
@@ -221,28 +236,30 @@ def get_map(name:str,cfg:ConfigManager):
     :param cfg: config manager
     :return: map
     """
-    if name == "empty":
-        return EmptyWorld(cfg)
-    if name == "non_convex":
-        return NonConvexWorld(cfg)
-    if name == "standard_stones":
-        return StandardStones(cfg)
-    if name == "thick_stones":
-        return ThickStones(cfg)
-    if name == "piped":
-        return PipedWorld(cfg)
-    raise ValueError(f"Unknown map {name}")
+    return str2map[name](cfg)
+    # if name == "empty":
+    #     return EmptyWorld(cfg)
+    # if name == "non_convex":
+    #     return NonConvexWorld(cfg)
+    # if name == "standard_stones":
+    #     return StandardStones(cfg)
+    # if name == "thick_stones":
+    #     return ThickStones(cfg)
+    # if name == "piped":
+    #     return PipedWorld(cfg)
+    # raise ValueError(f"Unknown map {name}")
 
 if __name__ == "__main__":
     import pygame
     cfg = ConfigManager()
     cfg.update({"seed_plan": 10})
-    # ew = StandardStones(cfg)
+    # ew  = EmptyWorld(cfg)
+    ew = StandardStones(cfg)
     # ew = NonConvexWorld(cfg)
-    ew = ThickStones(cfg)
+    # ew = ThickStones(cfg)
     # ew = PipedWorld(cfg)
     sim = ew.get_sim()
-    mover  = PMCableController(ew.cable,moving_force=1200)
+    mover  = PMCableController(ew.cable,moving_force=1000)
     dbg = DebugViewer(sim,realtime=True)
     dbg.controller = mover
     draw_gpoints = lambda surf: [pygame.draw.circle(surf, (0, 0, 255), gpoint, 5) for gpoint in ew._goal_points]

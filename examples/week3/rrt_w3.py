@@ -2,25 +2,18 @@
 import time
 import numpy as np
 
-from deform_plan.helpers.config_manager import ConfigManager, TRRT, SUBSAMPLER, GOAL_BIAS, CREASED
+from deform_plan.helpers.config_manager import ConfigManager, SUBSAMPLER, GOAL_BIAS, CREASED
 from deform_plan.helpers.seed_manager import init_manager
 from deform_plan.assets.PM import *
 from deform_plan.saveables.replayable_path import ReplayablePath
 from deform_plan.simulators.PM.pm_simulator import Simulator
-from deform_plan.utils.PM_space_visu import show_sim, make_draw_line, make_draw_circle
-from deform_plan.samplers.bezier_sampler import BezierSampler
-from deform_plan.samplers.goal_bias_sampler import GoalBiasSampler
-from deform_plan.storage_wrappers.cable_wrapper import StorageWrapper
+from deform_plan.utils.PM_space_visu import show_sim, make_draw_circle
 from deform_plan.planners.fetchable_planner import FetchAblePlanner
 from deform_plan.rrt_utils.planning_factory import Point, get_main_idxs
-import deform_plan.rrt_utils.planning_factory as fct
 from deform_plan.storages.GNAT import GNAT
-from examples.week3.w3_utils import make_creased_cost, make_cost_fnc, get_planning_fncs_standard, \
+from deform_plan.rrt_utils.prepared_templates import make_creased_cost, make_cost_fnc, get_planning_fncs_standard, \
     get_planning_fncs_cost
-from w3_utils import distance,distance_inner,prepare_standard_wrapper,prepare_standard_sampler,prepare_goal_bias_sampler,prepare_trrt_wrapper,prepare_guiding_paths
-from deform_plan.utils.PM_debug_viewer import DebugViewer
-
-
+from deform_plan.rrt_utils.prepared_templates import distance, prepare_standard_wrapper,prepare_standard_sampler,prepare_goal_bias_sampler,prepare_trrt_wrapper,prepare_guiding_paths
 
 if __name__ == "__main__":
     def draw(sim, surf, additional_data: dict):
@@ -37,7 +30,7 @@ if __name__ == "__main__":
                 pygame.draw.line(surf, additional_data["colors"][x], node[i], node[i + 1], 2)
             for i in range(len(node)):
                 pygame.draw.circle(surf, (255, 0, 0), node[i], 4)
-        for gpoint in additional_data["goal_points"]:
+        for gpoint in additional_data["_goal_points"]:
             pygame.draw.circle(surf, (0, 0, 255), gpoint, 5)
         if "heuristic_paths" in additional_data:
             for path in additional_data["heuristic_paths"]:
@@ -52,18 +45,20 @@ if __name__ == "__main__":
         for i, g in enumerate(goal_points):
             if i in cfg.CONTROL_IDXS:
                 make_draw_circle(g, 5, (255, 0, 0))(surf)
-                # print(f"Control {i} point in goal_points: ", g)
+                # print(f"Control {i} point in _goal_points: ", g)
             else:
                 make_draw_circle(g, 5, (0, 0, 255))(surf)
+
+
     cfg = ConfigManager().clone()
     cfg.update({
         "seed_env": 10,
-        "seed_plan": 45,
+        "seed_plan": 36,
         "cable_thickness": 5,
-        "ITERATIONS": 5000
+        "ITERATIONS": 15000
     })
     cfg.update(GOAL_BIAS)
-    # cfg.update(CREASED)
+    cfg.update(CREASED)
     # cfg.update({
     #     "MAX_CREASED_COST": 0.6
     # })
@@ -75,8 +70,8 @@ if __name__ == "__main__":
     cfg.update(SUBSAMPLER)
 
     init_manager(cfg.seed_env, cfg.seed_plan)
-    POS = (100,70)
-    GOAL_POS = (400,840)
+    POS = (300,70)
+    GOAL_POS = (200,840)
     cable = Cable(POS, cfg.CABLE_LENGTH, cfg.SEGMENT_NUM, thickness=cfg.cable_thickness)
     obstacle_g = RandomObstacleGroup(np.array([50, 350]), 200, 200, 4, 2, radius=100)
     bounding = Boundings(cfg.CFG['width'], cfg.CFG['height'])
@@ -125,6 +120,7 @@ if __name__ == "__main__":
     if cfg.USE_TRRT:
         cost_fnc = make_cost_fnc(init_main_pts,main_idxs)
         storage_wrapper = prepare_trrt_wrapper(cfg,storage_utils,cost_fnc,goal)
+        print("Using TRRT")
     else:
         storage_wrapper = prepare_standard_wrapper(cfg,storage_utils,goal)
     storage_wrapper.save_to_storage(start)
@@ -146,8 +142,19 @@ if __name__ == "__main__":
     # def debug_viewer_clb(surf):
     #     for pn in g.all_points:
     #         make_draw_circle(pn, 5, (0, 255, 0))(surf)
-    #     make_draw_circle(sampler.last_chpoint(),10,(255,0,0))(surf)
+    #     make_draw_circle(_sampler.last_chpoint(),10,(255,0,0))(surf)
     # viewer.draw_clb = debug_viewer_clb
+    def draw_rejected(surf):
+        if res:
+            for p in r.exporter_data["points"]:
+                make_draw_circle(p, 5, (0, 255, 0))(surf)
+        else:
+            for p in r.exporter_data["points"]:
+                make_draw_circle(p, 5, (255, 0, 0))(surf)
+        for p in r.replayer.parent.exporter_data["points"]:
+            make_draw_circle(p, 5, (0, 0, 255))(surf)
+
+
 
     for i in range(cfg.ITERATIONS):
         if not storage_wrapper.want_next_iter:
@@ -157,9 +164,14 @@ if __name__ == "__main__":
         q_near = storage_wrapper.get_nearest(g)
         response = planner.check_path(q_near.node, g)
         for r in response.checkpoints:
-            storage_wrapper.save_to_storage(r)
+            res = storage_wrapper.save_to_storage(r)
+            # show_sim(sim,clb=draw_rejected)
+            if not res:
+                break
+                # time.sleep(0.1)
         if cfg.VERBOSE and i % 100 == 0:
             print("iter: ", i)
+            # print("saved: ", storage_wrapper.queries-storage_wrapper.rejections)
     if cfg.TRACK_ANALYTICS:
         t2 = time.time()
         print("Time: ", t2 - t1)
@@ -170,7 +182,7 @@ if __name__ == "__main__":
     path = storage_wrapper.get_path()
     additional_data ={
         "one_time_draw": draw,
-        "goal_points": goal_points,
+        "_goal_points": goal_points,
         "steps": cfg.MAX_STEPS,
         "config": cfg,
         "nodes": all_pts,

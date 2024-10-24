@@ -4,20 +4,22 @@ import numpy as np
 
 from .pm_multibody import PMMultiBodyObject
 from .rectangle import Rectangle
+from ....utils.math_utils import rot_matrix
 
 class SpringParams:
     def __init__(self, stiffness, damping):
         self.stiffness = stiffness
         self.damping = damping
 
-STANDARD_LINEAR_PARAMS = SpringParams(2000, 10)
-STANDARD_ROTARY_PARAMS = SpringParams(500, 10)
+STANDARD_LINEAR_PARAMS = SpringParams(2500, 10)
+STANDARD_ROTARY_PARAMS = SpringParams(200, 10)
 
 class Cable(PMMultiBodyObject):
     def __init__(self, pos:np.array, length:float, num_links:int, thickness:int=2,
                  linear_params:'SpringParams'=STANDARD_LINEAR_PARAMS,
                  rotary_params:'SpringParams'=STANDARD_ROTARY_PARAMS,
-                 track_colisions=True
+                 track_colisions=True,
+                 angle=0
                  ):
         super().__init__(track_colisions=track_colisions)
         self.length = length
@@ -31,7 +33,9 @@ class Cable(PMMultiBodyObject):
         self.friction = 0.5
         self.color = (0, 0, 255, 0)
         self.segment_length = self.length / self.num_links
+        self.angle = angle
         self._create_cable(pos)
+
 
 
 
@@ -43,9 +47,15 @@ class Cable(PMMultiBodyObject):
 
 
     def _create_objects(self,pos):
+        rm =rot_matrix(self.angle)
+        # positions = np.array([pos + np.array([i * self.segment_length, 0]) for i in range(self.num_links)])
+
+
+
         for i in range(self.num_links):
-            r = Rectangle(pos + np.array([i * self.segment_length, 0]), self.segment_length, self.thickness,
+            r = Rectangle(pos + rm @ np.array([i * self.segment_length, 0]), self.segment_length, self.thickness,
                           pymunk.Body.DYNAMIC)
+            r.orientation = self.angle
             self.append(r)
 
     def _create_linear_springs(self):

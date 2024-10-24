@@ -14,10 +14,10 @@ CONFIG = {
         'height': 1000,
         'FPS': 60,
         'gravity' :0,
-        'damping': .1,
+        'damping': .15,
         'collision_slope': 0.01,
     },
-    'REACHED_THRESHOLD': 30, # How close to goal_points should cable be
+    'REACHED_THRESHOLD': 30, # How close to _goal_points should cable be
     'CONTROL_IDXS': [i for i in range(60)], # Indexes of controlled points
     'SAMPLING_PERIOD': 20, #period of steps in pymunk between samples
     'MAX_STEPS': 1000, # Max steps of pymunk simulation
@@ -34,14 +34,14 @@ CONFIG = {
 }
 
 CREASED = {
-    'MAX_CREASED_COST': 0.4,  # If set to 1, accept all cables, if 0, only straight cables
+    'MAX_CREASED_COST': 0.5,  # If set to 1, accept all cables, if 0, only straight cables
     'USE_MAX_CREASED': True,  # If False, stretch index is not used
 }
 
 SUBSAMPLER = {'SUBSAMPLER':
     { # Configuration for sampling guiding paths
         'ITERATIONS': 4000, #iterations of subsampler
-        'THRESHOLD': 30, # How close to goal_points should cable be
+        'THRESHOLD': 30, # How close to _goal_points should cable be
         'VELOCITY': 800, # Velocity of
         'POST_PROC_ITER': 200, # Number of iterations for postprocessing
         'W': 100,
@@ -49,22 +49,22 @@ SUBSAMPLER = {'SUBSAMPLER':
     },
     # 'REACHED_2D_POINT': 100, # How far to consider point on path done
     'PATH_PROB': .3, #probability that will create sample on the path
-    'STD_DEV': 50,
+    'STD_DEV': 30,
     'SUBSAMPLER_RUNS': 1, # Number of runs of subsampler
     "USE_SUBSAMPLER": True
 }
 
 GOAL_BIAS = {
     'USE_GOAL_BIAS': True,
-    'GOAL_BIAS': 0.01,  # Probability of selecting goal_points instead of random point
+    'GOAL_BIAS': 0.01,  # Probability of selecting _goal_points instead of random point
 }
 
 TRRT = {
     'USE_TRRT': True,
     'TRRT': {
-        'T': 1e-6,  # Temperature
-        'n_fail_max': 10,  # Number of fails before temperature is updated
-        'alpha': 2,  # Temperature update factor
+        'T': 1e-2,  # Temperature
+        'n_fail_max': 1,  # Number of fails before temperature is updated
+        'alpha':5,  # Temperature update factor
         'K': .8 #average cost of sample
     },
 }

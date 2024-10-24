@@ -8,8 +8,8 @@ from deform_plan.helpers.seed_manager import manager
 class HeuristicSampler(BaseSampler):
     def __init__(self, child_sampler:BaseSampler,child_wrapper:BaseWrapper,paths ,path_prob=0.2,std_dev=10):
         """
-        Heuristic sampler that samples from the paths
-        :param child_sampler: child sampler - that samples
+        Heuristic _sampler that samples from the paths
+        :param child_sampler: child _sampler - that samples
         :param paths: list of paths
         :param reached_fnc: function that checks if the current waypoint on path is reached
         :param path_prob: probability of sampling on one of the paths
@@ -27,6 +27,9 @@ class HeuristicSampler(BaseSampler):
 
         self._last_path_idx = None
         self._path_done = False
+        #analytics
+        self._queries = 0
+        self._non_heur_queries = 0
 
 
     def create_wrapper(self):
@@ -35,6 +38,7 @@ class HeuristicSampler(BaseSampler):
         return self._wrapper
 
     def sample(self):
+        self._queries += 1
         if self.rng.random() < self._path_prob and len(self._paths) >0 and not self._path_done:
             path_idx = self.rng.integers(0,len(self._paths))
             path = self._paths[path_idx]
@@ -49,11 +53,12 @@ class HeuristicSampler(BaseSampler):
 
             return self._child_sampler.sample(x,y,angle)
         self._last_path_idx = None
+        self._non_heur_queries += 1
         return self._child_sampler.sample()
 
     def update_cur_path(self,node):
         if node.reached and self._last_path_idx is not None:
-            print("REACHED: ", self._cur_path_point[self._last_path_idx])
+            print("REACHED: ", self._cur_path_point[self._last_path_idx], "/", len(self._paths[self._last_path_idx]))
             self._cur_path_point[self._last_path_idx]  +=1
             if self._cur_path_point[self._last_path_idx] >= len(self._paths[self._last_path_idx]):
                 print("Full path explored")
@@ -69,7 +74,13 @@ class HeuristicSampler(BaseSampler):
         return self._paths
 
     def analytics(self):
-        return None
+        return {
+            "path_lengths": [len(p) for p in self._paths],
+            "checkpoints_reached": self._cur_path_point,
+            "queries": self._queries,
+            "non_heur_queries": self._non_heur_queries,
+            "child_analytics": self._child_sampler.analytics()
+        }
 
 
 

@@ -1,0 +1,1 @@
+echo "NAME $1" "SEED $2"

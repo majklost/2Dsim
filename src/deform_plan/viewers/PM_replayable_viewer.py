@@ -14,6 +14,8 @@ class PMReplayableViewer(BaseViewer,PMReplayableCore):
         self.display = pygame.display.set_mode((self.w, self.h))
 
     def show(self,realtime=True,constraints=False):
+        # for k,v in self.additional_data.items():
+        #     print(f"{k} : {v}")
         self.sim.import_from(self.path[0].sim_export)
         if self.one_time_draw is not None:
             self.one_time_draw(self.sim, self.one_time_canvas, self.additional_data)

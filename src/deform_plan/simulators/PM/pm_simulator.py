@@ -77,11 +77,11 @@ class Simulator(BaseSimulator):
             self._space.collision_slop = config["collision_slope"]
 
     def _add_objects_to_space(self):
-        for i,obj in enumerate(self.movable_objects):
-            obj.set_ID((i,),moveable=True)
-            obj.add_to_space(self._space)
         for i,obj in enumerate(self.fixed_objects):
             obj.set_ID((i,),moveable=False)
+            obj.add_to_space(self._space)
+        for i,obj in enumerate(self.movable_objects):
+            obj.set_ID((i,),moveable=True)
             obj.add_to_space(self._space)
     def _begin_collision(self, arbiter:pymunk.Arbiter, space, data):
         b1 = arbiter.shapes[0]
@@ -154,7 +154,10 @@ class Simulator(BaseSimulator):
         handler.begin = begin_fnc
         handler.separate = sep_fnc
 
-
+    def add_custom_handler(self, begin_fnc, end_fnc, collision_type1, collision_type2):
+        handler = self._space.add_collision_handler(collision_type1, collision_type2)
+        handler.begin = begin_fnc
+        handler.separate = end_fnc
 
 
     def step(self):

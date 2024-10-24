@@ -29,6 +29,7 @@ class TRRT(StorageWrapper):
         self.rng = np.random.default_rng(manager().get_seed(self.__class__.__name__))
 
     def save_to_storage(self, node:SimNode):
+
         self.queries += 1
         point = self._make_point(node)
         parent = node.previous_node
@@ -37,19 +38,24 @@ class TRRT(StorageWrapper):
             return True
         parent = self._make_point(parent)
         dist = self.dist(parent,point)
-        cost_point = self.cost_fnc(parent)
-        cost_parent = self.cost_fnc(point)
+        cost_point = self.cost_fnc(point)
+        cost_parent = self.cost_fnc(parent)
         if self._transition_test(cost_parent,cost_point,dist):
+            # print("Saved")
             super().save_to_storage(node)
             return True
+        # print("Rejected")
         self.rejections += 1
         return False
 
     def _transition_test(self,c_start,c_end,dist):
         cost_diff = c_end - c_start
         if cost_diff <= 0:
+            # print("Prob ", 1)
             return True
         prob = np.exp(-cost_diff/(self.K*self.T*dist))
+        # print("Cost_diff",cost_diff)
+        # print("Prob",prob)
         if self.rng.random() < prob:
             self.T/=self.alpha
             self.n_fail = 0
@@ -61,4 +67,12 @@ class TRRT(StorageWrapper):
             self.n_fail += 1
         self.overall_rejections +=1
         return False
+
+    def analytics(self):
+        return {
+            "queries": self.queries,
+            "rejections": self.rejections,
+            "overall_rejections": self.overall_rejections,
+            "inner_analytics": super().analytics()
+        }
 

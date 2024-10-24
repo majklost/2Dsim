@@ -1,4 +1,4 @@
-# a 2nd order _sampler that accepts another _sampler and wraps goal_points biasing around it
+# a 2nd order _sampler that accepts another _sampler and wraps _goal_points biasing around it
 
 import numpy as np
 
@@ -10,9 +10,9 @@ class GoalBiasSampler(BaseSampler):
         """
 
         :param sampler: _sampler wrapped by this
-        :param goal_points: goal_points to bias towards
-        :param goal_bias:  probability of sampling the goal_points
-        :param verbose: print goal_points biasing
+        :param goal_points: _goal_points to bias towards
+        :param goal_bias:  probability of sampling the _goal_points
+        :param verbose: print _goal_points biasing
         """
         super().__init__()
         self.sampler = sampler

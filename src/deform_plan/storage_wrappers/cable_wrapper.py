@@ -1,4 +1,5 @@
 #standard _storage wrapper for cable
+from abc import abstractmethod
 from typing import TypedDict,Callable, TypeVar, Any
 from deform_plan.messages.sim_node import SimNode
 from deform_plan.storage_wrappers.base_wrapper import BaseWrapper
@@ -20,8 +21,8 @@ class StorageWrapper(BaseWrapper):
         """
         Standard _storage wrapper for cable
         :param utils: dict with keys "dist" - distance function, "cls_maker" - class that wraps the points, "storage" - _storage object
-        :param goal: goal_points to reach in format cls_maker
-        :param goal_threshold: how close to the goal_points should the solution be
+        :param goal: _goal_points to reach in format cls_maker
+        :param goal_threshold: how close to the _goal_points should the solution be
         :param controlled_idxs: indices of the points that are controlled
         """
         self.dist = utils["dist"]
@@ -35,9 +36,12 @@ class StorageWrapper(BaseWrapper):
         self._end_node = None
         self.want_next_iter = True
         self.verbose = verbose
+        self._save_queries_num = 0
+        self._nn_queries_num = 0
 
 
     def save_to_storage(self,node:SimNode):
+        self._save_queries_num += 1
         point = self._make_point(node)
         dist = self.dist(point,self.goal)
         if dist < self.goal_threshold:
@@ -60,6 +64,7 @@ class StorageWrapper(BaseWrapper):
         :param point: type same as cls_maker
         :return: point from _storage
         """
+        self._nn_queries_num += 1
         return self.storage.nearest_neighbour(point)
 
     def get_path(self):
@@ -76,3 +81,10 @@ class StorageWrapper(BaseWrapper):
 
     def get_all_nodes(self):
         return self.storage.get_all_nodes()
+
+    def analytics(self) -> dict:
+        return {
+            "save_queries": self._save_queries_num,
+            "nn_queries": self._nn_queries_num,
+            "best_dist": self.best_dist
+        }

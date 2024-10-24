@@ -126,7 +126,7 @@ class RectHeuristic:
         ub = np.array([w, h, 2 * np.pi])
         return NDIMSampler(lb,ub)
     def _prepare_goal(self):
-        goal_raw = self._path_sampler_data["goal_points"]
+        goal_raw = self._path_sampler_data["_goal_points"]
         return _Point(None,np.array(goal_raw),0)
 
     def _prepare_storage(self,goal):

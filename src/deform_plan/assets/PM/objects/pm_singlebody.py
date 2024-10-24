@@ -96,6 +96,9 @@ class PMSingleBodyObject(BaseSingleBodyObject):
         for shape in self.shapes:
             shape.density = self._density
             space.add(shape)
+    def set_collision_type(self, collision_type):
+        for s in self.shapes:
+            s.collision_type = collision_type
 
     def set_ID(self, ID:  tuple[int,...], moveable: bool = True):
         """

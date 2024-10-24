@@ -95,7 +95,7 @@ for i in range(STEP_CNT):
         storage.save_to_storage(r)
     if not storage.want_next_iter:
         TOTAL_STEP = i
-        print("Reached goal_points in iter: ",TOTAL_STEP)
+        print("Reached _goal_points in iter: ",TOTAL_STEP)
         break
     t4 = time.time()
     SHITOKOLO += t4-t3 + t2 -t1
@@ -139,5 +139,5 @@ print_analytics(planner.analytics,TOTAL_STEP)
 
 
 # st_t = time.time()
-# response = planner.check_path(start,goal_points)
+# response = planner.check_path(start,_goal_points)
 # print("time taken: ",time.time()-st_t)

@@ -1,18 +1,16 @@
 import numpy as np
 from copy import deepcopy
-from typing import TypedDict
 
-from deform_plan.messages.sim_node import SimNode
-from deform_plan.rrt_utils.planning_factory import get_main_idxs, Point
-from deform_plan.helpers.config_manager import ConfigManager
-from deform_plan.samplers.bezier_sampler import BezierSampler
-from deform_plan.samplers.goal_bias_sampler import GoalBiasSampler
-from deform_plan.simulators.PM.pm_simulator import Simulator
-from deform_plan.storage_wrappers.cable_wrapper import StorageWrapper
-from deform_plan.storage_wrappers.TRRT import TRRT
-from deform_plan.samplers.heuristic_sampler import HeuristicSampler,HeuristicWrapper
-from deform_plan.helpers.rect_heuristic import RectHeuristic
-import deform_plan.rrt_utils.planning_factory as fct
+
+
+from ..helpers.config_manager import ConfigManager
+from ..samplers.bezier_sampler import BezierSampler
+from ..samplers.goal_bias_sampler import GoalBiasSampler
+from ..storage_wrappers.cable_wrapper import StorageWrapper
+from ..storage_wrappers.TRRT import TRRT
+from ..samplers.heuristic_sampler import HeuristicSampler,HeuristicWrapper
+from ..helpers.rect_heuristic import RectHeuristic
+from ..rrt_utils import planning_factory as fct
 
 
 
@@ -29,7 +27,7 @@ def distance_inner(p1: np.array, p2:np.array):
 
 def make_cost_fnc(main_points_init,main_points_idxs):
     creased_standard = make_creased_cost(main_points_init,main_points_idxs)
-    def cost_fnc(point: Point):
+    def cost_fnc(point: fct.Point):
         all_pts = point.all_points
         return creased_standard(all_pts)
     return cost_fnc

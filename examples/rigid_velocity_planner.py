@@ -23,7 +23,7 @@ planner = FetchAblePlanner(sim, vutils.make_guider(0), vutils.make_exporter(0), 
 dbg = DebugViewer(sim,realtime=True)
 dbg.draw_circle([600,50],5,(255,0,0))
 
-# goal_points = vutils.Goal(np.array([600,50,np.pi/2,500,250]))
+# _goal_points = vutils.Goal(np.array([600,50,np.pi/2,500,250]))
 goal = vutils.Goal()
 goal.pos = np.array([600,50])
 goal.rot = np.pi/2

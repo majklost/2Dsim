@@ -11,10 +11,10 @@
 #
 #
 # def make_guider(movable_idx, velocity):
-#     def guider_fnc(sim: Simulator, start: SimNode, goal_points, guider_data, cur_iter_cnt):
+#     def guider_fnc(sim: Simulator, start: SimNode, _goal_points, guider_data, cur_iter_cnt):
 #         guided_obj = sim.movable_objects[movable_idx]
-#         direction = goal_points.pos - guided_obj.position
-#         rot_diff = goal_points.rot - guided_obj.orientation
+#         direction = _goal_points.pos - guided_obj.position
+#         rot_diff = _goal_points.rot - guided_obj.orientation
 #         if rot_diff > np.pi:
 #             rot_diff -= 2 * np.pi
 #         time_for_dir = np.linalg.norm(direction) / velocity
@@ -26,19 +26,19 @@
 #     return guider_fnc
 #
 # def make_fail_condition(movable_idx):
-#     def fail_condition(sim: Simulator, start: SimNode, goal_points, guider_data,cur_iter_cnt):
+#     def fail_condition(sim: Simulator, start: SimNode, _goal_points, guider_data,cur_iter_cnt):
 #         guided_obj = sim.movable_objects[movable_idx]
 #         return guided_obj.collision_data is not None
 #     return fail_condition
 #
 # def make_reached_condition(movable_idx,threshold):
-#     def reached_condition(sim: Simulator, start: SimNode, goal_points, guider_data,cur_iter_cnt):
+#     def reached_condition(sim: Simulator, start: SimNode, _goal_points, guider_data,cur_iter_cnt):
 #         guided_obj = sim.movable_objects[movable_idx]
-#         return distance_inner(guided_obj.position,goal_points.pos,guided_obj.orientation,goal_points.rot) < threshold
+#         return distance_inner(guided_obj.position,_goal_points.pos,guided_obj.orientation,_goal_points.rot) < threshold
 #     return reached_condition
 #
 # def make_exporter(movable_idx):
-#     def exporter(sim: Simulator, start: SimNode, goal_points, cur_iter_cnt):
+#     def exporter(sim: Simulator, start: SimNode, _goal_points, cur_iter_cnt):
 #         guided_obj = sim.movable_objects[movable_idx]
 #         return {"pos": guided_obj.position, "rot": guided_obj.orientation}
 #     return exporter
@@ -61,15 +61,15 @@
 #     return np.linalg.norm(p1p - p2p)+np.abs(p1r - p2r)
 #
 # class Storage:
-#     def __init__(self,goal_points,threshold):
+#     def __init__(self,_goal_points,threshold):
 #         self.gnat = GNAT(distance_fnc)
-#         self.goal_points = goal_points
+#         self._goal_points = _goal_points
 #         self.threshold = threshold
 #         self.path = None
 #         self.want_next_iter = True
 #     def save_to_storage(self,node:SimNode):
 #         point = _Point(node,node.exporter_data["pos"],node.exporter_data["rot"])
-#         dist = distance_fnc(point,self.goal_points)
+#         dist = distance_fnc(point,self._goal_points)
 #         if dist < self.threshold:
 #             self.want_next_iter = False
 #             self.path = self.get_path(node)
@@ -114,10 +114,10 @@
 #         h = config["CFG"].height
 #         lb = np.array([0, 0, 0])
 #         ub = np.array([w, h, 2 * np.pi])
-#         self.sampler = NDIMSampler(lb, ub, seed)
-#         goal_raw = path_sampler_data["goal_points"]
-#         self.goal_points = _Point(None, np.array(goal_raw), 0)
-#         self.storage = Storage(self.goal_points, self.subsampler_config["THRESHOLD"])
+#         self._sampler = NDIMSampler(lb, ub, seed)
+#         goal_raw = path_sampler_data["_goal_points"]
+#         self._goal_points = _Point(None, np.array(goal_raw), 0)
+#         self.storage = Storage(self._goal_points, self.subsampler_config["THRESHOLD"])
 #         planning_fncs = {
 #             "guider": make_guider(0, self.subsampler_config["VELOCITY"]),
 #             "fail_condition": make_fail_condition(0),
@@ -138,7 +138,7 @@
 #         for i in range(self.subsampler_config["ITERATIONS"]):
 #             if not self.storage.want_next_iter:
 #                 break
-#             x, y, rot = self.sampler.sample()
+#             x, y, rot = self._sampler.sample()
 #             g = _Point(None, np.array([x, y]), rot)
 #             q_near = self.storage.get_nearest(g)
 #             response = self.planner.check_path(q_near.node, g)
@@ -149,9 +149,9 @@
 #         path = get_pos_path(self.post_process(self.storage.path))
 #         if self.show_sim_bool:
 #             all_pts = self.storage.gnat.get_all_nodes()
-#             show_sim(self.sim, clb=draw_tree(all_pts,self.goal_points.pos))
+#             show_sim(self.sim, clb=draw_tree(all_pts,self._goal_points.pos))
 #             # show_sim(self._sim, clb=draw_paths(get_pos_path(self._storage.path)))
-#             show_sim(self.sim,clb=draw_paths(path,self.goal_points.pos))
+#             show_sim(self.sim,clb=draw_paths(path,self._goal_points.pos))
 #
 #         return path
 #     def post_process(self,path,seed=None):
@@ -174,9 +174,9 @@
 #         return path
 #
 #
-# def draw_tree(all_pts,goal_points):
+# def draw_tree(all_pts,_goal_points):
 #     def clb(surf):
-#         make_draw_circle(goal_points, 20, (255, 0, 0))(surf)
+#         make_draw_circle(_goal_points, 20, (255, 0, 0))(surf)
 #         for i, n in enumerate(all_pts):
 #             # print(n)
 #             make_draw_circle(n.pos, 5, color=(0, 255, 0))(surf)
@@ -185,9 +185,9 @@
 #                 make_draw_line(n.pos, parent.exporter_data["pos"], 2)(surf)
 #     return clb
 #
-# def draw_paths(path,goal_points):
+# def draw_paths(path,_goal_points):
 #     def draw(surf):
-#         make_draw_circle(goal_points, 10, (255, 0, 0))(surf)
+#         make_draw_circle(_goal_points, 10, (255, 0, 0))(surf)
 #         for i,p in enumerate(path):
 #             if i == 0:
 #                 make_draw_circle(p,10)(surf)
@@ -215,6 +215,6 @@
 #     subsampler_config = CONFIG["SUBSAMPLER"]
 #     fixed = [Boundings(CONFIG["CFG"].width, CONFIG["CFG"].height), Rectangle([400, 400], 200, 200, STATIC), RandomObstacleGroup(np.array([50, 300]), 200, 200, 4, 2, radius=100, seed=20)]
 #     start = (100,100)
-#     goal_points = (700,700)
-#     path_sampler = PathSamplerRect(fixed,CONFIG,{"start":start,"goal_points":goal_points},show_sim_bool=True)
+#     _goal_points = (700,700)
+#     path_sampler = PathSamplerRect(fixed,CONFIG,{"start":start,"_goal_points":_goal_points},show_sim_bool=True)
 #     path = path_sampler.run()

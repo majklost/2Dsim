@@ -7,6 +7,7 @@ from deform_plan.saveables.replayable_path import ReplayablePath
 
 class PMReplayableCore:
     def __init__(self, replay_file):
+        pygame.init()
         replay_data = dill.load(open(replay_file, 'rb'))  # type: ReplayablePath
         self.guider = replay_data.guider
         self.guider_period = replay_data.guider_period

@@ -32,7 +32,7 @@ def draw(sim,surf,additional_data:dict):
             pygame.draw.line(surf,additional_data["colors"][x],node[i],node[i+1],2)
         for i in range(len(node)):
             pygame.draw.circle(surf,(255,0,0),node[i],4)
-    for gpoint in additional_data["goal_points"]:
+    for gpoint in additional_data["_goal_points"]:
         pygame.draw.circle(surf,(0,0,255),gpoint,5)
     if "heuristic_paths" in additional_data:
         for path in additional_data["heuristic_paths"]:
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     if CONFIG["SUBSAMPLER_RUNS"] > 0:
         rng = np.random.RandomState(CONFIG["SUBSAMPLER"]["SEED"])
         for i in range(CONFIG["SUBSAMPLER_RUNS"]):
-            path_sampler = PathSamplerRect(deepcopy([bounding,obstacle_g]),CONFIG,{"start":POS,"goal_points":GOAL_POS},show_sim_bool=True,seed=rng.randint(0,1000))
+            path_sampler = PathSamplerRect(deepcopy([bounding,obstacle_g]),CONFIG,{"start":POS,"_goal_points":GOAL_POS},show_sim_bool=True,seed=rng.randint(0,1000))
             path = path_sampler.run()
             if not path:
                 continue
@@ -116,7 +116,7 @@ if __name__ == "__main__":
         for i,g in enumerate(goal_points):
             if i in control_idxs:
                 make_draw_circle(g, 5, (255, 0, 0))(surf)
-                # print(f"Control {i} point in goal_points: ", g)
+                # print(f"Control {i} point in _goal_points: ", g)
             else:
                 make_draw_circle(g, 5, (0, 0, 255))(surf)
     show_sim(sim, clb=debug_draw)
@@ -133,7 +133,7 @@ if __name__ == "__main__":
 
 
         if CONFIG['USE_GOAL_BIAS'] and np.random.random() < storage.goal_bias:
-            print("Throwing goal_points")
+            print("Throwing _goal_points")
             q_rand = GOAL
         else:
             if CONFIG['SUBSAMPLER_RUNS'] > 0:
@@ -161,7 +161,7 @@ if __name__ == "__main__":
             else:
                 q_rand = Point.from_points(sampler.sample(),control_idxs)
         if storage.try_goal:
-            print("Trying goal_points")
+            print("Trying _goal_points")
             q_rand = GOAL
             storage.try_goal = False
         q_near = storage.get_nearest(q_rand)
@@ -212,7 +212,7 @@ if __name__ == "__main__":
                         {"nodes":
         all_main_points,
                          "one_time_draw": draw,
-                         "goal_points" : goal_points,
+                         "_goal_points" : goal_points,
                          "analytics": planner.analytics,
                          "steps": real_iters,
                          "config": CONFIG,
