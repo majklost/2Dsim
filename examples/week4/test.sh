@@ -1,6 +1,7 @@
 #!/bin/bash
 # Number of seeds to generate
 NUMTESTS=$1
+CONFIGNAME=$2
 
 echo "Generating $NUMTESTS random seeds..."
 seeds=()
@@ -17,8 +18,9 @@ done
 # shellcheck disable=SC2145
 echo "seeds are ${seeds[*]}"
 echo "tnums are ${tnums[*]}"
+echo "configname is $CONFIGNAME"
 
 echo "Running tests..."
 # Run the tests
-parallel --lb ./run_one.sh ::: "${tnums[@]}" :::+ "${seeds[@]}"
+parallel -j 8 --lb ./run_one.sh ::: "${tnums[@]}" :::+ "${seeds[@]}" ::: "$CONFIGNAME"
 #parallel ./dummy_run.sh ::: "${tnums[@]}" :::+ "${seeds[@]}"
