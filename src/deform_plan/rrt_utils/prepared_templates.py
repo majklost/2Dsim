@@ -59,7 +59,7 @@ def make_creased_cost(main_points_init,main_points_idxs):
 def get_planning_fncs_standard(cfg:ConfigManager,movable_idx:int):
     control_fnc = {
         "guider": fct.make_guider_standard(movable_idx,cfg.CONTROL_IDXS,cfg.MAX_FORCE_PER_SEGMENT),
-        "fail_condition": fct.make_fail_condition_standard(movable_idx),
+        "fail_condition": fct.make_fail_condition_standard(movable_idx,cfg.CONTROL_IDXS),
         "reached_condition": fct.make_reached_condition_standard(movable_idx,distance_inner,cfg.CONTROL_IDXS,cfg.REACHED_THRESHOLD,cfg.MAIN_PTS_NUM,cfg.SEGMENT_NUM),
         "exporter": fct.make_exporter_standard(movable_idx),
     }
@@ -79,7 +79,7 @@ def prepare_standard_sampler(cfg:ConfigManager):
 
 def prepare_goal_bias_sampler(cfg:ConfigManager,goal_points, subsampler):
     # subsampler = prepare_standard_sampler(cfg)
-    sampler = GoalBiasSampler(subsampler, goal_points, cfg.GOAL_BIAS, verbose=cfg.VERBOSE)
+    sampler = GoalBiasSampler(subsampler, goal_points, cfg.GOAL_BIAS, verbose=True)
     return sampler
 
 

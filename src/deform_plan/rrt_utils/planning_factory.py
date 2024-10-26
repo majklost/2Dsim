@@ -36,8 +36,8 @@ def make_reached_condition_standard(movable_idx,dist_fnc, control_idxs,threshold
         forces = guider_data.get("forces", None)
         if forces is None:
             return False
-        for i in range(control_idxs_len):
-            guided_obj.bodies[i].apply_force_middle(forces[i])
+        for i in range(len(control_idxs)):
+            guided_obj.bodies[control_idxs[i]].apply_force_middle(forces[i])
         d1 = dist_fnc(guided_obj.position[indxs],
                             goal.main_points)
         return d1 < threshold
@@ -58,7 +58,7 @@ def make_guider_standard(movable_idx,control_idxs,max_force):
         return True
     return guider_fnc
 
-def make_fail_condition_standard(movable_idx):
+def make_fail_condition_standard(movable_idx, control_idxs):
     def fail_condition(sim:Simulator,start:SimNode,goal,guider_data,cur_iter_cnt):
         guided_obj = sim.movable_objects[movable_idx]
         if "give_up" in guider_data:
