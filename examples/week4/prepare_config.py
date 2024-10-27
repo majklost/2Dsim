@@ -39,7 +39,13 @@ def prepare_goal_bias(fpath):
     })
     cm.save_to_file(fpath)
 
+def prepare_subsampler(fpath):
+    cm = ConfigManager(conf)
+    cm.update(SUBSAMPLER)
+    cm.save_to_file(fpath)
+
 if __name__ == "__main__":
     prepare_vanilla("vanilla_config.json")
     prepare_goal_bias("goal_bias_config.json")
+    prepare_subsampler("subsampler_config.json")
 

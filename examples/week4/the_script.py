@@ -26,7 +26,7 @@ REACHED = False
 if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-VISUAL = False #Showing the visualisation
+VISUAL = True #Showing the visualisation
 
 STORAGE_WRAPPER_TIME = 0
 SAMPLER_TIME = 0
