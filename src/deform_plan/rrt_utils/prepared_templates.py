@@ -131,8 +131,9 @@ def prepare_guiding_paths(cfg,
         path = rh.run()
         if path:
             paths.append(path)
-    for p in paths[0]:
-        print("POINT: ", p)
+    # for p in paths[0]:
+    #     print("POINT: ", p)
+    paths = []
     print("Found ", len(paths), " paths")
     heuristic_sampler = HeuristicSampler(child_sampler,child_wrapper,paths,cfg.PATH_PROB,cfg.STD_DEV)
     heuristic_wrapper = heuristic_sampler.create_wrapper()
