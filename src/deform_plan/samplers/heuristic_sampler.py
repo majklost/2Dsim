@@ -76,7 +76,7 @@ class HeuristicSampler(BaseSampler):
     def analytics(self):
         return {
             "path_lengths": [len(p) for p in self._paths],
-            "checkpoints_reached": self._cur_path_point,
+            "checkpoints_reached": self._cur_path_point.tolist(),
             "queries": self._queries,
             "non_heur_queries": self._non_heur_queries,
             "child_analytics": self._child_sampler.analytics()
@@ -96,12 +96,18 @@ class HeuristicWrapper(BaseWrapper):
         self._sampler_clb = sampler_clb
         self._wrapper = wrapper
         self.want_next_iter = True
+        self.storage = self._wrapper.storage
 
     def save_to_storage(self,node):
         self._sampler_clb(node)
         res = self._wrapper.save_to_storage(node)
         self.want_next_iter = self._wrapper.want_next_iter
         return res
+
+    def analytics(self):
+        return {
+            "wrapper": self._wrapper.analytics()
+        }
 
 
     def get_nearest(self,point):

@@ -40,7 +40,7 @@ CREASED = {
 
 SUBSAMPLER = {'SUBSAMPLER':
     { # Configuration for sampling guiding paths
-        'ITERATIONS': 4000, #iterations of subsampler
+        'ITERATIONS': 1000, #iterations of subsampler
         'THRESHOLD': 30, # How close to _goal_points should cable be
         'VELOCITY': 800, # Velocity of
         'POST_PROC_ITER': 200, # Number of iterations for postprocessing

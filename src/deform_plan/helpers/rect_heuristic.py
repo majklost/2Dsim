@@ -117,7 +117,11 @@ class RectHeuristic:
         start_raw = self._path_sampler_data["start"]
         movables = Rectangle(start_raw, self._path_sampler_data['W'], self._path_sampler_data['H'], KINEMATIC)
         movables.orientation = 0
-        return Simulator(self._sim_config, [movables], deepcopy(fixed), threaded=False, unstable_sim=False)
+
+        movables.set_collision_type(1)
+        sim = Simulator(self._sim_config, [movables], deepcopy(fixed), threaded=False, unstable_sim=False)
+        sim.add_custom_handler(lambda s,t,r: False, lambda s,t,r: False, 1, 5)
+        return sim
 
     def _prepare_sampler(self):
         w = self._sim_config["width"]
