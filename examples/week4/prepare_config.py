@@ -1,4 +1,4 @@
-from deform_plan.helpers.config_manager import ConfigManager,SUBSAMPLER,GOAL_BIAS
+from deform_plan.helpers.config_manager import ConfigManager, SUBSAMPLER, GOAL_BIAS
 
 
 seg_num = 50
@@ -23,12 +23,12 @@ conf = {
 }
 
 
-#prepare config to file
+# prepare config to file
 def prepare_vanilla(fpath):
-
 
     cm = ConfigManager(conf)
     cm.save_to_file(fpath)
+
 
 def prepare_goal_bias(fpath):
     cm = ConfigManager(conf)
@@ -39,7 +39,14 @@ def prepare_goal_bias(fpath):
     })
     cm.save_to_file(fpath)
 
+
+def prepare_subsampler(fpath):
+    cm = ConfigManager(conf)
+    cm.update(SUBSAMPLER)
+    cm.save_to_file(fpath)
+
+
 if __name__ == "__main__":
     prepare_vanilla("vanilla_config.json")
     prepare_goal_bias("goal_bias_config.json")
-
+    prepare_subsampler("subsampler_config.json")

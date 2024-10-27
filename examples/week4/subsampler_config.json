@@ -63,8 +63,19 @@
     "THREADED_SIM": false,
     "UNSTABLE_SIM": true,
     "USE_MAX_CREASED": false,
-    "USE_SUBSAMPLER": false,
+    "USE_SUBSAMPLER": true,
     "USE_GOAL_BIAS": false,
     "USE_TRRT": false,
-    "seed_env": 10
+    "seed_env": 10,
+    "SUBSAMPLER": {
+        "ITERATIONS": 1000,
+        "THRESHOLD": 30,
+        "VELOCITY": 800,
+        "POST_PROC_ITER": 200,
+        "W": 100,
+        "H": 30
+    },
+    "PATH_PROB": 0.3,
+    "STD_DEV": 30,
+    "SUBSAMPLER_RUNS": 1
 }
