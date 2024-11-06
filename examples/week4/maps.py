@@ -253,8 +253,8 @@ if __name__ == "__main__":
     import pygame
     cfg = ConfigManager()
     cfg.update({"seed_plan": 10})
-    # ew  = EmptyWorld(cfg)
-    ew = StandardStones(cfg)
+    ew  = EmptyWorld(cfg)
+    # ew = StandardStones(cfg)
     # ew = NonConvexWorld(cfg)
     # ew = ThickStones(cfg)
     # ew = PipedWorld(cfg)

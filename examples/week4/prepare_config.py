@@ -1,4 +1,4 @@
-from deform_plan.helpers.config_manager import ConfigManager,SUBSAMPLER,GOAL_BIAS
+from deform_plan.helpers.config_manager import ConfigManager,SUBSAMPLER,GOAL_BIAS, TRRT
 
 
 seg_num = 50
@@ -44,8 +44,14 @@ def prepare_subsampler(fpath):
     cm.update(SUBSAMPLER)
     cm.save_to_file(fpath)
 
+def prepare_trrt(fpath):
+    cm = ConfigManager(conf)
+    cm.update(TRRT)
+    cm.save_to_file(fpath)
+
 if __name__ == "__main__":
     prepare_vanilla("vanilla_config.json")
     prepare_goal_bias("goal_bias_config.json")
     prepare_subsampler("subsampler_config.json")
+    prepare_trrt("trrt_config.json")
 

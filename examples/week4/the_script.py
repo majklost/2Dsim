@@ -8,7 +8,7 @@ from deform_plan.planners.fetchable_planner import FetchAblePlanner
 from deform_plan.rrt_utils.planning_factory import get_main_idxs, Point
 from deform_plan.rrt_utils.prepared_templates import prepare_standard_sampler, make_creased_cost, \
     get_planning_fncs_cost, get_planning_fncs_standard, make_cost_fnc, prepare_trrt_wrapper, distance, \
-    prepare_standard_wrapper, prepare_guiding_paths, prepare_goal_bias_sampler
+    prepare_standard_wrapper, prepare_guiding_paths, prepare_goal_bias_sampler, get_planning_fncs_trrt
 from deform_plan.saveables.replayable_path import ReplayablePath
 from deform_plan.storages.GNAT import GNAT
 from deform_plan.utils.PM_space_visu import show_sim, make_draw_circle
@@ -61,31 +61,37 @@ if cfg.USE_MAX_CREASED:
     print("Using max creased")
     main_idxs = get_main_idxs(len(start_points), cfg.MAIN_PTS_NUM)
     main_pts_init = start_points[main_idxs]
-    cost_fnc = make_creased_cost(main_pts_init, main_idxs)
-    control_fnc = get_planning_fncs_cost(
-        cfg, movable_idx, cost_fnc, cfg.MAX_CREASED_COST)
-else:
-    control_fnc = get_planning_fncs_standard(cfg, movable_idx)
-
-if cfg.USE_TRRT:
-    print("Using TRRT")
-    main_idxs = get_main_idxs(len(start_points), cfg.MAIN_PTS_NUM)
+    cost_fnc = make_creased_cost(main_pts_init,main_idxs)
+    control_fnc = get_planning_fncs_cost(cfg,movable_idx,cost_fnc,cfg.MAX_CREASED_COST)
+elif cfg.USE_TRRT:
+    print("Using TRRT - GUIDER VERSION")
+    main_idxs = get_main_idxs(len(start_points),cfg.MAIN_PTS_NUM)
     main_pts_init = start_points[main_idxs]
-    cost_fnc = make_cost_fnc(main_pts_init, main_idxs)
-    storage_wrapper = prepare_trrt_wrapper(cfg, storage_utils, cost_fnc, Point(
-        None, arbitrary_points=goal_points, config=cfg))
+    cost_fnc = make_creased_cost(main_pts_init,main_idxs)
+    control_fnc = get_planning_fncs_trrt(cfg,movable_idx,cost_fnc)
 else:
-    storage_wrapper = prepare_standard_wrapper(
-        cfg, storage_utils, Point(None, arbitrary_points=goal_points, config=cfg))
+    control_fnc = get_planning_fncs_standard(cfg,movable_idx)
+
+
+
+
+
+# if cfg.USE_TRRT:
+#     print("Using TRRT")
+#     main_idxs = get_main_idxs(len(start_points), cfg.MAIN_PTS_NUM)
+#     main_pts_init = start_points[main_idxs]
+#     cost_fnc = make_cost_fnc(main_pts_init,main_idxs)
+#     storage_wrapper = prepare_trrt_wrapper(cfg, storage_utils,cost_fnc, Point(None,arbitrary_points=goal_points,config=cfg))
+# else:
+storage_wrapper = prepare_standard_wrapper(cfg,storage_utils,Point(None,arbitrary_points=goal_points,config=cfg))
 
 if cfg.USE_GOAL_BIAS:
     print("Using goal bias")
-    sampler = prepare_goal_bias_sampler(cfg, goal_points, sampler)
+    sampler = prepare_goal_bias_sampler(cfg,goal_points,sampler)
 
 if cfg.USE_SUBSAMPLER:
     print("Using subsampler")
-    sampler, storage_wrapper = prepare_guiding_paths(
-        cfg, sim.fixed_objects, START_POS, GOAL_POS, sampler, storage_wrapper, VISUAL)
+    sampler, storage_wrapper = prepare_guiding_paths(cfg,sim.fixed_objects,START_POS,GOAL_POS,sampler,storage_wrapper,VISUAL)
 
 if VISUAL:
     def debug_draw(surf):
@@ -97,14 +103,15 @@ if VISUAL:
                 make_draw_circle(g, 5, (0, 0, 255))(surf)
     show_sim(sim, clb=debug_draw)
 
-planner = FetchAblePlanner(sim, control_fnc,
+planner = FetchAblePlanner(sim,control_fnc,
                            max_step_cnt=cfg.MAX_STEPS,
                            guider_period=cfg.GUIDER_PERIOD,
-                           sampling_period=cfg.SAMPLING_PERIOD,
-                           only_simuls=cfg.ONLY_SIMULS,
-                           track_analytics=True)
+                            sampling_period=cfg.SAMPLING_PERIOD,
+                            only_simuls=cfg.ONLY_SIMULS,
+                            track_analytics=True)
 start = planner.form_start_node()
 storage_wrapper.save_to_storage(start)
+
 
 
 print("Starting iterations")
@@ -136,14 +143,15 @@ for i in range(cfg.ITERATIONS):
     t_e = time.time()
     STORAGE_WRAPPER_TIME += t_e - t_s
 
-    if i % 100 == 0:
+
+    if i%100 ==0:
         print("iter: ", i)
 
 t2 = time.time()
 
 path = storage_wrapper.get_path()
 all_pts = [pt.main_points for pt in storage_wrapper.storage.get_all_nodes()]
-additional_data = {
+additional_data ={
     "goal_points": goal_points,
     "start_points": start_points,
     "nodes": all_pts,
@@ -168,7 +176,7 @@ ANALYTICS: Analytics = {
 
 rp = ReplayablePath(sim,
                     path,
-                    Point(None, arbitrary_points=goal_points, config=cfg),
+                    Point(None,arbitrary_points=goal_points,config=cfg),
                     guider=control_fnc["guider"],
                     reached_condition=control_fnc["reached_condition"],
                     guider_period=cfg.GUIDER_PERIOD,
@@ -176,5 +184,11 @@ rp = ReplayablePath(sim,
 cfg.check_unused()
 print("Saving to ", f"{OUTPUT_DIR}/{NAME}.rpath")
 rp.save(f"{OUTPUT_DIR}/{NAME}.rpath")
-save_analytics(f"{OUTPUT_DIR}/{NAME}.analytics", ANALYTICS)
+save_analytics(f"{OUTPUT_DIR}/{NAME}.analytics",ANALYTICS)
 print("Done")
+
+
+
+
+
+
