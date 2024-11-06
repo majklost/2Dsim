@@ -69,6 +69,20 @@ def get_planning_fncs_cost(cfg:ConfigManager, movable_idx:int,cost_fnc,max_cost)
     control_fnc["guider"] = fct.make_guider_cutoff(movable_idx,cfg.CONTROL_IDXS,cfg.MAX_FORCE_PER_SEGMENT,max_cost,cost_fnc)
     return control_fnc
 
+def get_planning_fncs_trrt(cfg:ConfigManager,movable_idx:int,cost_fnc):
+    control_fnc = get_planning_fncs_standard(cfg,movable_idx)
+    control_fnc["guider"] = fct.make_guider_TRRT(
+        movable_idx= movable_idx,
+        control_idxs= cfg.CONTROL_IDXS,
+        max_force= cfg.MAX_FORCE_PER_SEGMENT,
+        cost_fnc= cost_fnc,
+        K = cfg.TRRT["K"],
+        T = cfg.TRRT["T"],
+        n_fail_max = cfg.TRRT["n_fail_max"],
+        alpha = cfg.TRRT["alpha"],
+        dist_fnc= distance_inner)
+    return control_fnc
+
 
 
 def prepare_standard_sampler(cfg:ConfigManager):
@@ -133,7 +147,6 @@ def prepare_guiding_paths(cfg,
             paths.append(path)
     # for p in paths[0]:
     #     print("POINT: ", p)
-    paths = []
     print("Found ", len(paths), " paths")
     heuristic_sampler = HeuristicSampler(child_sampler,child_wrapper,paths,cfg.PATH_PROB,cfg.STD_DEV)
     heuristic_wrapper = heuristic_sampler.create_wrapper()

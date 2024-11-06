@@ -1,7 +1,7 @@
 import numpy as np
 import copy
 
-
+from ..helpers.seed_manager import manager
 from ..messages.sim_node import SimNode
 from ..simulators.PM.pm_simulator import Simulator
 
@@ -74,7 +74,7 @@ def make_exporter_standard(movable_idx):
 
 def make_guider_cutoff(movable_idx,control_idxs,max_force,max_cost,cost_fnc):
     """enabling cutoff simulation where some cost is reached"""
-    control_idxs = copy.copy(control_idxs)
+    control_idxs = copy.copy(control_idxs) # copy so it is faster to reach
     fake_guider = make_guider_standard(movable_idx,control_idxs,max_force)
     def guider_fnc(sim:Simulator,start:SimNode,goal,guider_data,cur_iter_cnt):
         guided_obj = sim.movable_objects[movable_idx]
@@ -99,5 +99,60 @@ def make_guider_cutoff(movable_idx,control_idxs,max_force,max_cost,cost_fnc):
         # for i,idx in enumerate(control_idxs):
         #     guided_obj.bodies[idx].apply_force_middle(forces[i])
     return guider_fnc
+
+
+
+def make_guider_TRRT(movable_idx,control_idxs,max_force,cost_fnc,K,T,alpha,n_fail_max,dist_fnc):
+    rng = np.random.default_rng(manager().get_seed("TRRT_GUIDER"))
+    n_fail = 0
+    overall_rejections = 0
+    def _transition_test(c_start, c_end, dist):
+        nonlocal T, n_fail, overall_rejections
+        cost_diff = c_end - c_start
+        if cost_diff <= 0:
+            # print("Prob ", 1)
+            return True
+        prob = np.exp(-cost_diff / (K * T * dist))
+        # print("Cost_diff",cost_diff)
+        # print("Prob",prob)
+        if rng.random() < prob:
+            T /= alpha
+            n_fail = 0
+            return True
+        if n_fail >= n_fail_max:
+            T *= alpha
+            n_fail = 0
+        else:
+            n_fail += 1
+        overall_rejections += 1
+        return False
+
+    fake_guider = make_guider_standard(movable_idx,control_idxs,max_force)
+
+    def guider(sim:Simulator,start:SimNode,goal,guider_data,cur_iter_cnt):
+        guided_obj = sim.movable_objects[movable_idx]
+        if "prev_node" not in guider_data:
+            guider_data["prev_node"] = start.exporter_data["points"]
+            guider_data["prev_cost"] = cost_fnc(guider_data["prev_node"])
+            guider_data["wait_times"] = 0
+
+        if guider_data["wait_times"] < 4:
+            guider_data["wait_times"] += 1
+            return fake_guider(sim,start,goal,guider_data,cur_iter_cnt)
+        guider_data["wait_times"] = 0
+
+        prev_node = guider_data["prev_node"]
+        prev_cost = guider_data["prev_cost"]
+        all_pts = guided_obj.position
+        cost = cost_fnc(all_pts)
+        if _transition_test(prev_cost,cost,dist_fnc(prev_node,all_pts)):
+            guider_data["prev_node"] = all_pts
+            guider_data["prev_cost"] = cost
+        else:
+            guider_data["give_up"] = True
+
+        return fake_guider(sim,start,goal,guider_data,cur_iter_cnt)
+
+    return guider
 
 

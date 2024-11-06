@@ -8,7 +8,7 @@ from deform_plan.planners.fetchable_planner import FetchAblePlanner
 from deform_plan.rrt_utils.planning_factory import get_main_idxs, Point
 from deform_plan.rrt_utils.prepared_templates import prepare_standard_sampler, make_creased_cost, \
     get_planning_fncs_cost, get_planning_fncs_standard, make_cost_fnc, prepare_trrt_wrapper, distance, \
-    prepare_standard_wrapper, prepare_guiding_paths, prepare_goal_bias_sampler
+    prepare_standard_wrapper, prepare_guiding_paths, prepare_goal_bias_sampler, get_planning_fncs_trrt
 from deform_plan.saveables.replayable_path import ReplayablePath
 from deform_plan.storages.GNAT import GNAT
 from deform_plan.utils.PM_space_visu import show_sim, make_draw_circle
@@ -63,17 +63,27 @@ if cfg.USE_MAX_CREASED:
     main_pts_init = start_points[main_idxs]
     cost_fnc = make_creased_cost(main_pts_init,main_idxs)
     control_fnc = get_planning_fncs_cost(cfg,movable_idx,cost_fnc,cfg.MAX_CREASED_COST)
+elif cfg.USE_TRRT:
+    print("Using TRRT - GUIDER VERSION")
+    main_idxs = get_main_idxs(len(start_points),cfg.MAIN_PTS_NUM)
+    main_pts_init = start_points[main_idxs]
+    cost_fnc = make_creased_cost(main_pts_init,main_idxs)
+    control_fnc = get_planning_fncs_trrt(cfg,movable_idx,cost_fnc)
 else:
     control_fnc = get_planning_fncs_standard(cfg,movable_idx)
 
-if cfg.USE_TRRT:
-    print("Using TRRT")
-    main_idxs = get_main_idxs(len(start_points), cfg.MAIN_PTS_NUM)
-    main_pts_init = start_points[main_idxs]
-    cost_fnc = make_cost_fnc(main_pts_init,main_idxs)
-    storage_wrapper = prepare_trrt_wrapper(cfg, storage_utils,cost_fnc, Point(None,arbitrary_points=goal_points,config=cfg))
-else:
-    storage_wrapper = prepare_standard_wrapper(cfg,storage_utils,Point(None,arbitrary_points=goal_points,config=cfg))
+
+
+
+
+# if cfg.USE_TRRT:
+#     print("Using TRRT")
+#     main_idxs = get_main_idxs(len(start_points), cfg.MAIN_PTS_NUM)
+#     main_pts_init = start_points[main_idxs]
+#     cost_fnc = make_cost_fnc(main_pts_init,main_idxs)
+#     storage_wrapper = prepare_trrt_wrapper(cfg, storage_utils,cost_fnc, Point(None,arbitrary_points=goal_points,config=cfg))
+# else:
+storage_wrapper = prepare_standard_wrapper(cfg,storage_utils,Point(None,arbitrary_points=goal_points,config=cfg))
 
 if cfg.USE_GOAL_BIAS:
     print("Using goal bias")

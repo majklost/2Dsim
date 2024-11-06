@@ -2,7 +2,7 @@
     "GUIDER_PERIOD": 10,
     "SEGMENT_NUM": 50,
     "MAX_FORCE_PER_SEGMENT": 0.1,
-    "ITERATIONS": 15000,
+    "ITERATIONS": 20000,
     "REACHED_THRESHOLD": 30,
     "CONTROL_IDXS": [
         0,
@@ -63,19 +63,14 @@
     "THREADED_SIM": false,
     "UNSTABLE_SIM": true,
     "USE_MAX_CREASED": false,
-    "USE_SUBSAMPLER": true,
+    "USE_SUBSAMPLER": false,
     "USE_GOAL_BIAS": false,
-    "USE_TRRT": false,
+    "USE_TRRT": true,
     "seed_env": 10,
-    "SUBSAMPLER": {
-        "ITERATIONS": 10000,
-        "THRESHOLD": 30,
-        "VELOCITY": 800,
-        "POST_PROC_ITER": 200,
-        "W": 100,
-        "H": 30
-    },
-    "PATH_PROB": 0.3,
-    "STD_DEV": 30,
-    "SUBSAMPLER_RUNS": 1
+    "TRRT": {
+        "T": 0.1,
+        "n_fail_max": 1,
+        "alpha": 5,
+        "K": 0.8
+    }
 }
