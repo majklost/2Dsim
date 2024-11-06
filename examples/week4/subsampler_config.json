@@ -2,7 +2,7 @@
     "GUIDER_PERIOD": 10,
     "SEGMENT_NUM": 50,
     "MAX_FORCE_PER_SEGMENT": 0.1,
-    "ITERATIONS": 15000,
+    "ITERATIONS": 25000,
     "REACHED_THRESHOLD": 30,
     "CONTROL_IDXS": [
         0,
@@ -68,7 +68,7 @@
     "USE_TRRT": false,
     "seed_env": 10,
     "SUBSAMPLER": {
-        "ITERATIONS": 1000,
+        "ITERATIONS": 10000,
         "THRESHOLD": 30,
         "VELOCITY": 800,
         "POST_PROC_ITER": 200,
