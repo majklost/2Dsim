@@ -1,12 +1,10 @@
-<<<<<<< Updated upstream
 from deform_plan.helpers.config_manager import ConfigManager,SUBSAMPLER,GOAL_BIAS, TRRT
-=======
 import pathlib
 
 from deform_plan.helpers.config_manager import ConfigManager, SUBSAMPLER, GOAL_BIAS, TRRT
 
 conf_dir = pathlib.Path(__file__).parent / "configs"
->>>>>>> Stashed changes
+
 
 
 seg_num = 50
@@ -51,7 +49,6 @@ def prepare_subsampler(fpath):
     cm = ConfigManager(conf)
     cm.update(SUBSAMPLER)
     cm.save_to_file(fpath)
-
 
 def prepare_trrt(fpath):
     cm = ConfigManager(conf)

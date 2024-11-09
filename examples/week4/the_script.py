@@ -26,7 +26,7 @@ REACHED = False
 if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-VISUAL = True #Showing the visualisation
+VISUAL = False  # Showing the visualisation
 
 STORAGE_WRAPPER_TIME = 0
 SAMPLER_TIME = 0
@@ -37,13 +37,13 @@ ITERNUM = cfg.ITERATIONS
 
 cfg.update({"seed_plan": int(args.seed)})
 
-init_manager(cfg.seed_env,cfg.seed_plan)
-cur_map = get_map(args.map,cfg)
+init_manager(cfg.seed_env, cfg.seed_plan)
+cur_map = get_map(args.map, cfg)
 movable_idx = cur_map.get_movable_idx()
-START_POS = cur_map.get_start() # (x,y)
-GOAL_POS = cur_map.get_goal() # (x,y)
-start_points = cur_map.get_start_points() # list of points
-goal_points = cur_map.get_goal_points() # list of points
+START_POS = cur_map.get_start()  # (x,y)
+GOAL_POS = cur_map.get_goal()  # (x,y)
+start_points = cur_map.get_start_points()  # list of points
+goal_points = cur_map.get_goal_points()  # list of points
 sim = cur_map.get_sim()
 sampler = prepare_standard_sampler(cfg)
 storage = GNAT(distancefnc=distance)
@@ -56,10 +56,10 @@ storage_utils = {
 
 control_fnc = None
 t1 = time.time()
-#Now cases
+# Now cases
 if cfg.USE_MAX_CREASED:
     print("Using max creased")
-    main_idxs = get_main_idxs(len(start_points),cfg.MAIN_PTS_NUM)
+    main_idxs = get_main_idxs(len(start_points), cfg.MAIN_PTS_NUM)
     main_pts_init = start_points[main_idxs]
     cost_fnc = make_creased_cost(main_pts_init,main_idxs)
     control_fnc = get_planning_fncs_cost(cfg,movable_idx,cost_fnc,cfg.MAX_CREASED_COST)

@@ -1,0 +1,2 @@
+export PYTHONPATH=$PYTHONPATH:../../src
+echo "PYTHONPATH=$PYTHONPATH"

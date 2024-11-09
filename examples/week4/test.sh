@@ -2,6 +2,7 @@
 # Number of seeds to generate
 NUMTESTS=$1
 CONFIGNAME=$2
+MAPNAME=$3
 
 echo "Generating $NUMTESTS random seeds..."
 seeds=()
@@ -22,5 +23,5 @@ echo "configname is $CONFIGNAME"
 
 echo "Running tests..."
 # Run the tests
-parallel -j 8 --lb ./run_one.sh ::: "${tnums[@]}" :::+ "${seeds[@]}" ::: "$CONFIGNAME"
+parallel -j 8 --lb ./run_one.sh ::: "${tnums[@]}" :::+ "${seeds[@]}" ::: "$CONFIGNAME" ::: "$MAPNAME"
 #parallel ./dummy_run.sh ::: "${tnums[@]}" :::+ "${seeds[@]}"
