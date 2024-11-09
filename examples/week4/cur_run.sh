@@ -13,4 +13,11 @@ TNUM=10
 # ./test.sh $TNUM goal_bias_config.json non_convex
 # ./test.sh $TNUM goal_bias_config.json thick_stones
 # ./test.sh $TNUM goal_bias_config.json piped
-./test.sh $TNUM ./configs/vanilla_one_controlable_config.json standard_stones
+
+if [[ " $* " == *" --clear "* ]]; then
+    echo "Clearing output directory"
+    rm -rf output
+fi
+
+
+./test.sh $TNUM ./configs/subsampler_two_controlable_config.json standard_stones

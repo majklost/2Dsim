@@ -12,6 +12,7 @@ from deform_plan.rrt_utils.prepared_templates import prepare_standard_sampler, m
 from deform_plan.saveables.replayable_path import ReplayablePath
 from deform_plan.storages.GNAT import GNAT
 from deform_plan.utils.PM_space_visu import show_sim, make_draw_circle
+from deform_plan.utils.PM_debug_viewer import DebugViewer
 from deform_plan.utils.analytics import Analytics, save_analytics
 from parser_helper import parser
 from maps import get_map
@@ -101,7 +102,14 @@ if VISUAL:
                 # print(f"Control {i} point in _goal_points: ", g)
             else:
                 make_draw_circle(g, 5, (0, 0, 255))(surf)
-    show_sim(sim, clb=debug_draw)
+
+        for q in qrand:
+            make_draw_circle(q, 5, (0, 255, 0))(surf)
+    # show_sim(sim, clb=debug_draw)
+    dbg =DebugViewer(sim,realtime=False)
+    dbg.draw_clb = debug_draw
+
+
 
 planner = FetchAblePlanner(sim,control_fnc,
                            max_step_cnt=cfg.MAX_STEPS,

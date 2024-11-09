@@ -29,7 +29,7 @@ class Point:
 def make_reached_condition_standard(movable_idx,dist_fnc, control_idxs,threshold,main_pts_num,all_pts_num):
     threshold = threshold
     control_idxs_len = len(control_idxs)
-    indxs = get_main_idxs(all_pts_num, main_pts_num)
+    # indxs = get_main_idxs(all_pts_num, main_pts_num)
 
     def reached_condition(sim: Simulator, start, goal, guider_data, cur_iter_cnt):
         guided_obj = sim.movable_objects[movable_idx]
@@ -38,8 +38,8 @@ def make_reached_condition_standard(movable_idx,dist_fnc, control_idxs,threshold
             return False
         for i in range(len(control_idxs)):
             guided_obj.bodies[control_idxs[i]].apply_force_middle(forces[i])
-        d1 = dist_fnc(guided_obj.position[indxs],
-                            goal.main_points)
+        d1 = 1/control_idxs_len * dist_fnc(guided_obj.position[control_idxs],
+                            goal.controlled_points)
         return d1 < threshold
 
     return reached_condition
@@ -52,6 +52,7 @@ def make_guider_standard(movable_idx,control_idxs,max_force):
         control_pts = all_pts[control_idxs]
         dists = goal.controlled_points - control_pts
         forces = dists * max_force * len(all_pts) / len(control_pts)
+        forces = np.clip(forces,-200*max_force* len(all_pts) / len(control_pts),200*max_force* len(all_pts) / len(control_pts))
         guider_data["forces"] = forces
         for i,idx in enumerate(control_idxs):
             guided_obj.bodies[idx].apply_force_middle(forces[i])
