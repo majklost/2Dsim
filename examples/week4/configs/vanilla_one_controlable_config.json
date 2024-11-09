@@ -1,0 +1,21 @@
+{
+    "GUIDER_PERIOD": 10,
+    "SEGMENT_NUM": 50,
+    "MAX_FORCE_PER_SEGMENT": 0.1,
+    "ITERATIONS": 25000,
+    "REACHED_THRESHOLD": 30,
+    "CONTROL_IDXS": [
+        0
+    ],
+    "SAMPLING_PERIOD": 50,
+    "MAX_STEPS": 5000,
+    "ONLY_SIMULS": true,
+    "MAIN_PTS_NUM": 4,
+    "THREADED_SIM": false,
+    "UNSTABLE_SIM": true,
+    "USE_MAX_CREASED": false,
+    "USE_SUBSAMPLER": false,
+    "USE_GOAL_BIAS": false,
+    "USE_TRRT": false,
+    "seed_env": 10
+}

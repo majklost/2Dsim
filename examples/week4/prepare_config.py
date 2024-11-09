@@ -1,4 +1,12 @@
+<<<<<<< Updated upstream
 from deform_plan.helpers.config_manager import ConfigManager,SUBSAMPLER,GOAL_BIAS, TRRT
+=======
+import pathlib
+
+from deform_plan.helpers.config_manager import ConfigManager, SUBSAMPLER, GOAL_BIAS, TRRT
+
+conf_dir = pathlib.Path(__file__).parent / "configs"
+>>>>>>> Stashed changes
 
 
 seg_num = 50
@@ -44,14 +52,57 @@ def prepare_subsampler(fpath):
     cm.update(SUBSAMPLER)
     cm.save_to_file(fpath)
 
+
 def prepare_trrt(fpath):
     cm = ConfigManager(conf)
     cm.update(TRRT)
     cm.save_to_file(fpath)
 
-if __name__ == "__main__":
-    prepare_vanilla("vanilla_config.json")
-    prepare_goal_bias("goal_bias_config.json")
-    prepare_subsampler("subsampler_config.json")
-    prepare_trrt("trrt_config.json")
 
+def prepare_vanilla_two_controlable(fpath):
+    cm = ConfigManager(conf)
+    cm.update({
+        'CONTROL_IDXS': [0, seg_num-1],
+    })
+    cm.save_to_file(fpath)
+
+
+def prepare_vanilla_one_controlable(fpath):
+    cm = ConfigManager(conf)
+    cm.update({
+        'CONTROL_IDXS': [0],
+    })
+    cm.save_to_file(fpath)
+
+
+def prepare_subsampler_one_controlable(fpath):
+    cm = ConfigManager(conf)
+    cm.update(SUBSAMPLER)
+    cm.update({
+        'CONTROL_IDXS': [0],
+    })
+    cm.save_to_file(fpath)
+
+
+def prepare_subsampler_two_controlable(fpath):
+    cm = ConfigManager(conf)
+    cm.update(SUBSAMPLER)
+    cm.update({
+        'CONTROL_IDXS': [0, seg_num-1],
+    })
+    cm.save_to_file(fpath)
+
+
+if __name__ == "__main__":
+    prepare_vanilla(pathlib.Path(conf_dir) / "vanilla_config.json")
+    prepare_goal_bias(pathlib.Path(conf_dir) / "goal_bias_config.json")
+    prepare_subsampler(pathlib.Path(conf_dir) / "subsampler_config.json")
+    prepare_trrt(pathlib.Path(conf_dir) / "trrt_config.json")
+    prepare_vanilla_two_controlable(pathlib.Path(
+        conf_dir) / "vanilla_two_controlable_config.json")
+    prepare_vanilla_one_controlable(pathlib.Path(
+        conf_dir) / "vanilla_one_controlable_config.json")
+    prepare_subsampler_one_controlable(pathlib.Path(
+        conf_dir) / "subsampler_one_controlable_config.json")
+    prepare_subsampler_two_controlable(pathlib.Path(
+        conf_dir) / "subsampler_two_controlable_config.json")
