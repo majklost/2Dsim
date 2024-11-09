@@ -16,3 +16,6 @@ old_examples/
 analytics.txt
 *.rpath
 *.analytics
+output/
+cur_run.sh
+*_config.json
