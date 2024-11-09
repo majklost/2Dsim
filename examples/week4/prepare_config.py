@@ -11,7 +11,7 @@ conf = {
     'GUIDER_PERIOD': 10,
     'SEGMENT_NUM': seg_num,
     'MAX_FORCE_PER_SEGMENT': .1,
-    'ITERATIONS': 25000,
+    'ITERATIONS': 15000,
     'REACHED_THRESHOLD': 30,
     'CONTROL_IDXS': [i for i in range(seg_num)],
     'SAMPLING_PERIOD': 50,
@@ -28,12 +28,12 @@ conf = {
 }
 
 
-# prepare config to file
+#prepare config to file
 def prepare_vanilla(fpath):
+
 
     cm = ConfigManager(conf)
     cm.save_to_file(fpath)
-
 
 def prepare_goal_bias(fpath):
     cm = ConfigManager(conf)
@@ -43,7 +43,6 @@ def prepare_goal_bias(fpath):
         "GOAL_BIAS": 0.05,
     })
     cm.save_to_file(fpath)
-
 
 def prepare_subsampler(fpath):
     cm = ConfigManager(conf)
