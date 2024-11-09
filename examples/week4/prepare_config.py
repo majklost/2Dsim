@@ -59,6 +59,7 @@ def prepare_trrt(fpath):
 def prepare_vanilla_two_controlable(fpath):
     cm = ConfigManager(conf)
     cm.update({
+
         'CONTROL_IDXS': [0, seg_num-1],
     })
     cm.save_to_file(fpath)
@@ -67,6 +68,7 @@ def prepare_vanilla_two_controlable(fpath):
 def prepare_vanilla_one_controlable(fpath):
     cm = ConfigManager(conf)
     cm.update({
+
         'CONTROL_IDXS': [0],
     })
     cm.save_to_file(fpath)
@@ -76,6 +78,7 @@ def prepare_subsampler_one_controlable(fpath):
     cm = ConfigManager(conf)
     cm.update(SUBSAMPLER)
     cm.update({
+
         'CONTROL_IDXS': [0],
     })
     cm.save_to_file(fpath)
@@ -86,6 +89,22 @@ def prepare_subsampler_two_controlable(fpath):
     cm.update(SUBSAMPLER)
     cm.update({
         'CONTROL_IDXS': [0, seg_num-1],
+    })
+    cm.save_to_file(fpath)
+
+def prepare_vanilla_three_controlable(fpath):
+    cm = ConfigManager(conf)
+    cm.update({
+
+        'CONTROL_IDXS': [0,  seg_num//2,seg_num-1],
+    })
+    cm.save_to_file(fpath)
+
+def prepare_subsampler_three_controlable(fpath):
+    cm = ConfigManager(conf)
+    cm.update(SUBSAMPLER)
+    cm.update({
+        'CONTROL_IDXS': [0,  seg_num//2,seg_num-1],
     })
     cm.save_to_file(fpath)
 

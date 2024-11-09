@@ -190,7 +190,7 @@ class ThickStones(EmptyWorld):
 
     def _add_stones(self):
         stones = RandomObstacleGroup(
-            np.array([EMPTY+120, 200]), WIDTH//6, HEIGHT//3.5, 3, 3, radius=160)
+            np.array([EMPTY+120, 200]), WIDTH//6, HEIGHT//3.5, 3, 3, radius=200)
         stones.color = (100, 100, 100)
         self.fixed.append(stones)
 
